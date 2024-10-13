@@ -1,52 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { GameContext } from '../contexts/GameContext'
+import { Stage } from './Stage'
 
 const speed = 50
 const gridScale = 64
-
-type Identifier = {
-	id: string
-}
-
-type UpgradeNode = Identifier & {
-	active: boolean
-	x: number
-	y: number
-	icon: string
-}
-
-type Connection = Identifier & {
-	fromUpgradeNode: string
-	toUpgradeNode: string
-}
-
-type UpgradeNodeProps = UpgradeNode
-
-const UpgradeNode = (props: UpgradeNodeProps) => {
-	return (
-		<div
-			className="absolute flex items-center justify-center"
-			style={{
-				left: `${props.x * gridScale}px`,
-				top: `${props.y * gridScale}px`,
-				width: `${gridScale}px`,
-				height: `${gridScale}px`,
-			}}
-		>
-			<div
-				className={`border-2 border-red-400 flex text-center items-center justify-center ${
-					props.active ? 'bg-red-400' : ''
-				}`}
-				style={{
-					width: `${gridScale / 2}px`,
-					height: `${gridScale / 2}px`,
-				}}
-			>
-				{props.icon}
-			</div>
-		</div>
-	)
-}
 
 export const Game = () => {
 	const lastUpdateTimeRef = useRef(0)
@@ -83,32 +40,12 @@ export const Game = () => {
 		}
 	}, [isRunning, update])
 
-	const upgradeNodes: UpgradeNode[] = [
-		{
-			active: false,
-			icon: 'A',
-			id: crypto.randomUUID(),
-			x: 1,
-			y: 1,
-		},
-		{
-			active: false,
-			icon: 'B',
-			id: crypto.randomUUID(),
-			x: 1,
-			y: 2,
-		},
-	]
-
 	return (
 		<>
 			<GameContext.Provider
 				value={{ tick, isRunning, setIsRunning, gridScale }}
 			>
-				{tick}
-				{upgradeNodes.map((upgradeNode) => (
-					<UpgradeNode key={upgradeNode.id} {...upgradeNode} />
-				))}
+				<Stage />
 			</GameContext.Provider>
 		</>
 	)
