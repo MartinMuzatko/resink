@@ -1,29 +1,32 @@
 import { Tooltip } from '@mantine/core'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useCallback } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import { Connection } from '../domain/connection'
-import { Upgrade } from '../domain/upgrade'
-import {
-	UpgradeEffect,
-	UpgradeType,
-	findParent,
-	findChildren,
-} from '../domain/upgrade'
+import { toggleActivation, Upgrade } from '../domain/upgrade'
+import { UpgradeType } from '../domain/upgrade'
+import { Stats } from '../domain/stats'
 
 type UpgradeNodeProps = {
 	upgrade: Upgrade
+	upgrades: Upgrade[]
 	connections: Connection[]
 	setUpgrades: Dispatch<SetStateAction<Upgrade[]>>
-	stats: UpgradeEffect
+	stats: Stats
 }
 
 export const UpgradeNode = ({
 	stats,
 	upgrade,
+	upgrades,
 	setUpgrades,
 	connections,
 }: UpgradeNodeProps) => {
 	const { gridScale } = useGameContext()
+	const toggleUpgrade = useCallback(() => {
+		setUpgrades((upgrades) =>
+			toggleActivation(upgrade, upgrades, connections, stats)
+		)
+	}, [upgrade, stats])
 	return (
 		<div
 			className="absolute flex items-center justify-center"
@@ -38,7 +41,7 @@ export const UpgradeNode = ({
 				{...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
 				label={
 					<div>
-						{upgrade.tooltip(stats)}
+						{upgrade.tooltip(stats, upgrade, upgrades)}
 						{upgrade.cost != 0 && <div>{upgrade.cost} ©</div>}
 					</div>
 				}
@@ -51,34 +54,9 @@ export const UpgradeNode = ({
 				}}
 			>
 				<div
-					onClick={() => {
-						setUpgrades((upgrades) => {
-							const parentUpgrade = findParent(
-								upgrade,
-								upgrades,
-								connections
-							)
-							const childrenUpgrades = findChildren(
-								upgrade,
-								upgrades,
-								connections
-							)
-							console.log(parentUpgrade)
-							const canActivate =
-								parentUpgrade?.active &&
-								stats.usedPower + upgrade.cost <= stats.maxPower
-							const upgradeIndex = upgrades.findIndex(
-								(node) => node.id == upgrade.id
-							)
-							return upgrades.toSpliced(upgradeIndex, 1, {
-								...upgrade,
-								active: canActivate
-									? !upgrade.active
-									: upgrade.active,
-							})
-						})
-					}}
-					className={`border-2 cursor-pointer flex text-center items-center justify-center ${
+					onClick={toggleUpgrade}
+					// onMouseEnter={}
+					className={`border-2 cursor-pointer flex text-center items-center justify-center hover:border-red-400 ${
 						upgrade.active
 							? 'bg-red-400 border-red-400'
 							: 'bg-gray-800 border-red-900'

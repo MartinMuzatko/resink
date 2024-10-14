@@ -1,0 +1,9 @@
+Basic Prototype:
+	Enemies attack
+	Fight Enemies with default weapon
+	Buy Upgrades
+	Delay Upgrades (Need load time to reach upgrade and fill upgrade)
+
+Nice to Have:
+highlight all parents on hover (solid and red for buyable upgrades, dashed for unaffordable)
+highlight if affordable

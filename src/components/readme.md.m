@@ -4,31 +4,46 @@ Power is constant - e.g. it produces 10 - you can spend it
 
 Upgrades:
 
+Conversion
+Every enemy drops 1 red
+100 red = 1 blue
+100 blue = 1 green
+
+Categories for Layout:
+
+Up: Attack
+Down: Defense
+Right: Logistics
+Left: Utility
+
 Power generation
 
 Upgrade Areas:
 Pipes
-	Health
-	Corrossive Pipes (enemies take damage when attacking pipes)
-		Speed
-		Damage
-		Poison
 	Throughput (all or just this branch)
 	Tier
 Engine
-	Range
-	Health?
+	Range (Visibilty)
 	Power Generation
 	Tier
 Upgrade Nodes
-	Health
+	Corrossive Upgrades (enemies take damage when attacking upgrades)
+		Speed
+		Damage
+		Poison
+	MaxHealth
+	Health Recovery
+	Armor
 	Shoot bullets
 		Speed
 		Size
 		Damage
+		Amount
+		Piercing
 	Cost (reduce)
 Sites
-	Battery (allows to store energy)
+	Battery (allows to store more energy)
+	Conversion
 	Increase battery size
 	Allow more Throughput
 
@@ -42,4 +57,3 @@ Attackers
 Harvester
 	Automatically collects enemy rewards
 
-Place more upgrades close to engine
