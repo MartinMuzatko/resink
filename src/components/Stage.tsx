@@ -1,7 +1,7 @@
 import { memo, useMemo, useState } from 'react'
-import { type Connection } from '../domain/connection'
+import { connection, type Connection } from '../domain/connection'
 import { Upgrade, UpgradeType } from '../domain/upgrade'
-import { getStatsFromActiveUpgrades } from '../domain/stats'
+import { getCost, getStatsFromActiveUpgrades } from '../domain/stats'
 import { ConnectionLine } from './ConnectionLine'
 import { UpgradeNode } from './UpgradeNode'
 
@@ -15,7 +15,7 @@ export const Stage = memo(() => {
 			cost: 10,
 			effect: (stats, upgrade, upgrades) => ({
 				...stats,
-				usedPower: stats.usedPower + upgrade.cost,
+				usedPower: getCost(stats, upgrade),
 				power:
 					stats.power + upgrades.filter((u) => u.active).length * 2,
 			}),
@@ -30,9 +30,9 @@ export const Stage = memo(() => {
 			type: UpgradeType.upgrade,
 			tooltip: (stats) => '+30 Power',
 			cost: 15,
-			effect: (stats) => ({
+			effect: (stats, upgrade) => ({
 				...stats,
-				usedPower: stats.usedPower + 15,
+				usedPower: getCost(stats, upgrade),
 				power: stats.power + 30,
 			}),
 			icon: 'B1',
@@ -45,9 +45,9 @@ export const Stage = memo(() => {
 			type: UpgradeType.upgrade,
 			tooltip: (stats) => '+10 Power',
 			cost: 2,
-			effect: (stats) => ({
+			effect: (stats, upgrade) => ({
 				...stats,
-				usedPower: stats.usedPower + 2,
+				usedPower: getCost(stats, upgrade),
 				power: stats.power + 10,
 			}),
 			icon: 'C',
@@ -58,12 +58,14 @@ export const Stage = memo(() => {
 			active: false,
 			id: 'B2',
 			type: UpgradeType.upgrade,
-			tooltip: (stats) => '+ 5 Power',
-			cost: 25,
-			effect: (stats) => ({
+			tooltip: (stats) => '20% cost reduction',
+			cost: 20,
+			effect: (stats, upgrade) => ({
 				...stats,
-				usedPower: stats.usedPower + 25,
+				usedPower: getCost(stats, upgrade),
 				power: stats.power + 5,
+				upgradeCostMultiplier: stats.upgradeCostMultiplier * 0.8,
+				// powerMultiplier: stats.powerMultiplier * 0.8,
 			}),
 			icon: 'B2',
 			x: 3,
@@ -75,9 +77,9 @@ export const Stage = memo(() => {
 			type: UpgradeType.upgrade,
 			tooltip: (stats) => '+ 5 Power',
 			cost: 2,
-			effect: (stats) => ({
+			effect: (stats, upgrade) => ({
 				...stats,
-				usedPower: stats.usedPower + 2,
+				usedPower: getCost(stats, upgrade),
 				power: stats.power + 5,
 			}),
 			icon: 'B3',
@@ -92,7 +94,7 @@ export const Stage = memo(() => {
 			cost: 8,
 			effect: (stats, upgrade) => ({
 				...stats,
-				usedPower: stats.usedPower + upgrade.cost,
+				usedPower: getCost(stats, upgrade),
 			}),
 			icon: 'A2',
 			x: 2,
@@ -120,36 +122,12 @@ export const Stage = memo(() => {
 	)
 
 	const connections: Connection[] = [
-		{
-			id: crypto.randomUUID(),
-			fromUpgradeId: 'M',
-			toUpgradeId: 'C',
-		},
-		{
-			id: crypto.randomUUID(),
-			fromUpgradeId: 'C',
-			toUpgradeId: 'B1',
-		},
-		{
-			id: crypto.randomUUID(),
-			fromUpgradeId: 'C',
-			toUpgradeId: 'B2',
-		},
-		{
-			id: crypto.randomUUID(),
-			fromUpgradeId: 'B2',
-			toUpgradeId: 'A2',
-		},
-		{
-			id: crypto.randomUUID(),
-			fromUpgradeId: 'B1',
-			toUpgradeId: 'A',
-		},
-		{
-			id: crypto.randomUUID(),
-			fromUpgradeId: 'B2',
-			toUpgradeId: 'B3',
-		},
+		connection('M', 'C'),
+		connection('C', 'B1'),
+		connection('C', 'B2'),
+		connection('B2', 'A2'),
+		connection('B1', 'A'),
+		connection('B2', 'B3'),
 	]
 
 	return (

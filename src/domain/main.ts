@@ -25,7 +25,16 @@ export const createArea = (a: Position, b: Position): Area => ({
 	height: Math.abs(a.y - b.y),
 })
 
-export const equal = (a: Position, b: Position) => a.x == b.x && a.y == b.y
+export const equalPosition = (a: Position, b: Position) =>
+	a.x == b.x && a.y == b.y
 
 export const isACloserToTopLeftThanB = (a: Position, b: Position) =>
-	equal(closerToTopLeft(a, b), a)
+	equalPosition(closerToTopLeft(a, b), a)
+
+export const lerp = (start: number, end: number, t: number) =>
+	start * (1 - t) + end * t
+
+export const lerpPosition = (start: Position, end: Position, t: number) => ({
+	x: lerp(start.x, end.x, t),
+	y: lerp(start.y, end.y, t),
+})

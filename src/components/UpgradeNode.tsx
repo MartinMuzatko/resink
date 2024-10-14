@@ -4,7 +4,7 @@ import { useGameContext } from '../contexts/GameContext'
 import { Connection } from '../domain/connection'
 import { toggleActivation, Upgrade } from '../domain/upgrade'
 import { UpgradeType } from '../domain/upgrade'
-import { Stats } from '../domain/stats'
+import { getCost, getStatsFromActiveUpgrades, Stats } from '../domain/stats'
 
 type UpgradeNodeProps = {
 	upgrade: Upgrade
@@ -42,7 +42,15 @@ export const UpgradeNode = ({
 				label={
 					<div>
 						{upgrade.tooltip(stats, upgrade, upgrades)}
-						{upgrade.cost != 0 && <div>{upgrade.cost} ©</div>}
+						{upgrade.cost != 0 && (
+							<div>
+								{getCost(
+									getStatsFromActiveUpgrades(upgrades),
+									upgrade
+								)}{' '}
+								©
+							</div>
+						)}
 					</div>
 				}
 				position="right-start"

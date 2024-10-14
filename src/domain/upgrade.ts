@@ -1,16 +1,11 @@
 import { ReactNode } from 'react'
 import { Identifier, Position } from './main'
 import { Connection } from './connection'
-import { getStatsFromActiveUpgrades, hasNotEnoughPower } from './stats'
+import { Stats } from './stats'
 
 export enum UpgradeType {
 	motor,
 	upgrade,
-}
-
-export type Stats = {
-	power: number
-	usedPower: number
 }
 
 export type Upgrade = Identifier &

@@ -12,8 +12,8 @@ Every enemy drops 1 red
 Categories for Layout:
 
 Up: Attack
-Down: Defense
 Right: Logistics
+Down: Defense
 Left: Utility
 
 Power generation
