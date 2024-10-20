@@ -1,4 +1,12 @@
-import { memo, useEffect, useImperativeHandle, useMemo, useState } from 'react'
+import {
+	Dispatch,
+	memo,
+	SetStateAction,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useState,
+} from 'react'
 import { connection, type Connection } from '../domain/connection'
 import { createUpgrade, Upgrade, UpgradeType } from '../domain/upgrade'
 import { getCost, getStatsFromActiveUpgrades } from '../domain/stats'
@@ -16,6 +24,8 @@ import {
 
 export const Stage = memo(() => {
 	const [redPoints, setRedPoints] = useState(0)
+	const { tick } = useGameContext()
+	const [enemies, setEnemies] = useState<Enemy[]>([])
 	const [upgrades, setUpgrades] = useState<Upgrade[]>([
 		createUpgrade({
 			active: true,
@@ -143,6 +153,8 @@ export const Stage = memo(() => {
 		[]
 	)
 
+	useEffect(() => {}, [tick])
+
 	return (
 		<div className="w-full h-full">
 			<div className="absolute left-0 top-0">
@@ -153,7 +165,7 @@ export const Stage = memo(() => {
 			<div
 				className="w-full h-full absolute left-0 top-0"
 				style={{
-					transform: `translate(50%, 50%)`,
+					transform: 'translate(50%, 50%)',
 				}}
 			>
 				{connections.map((connection) => (
@@ -175,20 +187,28 @@ export const Stage = memo(() => {
 					/>
 				))}
 			</div>
-			<Enemies upgrades={upgrades} />
+			<Enemies
+				{...{
+					upgrades,
+					enemies,
+					setEnemies,
+				}}
+			/>
 		</div>
 	)
 })
 
 type EnemiesProps = {
 	upgrades: Upgrade[]
+	enemies: Enemy[]
+	setEnemies: Dispatch<SetStateAction<Enemy[]>>
 }
 
 const randomRange = (min: number, max: number) =>
 	Math.random() * (max - min) + min
 const randomRangeInteger = (min: number, max: number) =>
 	Math.round(randomRange(min, max))
-const randomArrayItem = <T extends {}>(array: T[]) =>
+const randomArrayItem = <T,>(array: T[]) =>
 	array[randomRangeInteger(0, array.length - 1)]
 
 const findTarget = (upgrades: Upgrade[]) => {
@@ -206,13 +226,12 @@ type Enemy = Identifier &
 		speed: number
 	}
 
-const Enemies = (props: EnemiesProps) => {
+const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 	const { gridScale, deltaTime, tick } = useGameContext()
-	const [enemies, setEnemies] = useState<Enemy[]>([])
 
 	useEffect(() => {
 		setEnemies((enemies) => {
-			const activeUpgrades = props.upgrades.filter(
+			const activeUpgrades = upgrades.filter(
 				(upgrade) =>
 					upgrade.active && upgrade.type == UpgradeType.upgrade
 			)
@@ -222,25 +241,25 @@ const Enemies = (props: EnemiesProps) => {
 						id: crypto.randomUUID(),
 						x: -6,
 						y: randomRange(-6, 6),
-						target: findTarget(props.upgrades).id,
+						target: findTarget(upgrades).id,
 						speed: 0.006,
 					},
 					{
 						id: crypto.randomUUID(),
 						x: randomRange(-6, 6),
 						y: -6,
-						target: findTarget(props.upgrades).id,
+						target: findTarget(upgrades).id,
 						speed: 0.006,
 					},
 				]
 			// return enemies
 			return enemies.map((enemy) => {
-				const currentTarget = props.upgrades.find(
+				const currentTarget = upgrades.find(
 					(u) => u.id == enemy.target
 				)!
 				const target = currentTarget.active
 					? currentTarget
-					: findTarget(props.upgrades)
+					: findTarget(upgrades)
 				const distance = getDistance(enemy, target)
 				const p = lerpPosition(
 					enemy,
@@ -263,7 +282,7 @@ const Enemies = (props: EnemiesProps) => {
 		<div
 			className="w-full h-full absolute top-0 left-0 pointer-events-none"
 			style={{
-				transform: `translate(50%, 50%)`,
+				transform: 'translate(50%, 50%)',
 			}}
 		>
 			{enemies.map((enemy) => (
@@ -271,7 +290,7 @@ const Enemies = (props: EnemiesProps) => {
 					className="absolute bg-green-400"
 					key={enemy.id}
 					style={{
-						transform: `translate(-50%, -50%)`,
+						transform: 'translate(-50%, -50%)',
 						width: `${gridScale / 4}px`,
 						height: `${gridScale / 4}px`,
 						left: `${enemy.x * gridScale + gridScale / 2}px`,
