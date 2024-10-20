@@ -38,7 +38,7 @@ export const UpgradeNode = ({
 			}}
 		>
 			<Tooltip
-				{...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
+				// {...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
 				label={
 					<div>
 						{upgrade.tooltip(stats, upgrade, upgrades)}

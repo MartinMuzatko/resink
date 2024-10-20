@@ -34,7 +34,18 @@ export const isACloserToTopLeftThanB = (a: Position, b: Position) =>
 export const lerp = (start: number, end: number, t: number) =>
 	start * (1 - t) + end * t
 
-export const lerpPosition = (start: Position, end: Position, t: number) => ({
-	x: lerp(start.x, end.x, t),
-	y: lerp(start.y, end.y, t),
-})
+export const lerpPosition = (start: Position, end: Position, t: number) =>
+	getDistance(start, end) < 0.05
+		? end
+		: {
+				x: lerp(start.x, end.x, t),
+				y: lerp(start.y, end.y, t),
+		  }
+
+export const getDistance = (a: Point, b: Point) =>
+	Math.hypot(a.x - b.x, a.y - b.y)
+
+export const clamp = (min: number, max: number) => (n: number) =>
+	Math.min(Math.max(n, min), max)
+
+// 1 / ((distance / (experience.speed * delta)))

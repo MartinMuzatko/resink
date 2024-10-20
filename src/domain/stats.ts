@@ -1,19 +1,26 @@
 import { Upgrade } from './upgrade'
 
 export type Stats = {
+	// Util
 	power: number
 	usedPower: number
-	upgradeHealth: number
 	powerMultiplier: number
 	upgradeCostMultiplier: number
+	// Attack
+	damage: number
+	// Defense
+	health: number
+	armor: number
 }
 
 const DEFAULT_STATS: Stats = {
 	power: 0,
 	usedPower: 0,
-	upgradeHealth: 0,
+	health: 1,
 	powerMultiplier: 1,
 	upgradeCostMultiplier: 1,
+	armor: 0,
+	damage: 1,
 }
 
 // TODO is there an order?
@@ -27,10 +34,8 @@ export const getStatsFromActiveUpgrades = (upgrades: Upgrade[]): Stats => {
 
 	return {
 		...stats,
-		power: stats.power * stats.powerMultiplier,
-		usedPower: stats.usedPower * stats.upgradeCostMultiplier,
-
-		// usedPower: stats.
+		// power: stats.power * stats.powerMultiplier,
+		// usedPower: stats.usedPower * stats.upgradeCostMultiplier,
 	}
 }
 

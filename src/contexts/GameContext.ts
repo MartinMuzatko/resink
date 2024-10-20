@@ -5,13 +5,15 @@ type GameContextType = {
 	gridScale: number
 	isRunning: boolean
 	setIsRunning: Dispatch<SetStateAction<boolean>>
+	deltaTime: number
 }
 
 export const GameContext = createContext<GameContextType>({
+	deltaTime: 0,
 	tick: 0,
 	gridScale: 16,
 	isRunning: false,
-	setIsRunning: () => { }
+	setIsRunning: () => {},
 })
 
 export const useGameContext = () => useContext(GameContext)

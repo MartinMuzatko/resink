@@ -20,7 +20,22 @@ export type Upgrade = Identifier &
 		) => ReactNode
 		cost: number
 		effect: (stats: Stats, upgrade: Upgrade, upgrades: Upgrade[]) => Stats
+		health: number
 	}
+
+export const createUpgrade = (upgrade: Partial<Upgrade>): Upgrade => ({
+	id: crypto.randomUUID(),
+	type: UpgradeType.upgrade,
+	x: 0,
+	y: 0,
+	active: false,
+	cost: 0,
+	effect: (stats) => stats,
+	tooltip: (stats) => '',
+	icon: 'M',
+	health: 1,
+	...upgrade,
+})
 
 export const findDirectChildren = (
 	upgrade: Upgrade,
