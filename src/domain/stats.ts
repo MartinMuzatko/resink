@@ -1,5 +1,6 @@
 import { Upgrade } from './upgrade'
 
+// TODO: global stats and per upgrade node stats
 export type Stats = {
 	// Util
 	power: number

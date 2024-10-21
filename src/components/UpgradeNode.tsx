@@ -2,7 +2,7 @@ import { Tooltip } from '@mantine/core'
 import { Dispatch, SetStateAction, useCallback } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import { Connection } from '../domain/connection'
-import { toggleActivation, Upgrade } from '../domain/upgrade'
+import { getHealth, toggleActivation, Upgrade } from '../domain/upgrade'
 import { UpgradeType } from '../domain/upgrade'
 import { getCost, getStatsFromActiveUpgrades, Stats } from '../domain/stats'
 
@@ -51,6 +51,9 @@ export const UpgradeNode = ({
 								©
 							</div>
 						)}
+						<div>
+							Health: {getHealth(upgrade, stats)} / {stats.health}
+						</div>
 					</div>
 				}
 				position="right-start"
@@ -64,7 +67,7 @@ export const UpgradeNode = ({
 				<div
 					onClick={toggleUpgrade}
 					// onMouseEnter={}
-					className={`border-2 cursor-pointer flex text-center items-center justify-center hover:border-red-400 ${
+					className={`relative border-2 cursor-pointer flex text-center items-center justify-center hover:border-red-400 ${
 						upgrade.active
 							? 'bg-red-400 border-red-400'
 							: 'bg-gray-800 border-red-900'
@@ -75,6 +78,26 @@ export const UpgradeNode = ({
 					}}
 				>
 					{upgrade.icon}
+					{upgrade.active && (
+						<div
+							className="absolute top-full w-full bg-green-800 z-20"
+							style={{
+								height: gridScale / 16,
+							}}
+						>
+							<div
+								className="absolute top-0 bg-green-400 z-20"
+								style={{
+									height: gridScale / 16,
+									width: `${
+										(getHealth(upgrade, stats) /
+											stats.health) *
+										100
+									}%`,
+								}}
+							></div>
+						</div>
+					)}
 				</div>
 			</Tooltip>
 		</div>

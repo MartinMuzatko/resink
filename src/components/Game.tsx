@@ -50,6 +50,7 @@ export const Game = () => {
 					isRunning,
 					setIsRunning,
 					gridScale,
+					timePassed: timePassed.current,
 					deltaTime: deltaTime.current ?? 0,
 				}}
 			>

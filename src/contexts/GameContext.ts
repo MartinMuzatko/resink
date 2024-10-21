@@ -6,6 +6,7 @@ type GameContextType = {
 	isRunning: boolean
 	setIsRunning: Dispatch<SetStateAction<boolean>>
 	deltaTime: number
+	timePassed: number
 }
 
 export const GameContext = createContext<GameContextType>({
@@ -13,6 +14,7 @@ export const GameContext = createContext<GameContextType>({
 	tick: 0,
 	gridScale: 16,
 	isRunning: false,
+	timePassed: 0,
 	setIsRunning: () => {},
 })
 

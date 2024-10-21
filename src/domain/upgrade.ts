@@ -21,6 +21,7 @@ export type Upgrade = Identifier &
 		cost: number
 		effect: (stats: Stats, upgrade: Upgrade, upgrades: Upgrade[]) => Stats
 		health: number
+		lastTimeDamageTaken: number
 	}
 
 export const createUpgrade = (upgrade: Partial<Upgrade>): Upgrade => ({
@@ -33,7 +34,8 @@ export const createUpgrade = (upgrade: Partial<Upgrade>): Upgrade => ({
 	effect: (stats) => stats,
 	tooltip: (stats) => '',
 	icon: 'M',
-	health: 1,
+	health: 10,
+	lastTimeDamageTaken: 0,
 	...upgrade,
 })
 
@@ -116,6 +118,9 @@ export const toggleActivation = (
 		return upgrades.toSpliced(upgradeIndex, 1, {
 			...upgrade,
 			active: canActivate ? !upgrade.active : upgrade.active,
+			health: canActivate
+				? upgrade.effect(stats, upgrade, upgrades).health
+				: upgrade.health,
 		})
 	// const someChildrenUpgradesActive = childrenUpgrades.some(
 	// 	(upgrade) => upgrade.active
@@ -133,3 +138,6 @@ export const toggleActivation = (
 	// This could kill the fun in the game since unexpectedly things get destroyed.
 	// Instead the player has to make room for resources or shift strategy - more fun
 }
+
+export const getHealth = (upgrade: Upgrade, stats: Stats) =>
+	Math.min(upgrade.health, stats.health)
