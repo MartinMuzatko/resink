@@ -87,7 +87,7 @@ export const lerpPosition = (start: Position, end: Position, t: number) =>
 				y: lerp(start.y, end.y, t),
 		  }
 
-export const getDistance = (a: Point, b: Point) =>
+export const getDistance = (a: Position, b: Position) =>
 	Math.hypot(a.x - b.x, a.y - b.y)
 
 export const clamp = (min: number, max: number) => (n: number) =>

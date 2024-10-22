@@ -1,11 +1,15 @@
-import { Dispatch, SetStateAction, useEffect } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import {
 	generateRandomPositionOnEdge,
 	getDistance,
 	lerpPosition,
 } from '../domain/main'
-import { Upgrade, UpgradeType } from '../domain/upgrade'
+import {
+	findFurthestUpgradePosition,
+	Upgrade,
+	UpgradeType,
+} from '../domain/upgrade'
 import { Enemy, findTarget, randomRange } from '../domain/enemy'
 import { HealthBar } from './HealthBar'
 
@@ -17,6 +21,18 @@ type EnemiesProps = {
 
 export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 	const { gridScale, deltaTime, tick } = useGameContext()
+	const spawnArea = useMemo(() => {
+		const furthestPosition = findFurthestUpgradePosition(upgrades)
+		const x = Math.abs(furthestPosition.x)
+		const y = Math.abs(furthestPosition.y)
+		const size = Math.max(x, y)
+		return {
+			x: size * -1,
+			y: size * -1,
+			width: size * 2,
+			height: size * 2,
+		}
+	}, [upgrades])
 
 	useEffect(() => {
 		setEnemies((enemies) => {
@@ -27,19 +43,16 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			if (activeUpgrades.length && enemies.length < 2)
 				return [
 					...enemies,
-					...[...Array(Math.min(enemies.length + 2, 2))].map(() => ({
-						id: crypto.randomUUID(),
-						// TODO: generate area based on outmost active node
-						...generateRandomPositionOnEdge({
-							x: -8,
-							y: -8,
-							width: 16,
-							height: 16,
-						}),
-						target: findTarget(upgrades).id,
-						speed: 0.002,
-						health: 2,
-					})),
+					...[...Array(Math.min(enemies.length + 10, 10))].map(
+						() => ({
+							id: crypto.randomUUID(),
+							// TODO: generate area based on outmost active node
+							...generateRandomPositionOnEdge(spawnArea),
+							target: findTarget(upgrades).id,
+							speed: 0.003,
+							health: 2,
+						})
+					),
 				]
 			// return enemies
 			return enemies.map((enemy) => {

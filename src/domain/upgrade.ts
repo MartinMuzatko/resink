@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Identifier, Position } from './main'
+import { getDistance, Identifier, Position } from './main'
 import { Connection } from './connection'
 import { Stats } from './stats'
 
@@ -51,6 +51,18 @@ export const findDirectChildren = (
 				connection.toUpgradeId == node.id
 		)
 	)
+const ORIGIN_POSITION = { x: 0, y: 0 }
+
+export const findFurthestUpgradePosition = (upgrades: Upgrade[]): Position => {
+	return upgrades.length === 0
+		? ORIGIN_POSITION
+		: upgrades.reduce((furthest, upgrade) => {
+				return getDistance(ORIGIN_POSITION, upgrade) >
+					getDistance(ORIGIN_POSITION, furthest)
+					? upgrade
+					: furthest
+		  })
+}
 
 export const findAllChildren = (
 	upgrade: Upgrade,
@@ -87,6 +99,17 @@ export const findSiblings = (
 	return findDirectChildren(parent, upgrades, connections)
 }
 
+export const findAllLeaves = (
+	upgrades: Upgrade[],
+	connections: Connection[]
+): Upgrade[] =>
+	upgrades.filter(
+		(upgrade) =>
+			!connections.find(
+				(connection) => connection.fromUpgradeId == upgrade.id
+			)
+	)
+
 export const findAllParents = (
 	upgrade: Upgrade,
 	upgrades: Upgrade[],
@@ -100,6 +123,22 @@ export const findAllParents = (
 	return [directParent, ...allAncestors]
 }
 
+export const deactivateSubTree = (
+	upgrade: Upgrade,
+	upgrades: Upgrade[],
+	connections: Connection[]
+) => {
+	const allChildrenIds = findAllChildren(upgrade, upgrades, connections).map(
+		(upgrade) => upgrade.id
+	)
+	return upgrades.map((u) => ({
+		...u,
+		...(allChildrenIds.includes(u.id) || u.id == upgrade.id
+			? { active: false }
+			: {}),
+	}))
+}
+
 export const toggleActivation = (
 	upgrade: Upgrade,
 	upgrades: Upgrade[],
@@ -108,7 +147,6 @@ export const toggleActivation = (
 ) => {
 	const parentUpgrade = findDirectParent(upgrade, upgrades, connections)
 	if (!parentUpgrade) return upgrades
-	// const childrenUpgrades = findDirectChildren(upgrade, upgrades, connections)
 
 	const isActivating = !upgrade.active
 	const upgradeIndex = upgrades.findIndex((node) => node.id == upgrade.id)
@@ -122,21 +160,10 @@ export const toggleActivation = (
 				? upgrade.effect(stats, upgrade, upgrades).health
 				: upgrade.health,
 		})
-	// const someChildrenUpgradesActive = childrenUpgrades.some(
-	// 	(upgrade) => upgrade.active
-	// )
-	const allChildrenIds = findAllChildren(upgrade, upgrades, connections).map(
-		(upgrade) => upgrade.id
-	)
-	return upgrades.map((u) => ({
-		...u,
-		...(allChildrenIds.includes(u.id) || u.id == upgrade.id
-			? { active: false }
-			: {}),
-	}))
+	return deactivateSubTree(upgrade, upgrades, connections)
 	// TODO: If we can no longer afford nodes, deactivate other nodes until we have money.
 	// This could kill the fun in the game since unexpectedly things get destroyed.
-	// Instead the player has to make room for resources or shift strategy - more fun
+	// Instead the player has to make room for resources or shift strategy - more fun maybe
 }
 
 export const getHealth = (upgrade: Upgrade, stats: Stats) =>

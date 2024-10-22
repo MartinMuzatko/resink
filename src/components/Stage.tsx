@@ -2,6 +2,7 @@ import { memo, useEffect, useMemo, useState } from 'react'
 import { connection, type Connection } from '../domain/connection'
 import {
 	createUpgrade,
+	findAllChildren,
 	getHealth,
 	Upgrade,
 	UpgradeType,
@@ -31,7 +32,7 @@ const INITIAL_UPGRADES = [
 				stats.power - stats.usedPower,
 				0
 			)} left)`,
-		effect: (stats) => ({ ...stats, power: stats.power + 10 }),
+		effect: (stats) => ({ ...stats, power: stats.power + 100 }),
 		icon: 'M',
 		x: 0,
 		y: 0,
@@ -121,7 +122,6 @@ const INITIAL_UPGRADES = [
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			// health: stats.health + 1,
 		}),
 		icon: 'L',
 		x: -1,
@@ -230,6 +230,7 @@ export const Stage = memo(() => {
 		if (motor.health <= 0) {
 			setUpgrades(INITIAL_UPGRADES)
 			setEnemies([])
+			setTotalEnemiesDefeated(0)
 		}
 	}, [upgrades])
 
@@ -241,8 +242,8 @@ export const Stage = memo(() => {
 			)
 			.map((upgrade) => upgrade.id)
 		if (upgradeIdsToTakeDamage.length)
-			setUpgrades((upgrades) =>
-				upgrades.map((upgrade) =>
+			setUpgrades((upgrades) => {
+				const damagedUpgrades = upgrades.map((upgrade) =>
 					upgradeIdsToTakeDamage.includes(upgrade.id) &&
 					upgrade.lastTimeDamageTaken < timePassed - 1000
 						? {
@@ -253,7 +254,31 @@ export const Stage = memo(() => {
 						  }
 						: upgrade
 				)
-			)
+
+				const allDeactivatedIds = upgradeIdsToTakeDamage
+					.map(
+						(upgradeId) => upgrades.find((u) => u.id === upgradeId)!
+					)
+					.filter((upgrade) => !upgrade.active)
+					.flatMap((upgrade) => {
+						return [
+							...findAllChildren(
+								upgrade,
+								upgrades,
+								connections
+							).map((u) => u.id),
+							upgrade.id,
+						]
+					})
+
+				// Deactivate the appropriate upgrades
+				return damagedUpgrades.map((u) => ({
+					...u,
+					...(allDeactivatedIds.includes(u.id)
+						? { active: false }
+						: {}),
+				}))
+			})
 	}, [tick])
 
 	return (

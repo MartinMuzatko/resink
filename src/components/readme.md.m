@@ -1,3 +1,6 @@
+We could add roguelite elements:
+Allow after each round to select random new upgrades, add more to default strength on every run.
+
 Upgrade Tree with a central power/resource generator.
 Power is constant - e.g. it produces 10 - you can spend it
 
