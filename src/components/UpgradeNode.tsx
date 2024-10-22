@@ -5,6 +5,7 @@ import { Connection } from '../domain/connection'
 import { getHealth, toggleActivation, Upgrade } from '../domain/upgrade'
 import { UpgradeType } from '../domain/upgrade'
 import { getCost, getStatsFromActiveUpgrades, Stats } from '../domain/stats'
+import { HealthBar } from './HealthBar'
 
 type UpgradeNodeProps = {
 	upgrade: Upgrade
@@ -43,13 +44,7 @@ export const UpgradeNode = ({
 					<div>
 						{upgrade.tooltip(stats, upgrade, upgrades)}
 						{upgrade.cost != 0 && (
-							<div>
-								{getCost(
-									getStatsFromActiveUpgrades(upgrades),
-									upgrade
-								)}{' '}
-								©
-							</div>
+							<div>{getCost(stats, upgrade)} ©</div>
 						)}
 						<div>
 							Health: {getHealth(upgrade, stats)} / {stats.health}
@@ -79,24 +74,10 @@ export const UpgradeNode = ({
 				>
 					{upgrade.icon}
 					{upgrade.active && (
-						<div
-							className="absolute top-full w-full bg-green-800 z-20"
-							style={{
-								height: gridScale / 16,
-							}}
-						>
-							<div
-								className="absolute top-0 bg-green-400 z-20"
-								style={{
-									height: gridScale / 16,
-									width: `${
-										(getHealth(upgrade, stats) /
-											stats.health) *
-										100
-									}%`,
-								}}
-							></div>
-						</div>
+						<HealthBar
+							current={getHealth(upgrade, stats)}
+							max={stats.health}
+						/>
 					)}
 				</div>
 			</Tooltip>

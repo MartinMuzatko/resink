@@ -21,4 +21,5 @@ export type Enemy = Identifier &
 	Position & {
 		target: string
 		speed: number
+		health: number
 	}

@@ -1,8 +1,13 @@
 import { Dispatch, SetStateAction, useEffect } from 'react'
 import { useGameContext } from '../contexts/GameContext'
-import { getDistance, lerpPosition } from '../domain/main'
+import {
+	generateRandomPositionOnEdge,
+	getDistance,
+	lerpPosition,
+} from '../domain/main'
 import { Upgrade, UpgradeType } from '../domain/upgrade'
 import { Enemy, findTarget, randomRange } from '../domain/enemy'
+import { HealthBar } from './HealthBar'
 
 type EnemiesProps = {
 	upgrades: Upgrade[]
@@ -21,20 +26,20 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			)
 			if (activeUpgrades.length && enemies.length < 2)
 				return [
-					{
+					...enemies,
+					...[...Array(Math.min(enemies.length + 2, 2))].map(() => ({
 						id: crypto.randomUUID(),
-						x: -6,
-						y: randomRange(-6, 6),
+						// TODO: generate area based on outmost active node
+						...generateRandomPositionOnEdge({
+							x: -8,
+							y: -8,
+							width: 16,
+							height: 16,
+						}),
 						target: findTarget(upgrades).id,
-						speed: 0.006,
-					},
-					{
-						id: crypto.randomUUID(),
-						x: randomRange(-6, 6),
-						y: -6,
-						target: findTarget(upgrades).id,
-						speed: 0.006,
-					},
+						speed: 0.002,
+						health: 2,
+					})),
 				]
 			// return enemies
 			return enemies.map((enemy) => {
@@ -71,7 +76,7 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 		>
 			{enemies.map((enemy) => (
 				<div
-					className="absolute bg-green-400"
+					className="absolute bg-rose-600"
 					key={enemy.id}
 					style={{
 						transform: 'translate(-50%, -50%)',
@@ -80,7 +85,9 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 						left: `${enemy.x * gridScale + gridScale / 2}px`,
 						top: `${enemy.y * gridScale + gridScale / 2}px`,
 					}}
-				></div>
+				>
+					<HealthBar current={enemy.health} max={2} />
+				</div>
 			))}
 		</div>
 	)

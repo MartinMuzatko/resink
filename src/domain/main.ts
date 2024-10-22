@@ -31,6 +31,51 @@ export const equalPosition = (a: Position, b: Position) =>
 export const isACloserToTopLeftThanB = (a: Position, b: Position) =>
 	equalPosition(closerToTopLeft(a, b), a)
 
+export const isPositionInsideArea = (position: Position, area: Area): boolean =>
+	position.x >= area.x &&
+	position.x <= area.x + area.width &&
+	position.y >= area.y &&
+	position.y <= area.y + area.height
+
+export const generateRandomPositionOnEdge = (area: Area): Position => {
+	const areaLeft = area.x
+	const areaRight = area.x + area.width
+	const areaTop = area.y
+	const areaBottom = area.y + area.height
+
+	const edge = Math.floor(Math.random() * 4)
+
+	if (edge === 0) {
+		// Left edge
+		return {
+			x: areaLeft,
+			y: Math.random() * (areaBottom - areaTop) + areaTop,
+		}
+	}
+
+	if (edge === 1) {
+		// Right edge
+		return {
+			x: areaRight,
+			y: Math.random() * (areaBottom - areaTop) + areaTop,
+		}
+	}
+
+	if (edge === 2) {
+		// Top edge
+		return {
+			x: Math.random() * (areaRight - areaLeft) + areaLeft,
+			y: areaTop,
+		}
+	}
+
+	// Bottom edge
+	return {
+		x: Math.random() * (areaRight - areaLeft) + areaLeft,
+		y: areaBottom,
+	}
+}
+
 export const lerp = (start: number, end: number, t: number) =>
 	start * (1 - t) + end * t
 

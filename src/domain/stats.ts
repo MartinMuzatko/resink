@@ -8,7 +8,8 @@ export type Stats = {
 	powerMultiplier: number
 	upgradeCostMultiplier: number
 	// Attack
-	damage: number
+	mouseDamage: number
+	mouseAttackSpeed: number
 	// Defense
 	health: number
 	armor: number
@@ -21,11 +22,15 @@ const DEFAULT_STATS: Stats = {
 	powerMultiplier: 1,
 	upgradeCostMultiplier: 1,
 	armor: 0,
-	damage: 1,
+	mouseDamage: 1,
+	mouseAttackSpeed: 4000,
 }
 
 // TODO is there an order?
-export const getStatsFromActiveUpgrades = (upgrades: Upgrade[]): Stats => {
+export const getStatsFromActiveUpgrades = (
+	upgrades: Upgrade[],
+	enemiesKilled: number
+): Stats => {
 	const activeUpgrades = upgrades.filter((node) => node.active)
 
 	const stats = activeUpgrades.reduce<Stats>((prev, cur) => {
@@ -35,6 +40,7 @@ export const getStatsFromActiveUpgrades = (upgrades: Upgrade[]): Stats => {
 
 	return {
 		...stats,
+		power: stats.power + enemiesKilled,
 		// power: stats.power * stats.powerMultiplier,
 		// usedPower: stats.usedPower * stats.upgradeCostMultiplier,
 	}
