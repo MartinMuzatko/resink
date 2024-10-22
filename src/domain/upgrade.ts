@@ -167,4 +167,9 @@ export const toggleActivation = (
 }
 
 export const getHealth = (upgrade: Upgrade, stats: Stats) =>
-	Math.min(upgrade.health, stats.health)
+	upgrade.type == UpgradeType.motor
+		? Math.min(upgrade.health, stats.health + 9)
+		: Math.min(upgrade.health, stats.health)
+
+export const getMaxHealth = (upgrade: Upgrade, stats: Stats) =>
+	upgrade.type == UpgradeType.motor ? stats.health + 9 : stats.health

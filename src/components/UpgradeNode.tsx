@@ -2,7 +2,12 @@ import { Tooltip } from '@mantine/core'
 import { Dispatch, SetStateAction, useCallback } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import { Connection } from '../domain/connection'
-import { getHealth, toggleActivation, Upgrade } from '../domain/upgrade'
+import {
+	getHealth,
+	getMaxHealth,
+	toggleActivation,
+	Upgrade,
+} from '../domain/upgrade'
 import { UpgradeType } from '../domain/upgrade'
 import { getCost, getStatsFromActiveUpgrades, Stats } from '../domain/stats'
 import { HealthBar } from './HealthBar'
@@ -47,7 +52,8 @@ export const UpgradeNode = ({
 							<div>{getCost(stats, upgrade)} ©</div>
 						)}
 						<div>
-							Health: {getHealth(upgrade, stats)} / {stats.health}
+							Health: {getHealth(upgrade, stats)} /{' '}
+							{getMaxHealth(upgrade, stats)}
 						</div>
 					</div>
 				}
@@ -76,7 +82,7 @@ export const UpgradeNode = ({
 					{upgrade.active && (
 						<HealthBar
 							current={getHealth(upgrade, stats)}
-							max={stats.health}
+							max={getMaxHealth(upgrade, stats)}
 						/>
 					)}
 				</div>

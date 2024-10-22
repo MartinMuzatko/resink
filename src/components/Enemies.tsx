@@ -25,7 +25,7 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 		const furthestPosition = findFurthestUpgradePosition(upgrades)
 		const x = Math.abs(furthestPosition.x)
 		const y = Math.abs(furthestPosition.y)
-		const size = Math.max(x, y)
+		const size = Math.max(x, y) + 2
 		return {
 			x: size * -1,
 			y: size * -1,
@@ -43,16 +43,14 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			if (activeUpgrades.length && enemies.length < 2)
 				return [
 					...enemies,
-					...[...Array(Math.min(enemies.length + 10, 10))].map(
-						() => ({
-							id: crypto.randomUUID(),
-							// TODO: generate area based on outmost active node
-							...generateRandomPositionOnEdge(spawnArea),
-							target: findTarget(upgrades).id,
-							speed: 0.003,
-							health: 2,
-						})
-					),
+					...[...Array(Math.min(enemies.length + 5, 5))].map(() => ({
+						id: crypto.randomUUID(),
+						// TODO: generate area based on outmost active node
+						...generateRandomPositionOnEdge(spawnArea),
+						target: findTarget(upgrades).id,
+						speed: 0.003,
+						health: 2,
+					})),
 				]
 			// return enemies
 			return enemies.map((enemy) => {
