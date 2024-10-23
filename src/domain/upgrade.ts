@@ -19,6 +19,7 @@ export type Upgrade = Identifier &
 			upgrades: Upgrade[]
 		) => ReactNode
 		cost: number
+		/** cumulates stats */
 		effect: (stats: Stats, upgrade: Upgrade, upgrades: Upgrade[]) => Stats
 		health: number
 		lastTimeDamageTaken: number

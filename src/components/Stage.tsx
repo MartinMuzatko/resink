@@ -32,7 +32,7 @@ const INITIAL_UPGRADES = [
 				stats.power - stats.usedPower,
 				0
 			)} left)`,
-		effect: (stats) => ({ ...stats, power: stats.power + 100 }),
+		effect: (stats) => ({ ...stats, power: stats.power + 10 }),
 		icon: 'M',
 		x: 0,
 		y: 0,
@@ -142,6 +142,11 @@ const INITIAL_UPGRADES = [
 	}),
 ]
 
+const enemyStats = {
+	damage: 1,
+	speed: 1000,
+}
+
 const getGridPositionFromWindow = (
 	windowPosition: Position,
 	window: Window,
@@ -213,13 +218,13 @@ export const Stage = memo(() => {
 
 	const attackArea = useMemo((): AttackArea => {
 		const center = getGridPositionFromWindow(mouse, window, gridScale)
-		const size = 1
+		const size = stats.mouseSize
 		return {
 			x: center.x - size / 2,
 			y: center.y - size / 2,
 			width: size,
 			height: size,
-			damage: 1,
+			damage: stats.mouseDamage,
 			mouseAttackLastDamageDealtTime,
 		}
 	}, [mouse, mouseAttackLastDamageDealtTime])
@@ -284,7 +289,7 @@ export const Stage = memo(() => {
 	return (
 		<div className="w-full h-full top-0 left-0 absolute" ref={mouse.ref}>
 			<div
-				className={` absolute ${
+				className={`absolute ${
 					mouseAttackLastDamageDealtTime > timePassed - 500
 						? 'bg-orange-200/80'
 						: 'bg-orange-400/50'

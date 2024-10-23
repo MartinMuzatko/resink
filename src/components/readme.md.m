@@ -34,25 +34,40 @@ Upgrade Nodes
 		Speed
 		Damage
 		Poison
+	Attack Modifiers
+		Poision enemies that take damage
 	MaxHealth
 	Health Recovery
+		Amount
+		Speed
 	Armor
-	Shoot bullets
+	Upgrades Shoot bullets
 		Speed
 		Size
 		Damage
 		Amount
 		Piercing
+	Mouse Attack Shoots bullets
+		Speed
+		Size
+		Damage
+		Amount
+		Piercing
+		Strategy: random, nearest enemy, toughest enemy
 	Cost (reduce)
+	Gain damage taken as Power
+	Gain damage dealt as Health
 Sites
 	Battery (allows to store more energy)
 	Conversion
+		Conversion Rate
 	Increase battery size
 	Allow more Throughput
 
 Lure
 	Attract enemies to stronger nodes
 	Evenly distribute
+	Generate Decoys that enemies are drawn to
 
 Attackers
 	Increase attacks (reward)
@@ -60,3 +75,18 @@ Attackers
 Harvester
 	Automatically collects enemy rewards
 
+
+
+Attack (Attack + 1)
+	AttackSpeed + 10%
+	AttackDamage
+	AttackSize
+Defense (Health + 1)
+	Armor
+	Health
+	Health Regeneration
+	Health Regeneration in AttackArea
+Utility
+	Enemies drop more coins
+Logistics (Range + 1)
+	Range

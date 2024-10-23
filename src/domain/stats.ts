@@ -9,6 +9,7 @@ export type Stats = {
 	upgradeCostMultiplier: number
 	// Attack
 	mouseDamage: number
+	mouseSize: number
 	mouseAttackSpeed: number
 	// Defense
 	health: number
@@ -23,6 +24,7 @@ const DEFAULT_STATS: Stats = {
 	upgradeCostMultiplier: 1,
 	armor: 0,
 	mouseDamage: 1,
+	mouseSize: 1,
 	mouseAttackSpeed: 4000,
 }
 
