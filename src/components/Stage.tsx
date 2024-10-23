@@ -1,13 +1,13 @@
 import { memo, useEffect, useMemo, useState } from 'react'
-import { connection, type Connection } from '../domain/connection'
+import { type Connection } from '../domain/connection'
 import {
-	createUpgrade,
 	findAllChildren,
 	getHealth,
+	updateUpgradeDamage,
 	Upgrade,
 	UpgradeType,
 } from '../domain/upgrade'
-import { getCost, getStatsFromActiveUpgrades } from '../domain/stats'
+import { getStatsFromActiveUpgrades } from '../domain/stats'
 import { ConnectionLine } from './ConnectionLine'
 import { UpgradeNode } from './UpgradeNode'
 import { useGameContext } from '../contexts/GameContext'
@@ -21,126 +21,7 @@ import { Enemies } from './Enemies'
 import { Enemy } from '../domain/enemy'
 import { useMouse } from '@mantine/hooks'
 import { HealthBar } from './HealthBar'
-
-const INITIAL_UPGRADES = [
-	createUpgrade({
-		active: true,
-		id: 'M',
-		type: UpgradeType.motor,
-		tooltip: (stats) =>
-			`Motor ${stats.usedPower}/${stats.power} (${Math.max(
-				stats.power - stats.usedPower,
-				0
-			)} left)`,
-		effect: (stats) => ({ ...stats, power: stats.power + 10 }),
-		icon: 'M',
-		x: 0,
-		y: 0,
-	}),
-	createUpgrade({
-		id: 'A',
-		tooltip: (stats) => '+1 Damage',
-		cost: 5,
-		effect: (stats, upgrade, upgrades) => ({
-			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-			mouseDamage: stats.mouseDamage + 1,
-		}),
-		icon: 'A',
-		x: 0,
-		y: -1,
-	}),
-	createUpgrade({
-		id: 'A1',
-		tooltip: (stats) => '+10% Attack speed',
-		cost: 10,
-		effect: (stats, upgrade, upgrades) => ({
-			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-			mouseAttackSpeed: stats.mouseAttackSpeed * 0.9,
-		}),
-		icon: 'A1',
-		x: 0,
-		y: -2,
-	}),
-	createUpgrade({
-		id: 'AS2',
-		tooltip: (stats) => '+20% Attack speed',
-		cost: 20,
-		effect: (stats, upgrade, upgrades) => ({
-			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-			mouseAttackSpeed: stats.mouseAttackSpeed * 0.8,
-		}),
-		icon: 'AS2',
-		x: 0,
-		y: -3,
-	}),
-	createUpgrade({
-		id: 'A2',
-		tooltip: (stats) => '+2 Damage',
-		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-			power: stats.power + upgrades.filter((u) => u.active).length * 2,
-		}),
-		icon: 'A2',
-		x: -1,
-		y: -2,
-	}),
-	createUpgrade({
-		id: 'A3',
-		tooltip: (stats) => '+2 Damage',
-		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-			power: stats.power + upgrades.filter((u) => u.active).length * 2,
-		}),
-		icon: 'A3',
-		x: 1,
-		y: -2,
-	}),
-	createUpgrade({
-		id: 'D',
-		tooltip: (stats) => '+1 Health',
-		cost: 4,
-		effect: (stats, upgrade) => ({
-			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-			health: stats.health + 1,
-		}),
-		icon: 'D',
-		x: 0,
-		y: 1,
-	}),
-	createUpgrade({
-		id: 'L',
-		tooltip: (stats) => '+1 Range',
-		cost: 4,
-		effect: (stats, upgrade) => ({
-			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-		}),
-		icon: 'L',
-		x: -1,
-		y: 0,
-	}),
-	createUpgrade({
-		id: 'U',
-		tooltip: (stats) => '+1 Range',
-		cost: 4,
-		effect: (stats, upgrade) => ({
-			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-			// health: stats.health + 1,
-		}),
-		icon: 'U',
-		x: 1,
-		y: 0,
-	}),
-]
+import { INITIAL_CONNECTIONS, INITIAL_UPGRADES } from '../data/upgrades'
 
 const enemyStats = {
 	damage: 1,
@@ -166,19 +47,7 @@ export const Stage = memo(() => {
 	const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0)
 	const [enemies, setEnemies] = useState<Enemy[]>([])
 	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES)
-	const connections: Connection[] = useMemo(
-		() => [
-			connection('M', 'A'),
-			connection('A', 'A1'),
-			connection('A', 'A2'),
-			connection('A', 'A3'),
-			connection('A1', 'AS2'),
-			connection('M', 'D'),
-			connection('M', 'L'),
-			connection('M', 'U'),
-		],
-		[]
-	)
+	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
 		() => getStatsFromActiveUpgrades(upgrades, totalEnemiesDefeated),
 		[upgrades, totalEnemiesDefeated]
@@ -247,43 +116,15 @@ export const Stage = memo(() => {
 			)
 			.map((upgrade) => upgrade.id)
 		if (upgradeIdsToTakeDamage.length)
-			setUpgrades((upgrades) => {
-				const damagedUpgrades = upgrades.map((upgrade) =>
-					upgradeIdsToTakeDamage.includes(upgrade.id) &&
-					upgrade.lastTimeDamageTaken < timePassed - 1000
-						? {
-								...upgrade,
-								health: getHealth(upgrade, stats) - 1,
-								active: getHealth(upgrade, stats) > 0,
-								lastTimeDamageTaken: timePassed,
-						  }
-						: upgrade
+			setUpgrades((upgrades) =>
+				updateUpgradeDamage(
+					upgradeIdsToTakeDamage,
+					upgrades,
+					connections,
+					timePassed,
+					stats
 				)
-
-				const allDeactivatedIds = upgradeIdsToTakeDamage
-					.map(
-						(upgradeId) => upgrades.find((u) => u.id === upgradeId)!
-					)
-					.filter((upgrade) => !upgrade.active)
-					.flatMap((upgrade) => {
-						return [
-							...findAllChildren(
-								upgrade,
-								upgrades,
-								connections
-							).map((u) => u.id),
-							upgrade.id,
-						]
-					})
-
-				// Deactivate the appropriate upgrades
-				return damagedUpgrades.map((u) => ({
-					...u,
-					...(allDeactivatedIds.includes(u.id)
-						? { active: false }
-						: {}),
-				}))
-			})
+			)
 	}, [tick])
 
 	return (
@@ -356,6 +197,15 @@ export const Stage = memo(() => {
 						}}
 					/>
 				))}
+				<div
+					className="absolute border-2 bg-gray-800 border-red-900"
+					style={{
+						width: 1 * gridScale - gridScale / 2,
+						height: 2 * gridScale - gridScale / 2,
+						top: `${1 * gridScale + gridScale / 4}px`,
+						left: `${-1 * gridScale + gridScale / 4}px`,
+					}}
+				></div>
 			</div>
 			<Enemies
 				{...{

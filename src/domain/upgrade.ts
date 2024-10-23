@@ -174,3 +174,41 @@ export const getHealth = (upgrade: Upgrade, stats: Stats) =>
 
 export const getMaxHealth = (upgrade: Upgrade, stats: Stats) =>
 	upgrade.type == UpgradeType.motor ? stats.health + 9 : stats.health
+
+export const updateUpgradeDamage = (
+	upgradeIdsToTakeDamage: string[],
+	upgrades: Upgrade[],
+	connections: Connection[],
+	timePassed: number,
+	stats: Stats
+) => {
+	const damagedUpgrades = upgrades.map((upgrade) =>
+		upgradeIdsToTakeDamage.includes(upgrade.id) &&
+		upgrade.lastTimeDamageTaken < timePassed - 1000
+			? {
+					...upgrade,
+					health: getHealth(upgrade, stats) - 1,
+					active: getHealth(upgrade, stats) > 0,
+					lastTimeDamageTaken: timePassed,
+			  }
+			: upgrade
+	)
+
+	const allDeactivatedIds = upgradeIdsToTakeDamage
+		.map((upgradeId) => upgrades.find((u) => u.id === upgradeId)!)
+		.filter((upgrade) => !upgrade.active)
+		.flatMap((upgrade) => {
+			return [
+				...findAllChildren(upgrade, upgrades, connections).map(
+					(u) => u.id
+				),
+				upgrade.id,
+			]
+		})
+
+	// Deactivate the appropriate upgrades
+	return damagedUpgrades.map((u) => ({
+		...u,
+		...(allDeactivatedIds.includes(u.id) ? { active: false } : {}),
+	}))
+}

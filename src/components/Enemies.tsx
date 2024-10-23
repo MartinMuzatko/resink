@@ -10,7 +10,13 @@ import {
 	Upgrade,
 	UpgradeType,
 } from '../domain/upgrade'
-import { Enemy, findTarget, randomRange } from '../domain/enemy'
+import {
+	Enemy,
+	findTarget,
+	getSpawnArea,
+	moveEnemy,
+	randomRange,
+} from '../domain/enemy'
 import { HealthBar } from './HealthBar'
 
 type EnemiesProps = {
@@ -21,18 +27,7 @@ type EnemiesProps = {
 
 export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 	const { gridScale, deltaTime, tick } = useGameContext()
-	const spawnArea = useMemo(() => {
-		const furthestPosition = findFurthestUpgradePosition(upgrades)
-		const x = Math.abs(furthestPosition.x)
-		const y = Math.abs(furthestPosition.y)
-		const size = Math.max(x, y) + 2
-		return {
-			x: size * -1,
-			y: size * -1,
-			width: size * 2,
-			height: size * 2,
-		}
-	}, [upgrades])
+	const spawnArea = useMemo(() => getSpawnArea(upgrades), [upgrades])
 
 	useEffect(() => {
 		setEnemies((enemies) => {
@@ -40,6 +35,8 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 				(upgrade) =>
 					upgrade.active && upgrade.type == UpgradeType.upgrade
 			)
+			// TODO: Scale amount and toughness of enemies with time.
+			// Also create varients
 			if (activeUpgrades.length && enemies.length < 2)
 				return [
 					...enemies,
@@ -53,28 +50,7 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 					})),
 				]
 			// return enemies
-			return enemies.map((enemy) => {
-				const currentTarget = upgrades.find(
-					(u) => u.id == enemy.target
-				)!
-				const target = currentTarget.active
-					? currentTarget
-					: findTarget(upgrades)
-				const distance = getDistance(enemy, target)
-				const p = lerpPosition(
-					enemy,
-					{
-						x: target.x,
-						y: target.y,
-					},
-					(enemy.speed * deltaTime) / distance
-				)
-				return {
-					...enemy,
-					...p,
-					target: target.id,
-				}
-			})
+			return enemies.map((enemy) => moveEnemy(enemy, upgrades, deltaTime))
 		})
 	}, [tick])
 
