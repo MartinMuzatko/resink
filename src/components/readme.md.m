@@ -30,6 +30,10 @@ Engine
 	Power Generation
 	Tier
 Upgrade Nodes
+	Improve Mouse Attack
+		Area
+		Speed
+		Damage
 	Corrossive Upgrades (enemies take damage when attacking upgrades)
 		Speed
 		Damage
@@ -76,17 +80,9 @@ Harvester
 	Automatically collects enemy rewards
 
 
+Power Generation
+	Constantly gain power
 
-Attack (Attack + 1)
-	AttackSpeed + 10%
-	AttackDamage
-	AttackSize
-Defense (Health + 1)
-	Armor
-	Health
-	Health Regeneration
-	Health Regeneration in AttackArea
-Utility
-	Enemies drop more coins
-Logistics (Range + 1)
-	Range
+	get x power per Upgrade
+	Convert power to ammo (1 power -> 100 ammo)
+	convert power to tier2 (100 power -> 1 t2 power)

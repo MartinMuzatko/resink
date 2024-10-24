@@ -21,7 +21,7 @@ import { Enemies } from './Enemies'
 import { Enemy } from '../domain/enemy'
 import { useMouse } from '@mantine/hooks'
 import { HealthBar } from './HealthBar'
-import { INITIAL_CONNECTIONS, INITIAL_UPGRADES } from '../data/upgrades'
+import { INITIAL_CONNECTIONS, INITIAL_UPGRADES } from '../data/initialGameData'
 
 const enemyStats = {
 	damage: 1,
@@ -202,10 +202,24 @@ export const Stage = memo(() => {
 					style={{
 						width: 1 * gridScale - gridScale / 2,
 						height: 2 * gridScale - gridScale / 2,
-						top: `${1 * gridScale + gridScale / 4}px`,
-						left: `${-1 * gridScale + gridScale / 4}px`,
+						top: `${2 * gridScale + gridScale / 4}px`,
+						left: `${-2 * gridScale + gridScale / 4}px`,
 					}}
-				></div>
+				>
+					<div className="font-bold font-mono absolute -rotate-90 origin-top-left top-0 left-0">
+						Power
+					</div>
+					<div
+						className="absolute w-full bottom-0 bg-amber-300"
+						style={{
+							height: `${
+								((stats.power - stats.usedPower) /
+									stats.power) *
+								100
+							}%`,
+						}}
+					></div>
+				</div>
 			</div>
 			<Enemies
 				{...{

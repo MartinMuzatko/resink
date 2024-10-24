@@ -12,7 +12,9 @@ export type Upgrade = Identifier &
 	Position & {
 		type: UpgradeType
 		active: boolean
-		icon: string
+		icon: ReactNode
+		description?: ReactNode
+		title?: ReactNode
 		tooltip: (
 			stats: Stats,
 			upgrade: Upgrade,

@@ -1,4 +1,4 @@
-import { Tooltip } from '@mantine/core'
+import { Divider, Tooltip } from '@mantine/core'
 import { Dispatch, SetStateAction, useCallback } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import { Connection } from '../domain/connection'
@@ -44,18 +44,36 @@ export const UpgradeNode = ({
 			}}
 		>
 			<Tooltip
+				className="p-0"
 				// {...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
 				label={
-					<div>
-						{upgrade.tooltip(stats, upgrade, upgrades)}
-						{upgrade.cost != 0 && (
-							<div>{getCost(stats, upgrade)} ©</div>
-						)}
-						<div>
-							Health: {getHealth(upgrade, stats)} /{' '}
+					<>
+						<div className="p-2">
+							{upgrade.title}
+							{upgrade.description && (
+								<div className="text-xs italic">
+									{upgrade.description}
+								</div>
+							)}
+						</div>
+						<Divider color="gray" />
+						<div className="p-2">
+							<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
+								Global Stats
+							</div>
+							{upgrade.tooltip(stats, upgrade, upgrades)}
+							{upgrade.cost != 0 && (
+								<div className="text-blue-600">
+									Cost {getCost(stats, upgrade)} ©
+								</div>
+							)}
+						</div>
+						<Divider color="gray" my={4} />
+						<div className="p-2 pt-0">
+							❤️ {getHealth(upgrade, stats)} /{' '}
 							{getMaxHealth(upgrade, stats)}
 						</div>
-					</div>
+					</>
 				}
 				position="right-start"
 				arrowPosition="side"
@@ -78,7 +96,14 @@ export const UpgradeNode = ({
 						height: `${gridScale / 2}px`,
 					}}
 				>
-					{upgrade.icon}
+					<div
+						className="w-full h-full"
+						style={{ padding: gridScale / 24 }}
+					>
+						{/* For debugging purposes when connecting */}
+						{/* upgrade.id */}
+						{upgrade.icon}
+					</div>
 					{upgrade.active && (
 						<HealthBar
 							current={getHealth(upgrade, stats)}

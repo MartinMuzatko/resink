@@ -1,0 +1,58 @@
+
+Attack (Attack + 1)
+	AttackSpeed
+	AttackDamage
+	AttackSize
+	Shoot Bullets on MouseAttack
+		Speed
+		Size
+		Damage
+		Amount
+		Piercing
+		Strategy: random, nearest enemy, toughest enemy
+		Homing
+		Explode on Contact (AoE)
+	Shoot Bullets from Upgrades
+		Speed
+		Size
+		Damage
+		Amount
+		Piercing
+		Strategy: random, nearest enemy, toughest enemy
+		Homing
+		Explode on Contact (AoE)
+	Elements
+		Poison
+			Poison on Attack
+			Corrosive Upgrades (On Defense)
+			Poison on Defense
+			Create Poison Cloud on Attack
+		Energy
+			Chain
+		Freeze
+			Slow down
+
+Defense (Health + 1)
+	Armor
+	Health
+	Health Regeneration
+		Health Regeneration in AttackArea
+	Decoy
+		Health
+		Lifetime
+		Amount
+		Placement
+Utility
+	Enemies drop more coins
+	Reduce Cost
+Logistics (Range + 1)
+	Range
+	Power Battery
+		Max Capacity
+
+	Power Generation
+
+		get x power per Upgrade
+		Constantly gain power
+		Convert power to ammo (1 power -> 100 ammo)
+		convert power to tier2 (100 power -> 1 t2 power)

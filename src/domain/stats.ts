@@ -1,3 +1,4 @@
+import { INITIAL_STATS } from '../data/initialGameData'
 import { Upgrade } from './upgrade'
 
 // TODO: global stats and per upgrade node stats
@@ -16,18 +17,6 @@ export type Stats = {
 	armor: number
 }
 
-const DEFAULT_STATS: Stats = {
-	power: 0,
-	usedPower: 0,
-	health: 1,
-	powerMultiplier: 1,
-	upgradeCostMultiplier: 1,
-	armor: 0,
-	mouseDamage: 1,
-	mouseSize: 1,
-	mouseAttackSpeed: 4000,
-}
-
 // TODO is there an order?
 export const getStatsFromActiveUpgrades = (
 	upgrades: Upgrade[],
@@ -38,7 +27,7 @@ export const getStatsFromActiveUpgrades = (
 	const stats = activeUpgrades.reduce<Stats>((prev, cur) => {
 		const stats = cur.effect(prev, cur, upgrades)
 		return stats
-	}, DEFAULT_STATS)
+	}, INITIAL_STATS)
 
 	return {
 		...stats,
