@@ -11,6 +11,7 @@ import {
 import { UpgradeType } from '../domain/upgrade'
 import { getCost, getStatsFromActiveUpgrades, Stats } from '../domain/stats'
 import { HealthBar } from './HealthBar'
+import { StatsInfo } from './StatsInfo'
 
 type UpgradeNodeProps = {
 	upgrade: Upgrade
@@ -61,7 +62,14 @@ export const UpgradeNode = ({
 							<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
 								Global Stats
 							</div>
-							{upgrade.tooltip(stats, upgrade, upgrades)}
+							<StatsInfo
+								{...{
+									stats,
+									upgrade,
+									upgrades,
+								}}
+							/>
+							{/* {upgrade.tooltip(stats, upgrade, upgrades)} */}
 							{upgrade.cost != 0 && (
 								<div className="text-blue-600">
 									Cost {getCost(stats, upgrade)} ©

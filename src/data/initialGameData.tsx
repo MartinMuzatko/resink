@@ -7,14 +7,16 @@ import { FaHeart } from 'react-icons/fa'
 import { GiResize } from 'react-icons/gi'
 
 export const INITIAL_STATS: Stats = {
-	power: 0,
+	power: 100,
 	usedPower: 0,
-	health: 0,
 	powerMultiplier: 1,
 	upgradeCostMultiplier: 1,
-	armor: 0,
-	mouseDamage: 0,
-	mouseSize: 0,
+	globalHealth: 1,
+	globalArmor: 0,
+	upgradeHealth: 0,
+	upgradeArmor: 0,
+	mouseDamage: 1,
+	mouseSize: 1,
 	mouseAttackSpeed: 4000,
 }
 
@@ -38,11 +40,6 @@ export const INITIAL_UPGRADES = [
 		),
 		effect: (stats) => ({
 			...stats,
-			power: stats.power + 100,
-			health: stats.health + 1,
-			mouseDamage: stats.mouseDamage + 1,
-			mouseSize: stats.mouseSize + 1,
-			// mouseAttackSpeed: 4000,
 		}),
 		icon: <GiBarracks className="w-full h-full" />,
 		x: 0,
@@ -115,7 +112,7 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'A3',
-		tooltip: (stats) => '+2 Damage',
+		description: 'get +2 Power per active Upgrade',
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
@@ -133,7 +130,7 @@ export const INITIAL_UPGRADES = [
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			health: stats.health + 1,
+			globalHealth: stats.globalHealth + 1,
 		}),
 		icon: <FaHeart className="w-full h-full" />,
 		x: 0,

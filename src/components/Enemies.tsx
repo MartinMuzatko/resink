@@ -40,7 +40,7 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			if (activeUpgrades.length && enemies.length < 2)
 				return [
 					...enemies,
-					...[...Array(Math.min(enemies.length + 5, 5))].map(() => ({
+					...[...Array(Math.min(enemies.length + 5, 0))].map(() => ({
 						id: crypto.randomUUID(),
 						// TODO: generate area based on outmost active node
 						...generateRandomPositionOnEdge(spawnArea),

@@ -15,7 +15,7 @@ export type Upgrade = Identifier &
 		icon: ReactNode
 		description?: ReactNode
 		title?: ReactNode
-		tooltip: (
+		tooltip?: (
 			stats: Stats,
 			upgrade: Upgrade,
 			upgrades: Upgrade[]
@@ -160,7 +160,7 @@ export const toggleActivation = (
 			...upgrade,
 			active: canActivate ? !upgrade.active : upgrade.active,
 			health: canActivate
-				? upgrade.effect(stats, upgrade, upgrades).health
+				? upgrade.effect(stats, upgrade, upgrades).globalHealth
 				: upgrade.health,
 		})
 	return deactivateSubTree(upgrade, upgrades, connections)
@@ -171,11 +171,13 @@ export const toggleActivation = (
 
 export const getHealth = (upgrade: Upgrade, stats: Stats) =>
 	upgrade.type == UpgradeType.motor
-		? Math.min(upgrade.health, stats.health + 9)
-		: Math.min(upgrade.health, stats.health)
+		? Math.min(upgrade.health, stats.globalHealth + 9)
+		: Math.min(upgrade.health, stats.globalHealth)
 
 export const getMaxHealth = (upgrade: Upgrade, stats: Stats) =>
-	upgrade.type == UpgradeType.motor ? stats.health + 9 : stats.health
+	upgrade.type == UpgradeType.motor
+		? stats.globalHealth + 9
+		: stats.globalHealth
 
 export const updateUpgradeDamage = (
 	upgradeIdsToTakeDamage: string[],

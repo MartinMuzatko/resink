@@ -13,9 +13,26 @@ export type Stats = {
 	mouseSize: number
 	mouseAttackSpeed: number
 	// Defense
-	health: number
-	armor: number
+	globalHealth: number
+	globalArmor: number
+	upgradeHealth: number
+	upgradeArmor: number
 }
+
+/** subtracts a from b */
+export const diffStats = (a: Stats, b: Stats): Stats => ({
+	power: b.power - a.power,
+	usedPower: b.usedPower - a.usedPower,
+	powerMultiplier: b.powerMultiplier - a.powerMultiplier,
+	upgradeCostMultiplier: b.upgradeCostMultiplier - a.upgradeCostMultiplier,
+	mouseDamage: b.mouseDamage - a.mouseDamage,
+	mouseSize: b.mouseSize - a.mouseSize,
+	mouseAttackSpeed: b.mouseAttackSpeed - a.mouseAttackSpeed,
+	globalHealth: b.globalHealth - a.globalHealth,
+	globalArmor: b.globalArmor - a.globalArmor,
+	upgradeHealth: b.upgradeHealth - a.upgradeHealth,
+	upgradeArmor: b.upgradeArmor - a.upgradeArmor,
+})
 
 // TODO is there an order?
 export const getStatsFromActiveUpgrades = (
