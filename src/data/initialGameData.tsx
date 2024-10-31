@@ -5,9 +5,10 @@ import { BsLightningChargeFill } from 'react-icons/bs'
 import { GiBarracks, GiBroadsword, GiStripedSword } from 'react-icons/gi'
 import { FaHeart } from 'react-icons/fa'
 import { GiResize } from 'react-icons/gi'
+import { StatsInfo } from '../components/StatsInfo'
 
 export const INITIAL_STATS: Stats = {
-	power: 100,
+	power: 10,
 	usedPower: 0,
 	powerMultiplier: 1,
 	upgradeCostMultiplier: 1,
@@ -29,13 +30,35 @@ export const INITIAL_UPGRADES = [
 		description: 'Defend at all cost',
 		tooltip: (stats) => (
 			<div>
-				<span className="text-blue-600">Power</span> + 10
-				<br />
-				<span className="text-green-600">Health</span> + 1<br />
-				<span className="text-red-600">Damage</span> + 1<br />
-				<span className="text-amber-600">Size</span> + 1<br />
-				<span className="text-teal-400">Attack Speed</span> 100%
-				<br />
+				<StatsInfo
+					{...{
+						upgrade: createUpgrade({
+							type: UpgradeType.motor,
+							health: 0,
+							icon: '',
+							x: 0,
+							y: 0,
+							active: true,
+							id: 'M',
+							cost: 0,
+							effect: () => INITIAL_STATS,
+						}),
+						upgrades: [],
+						stats: {
+							globalArmor: 0,
+							globalHealth: 0,
+							mouseAttackSpeed: 4000,
+							mouseDamage: 0,
+							mouseSize: 1,
+							power: 10,
+							powerMultiplier: 1,
+							upgradeArmor: 0,
+							upgradeCostMultiplier: 1,
+							upgradeHealth: 0,
+							usedPower: 0,
+						},
+					}}
+				/>
 			</div>
 		),
 		effect: (stats) => ({
