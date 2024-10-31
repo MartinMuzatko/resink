@@ -49,27 +49,31 @@ export const UpgradeNode = ({
 				// {...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
 				label={
 					<>
-						<div className="p-2">
-							{upgrade.title}
-							{upgrade.description && (
-								<div className="text-xs italic">
-									{upgrade.description}
+						{(upgrade.title || upgrade.description) && (
+							<>
+								<div className="p-2">
+									{upgrade.title}
+									{upgrade.description && (
+										<div className="text-xs italic">
+											{upgrade.description}
+										</div>
+									)}
 								</div>
-							)}
-						</div>
-						<Divider color="gray" />
+								<Divider color="gray" />
+							</>
+						)}
 						<div className="p-2">
-							<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
-								Global Stats
-							</div>
-							<StatsInfo
-								{...{
-									stats,
-									upgrade,
-									upgrades,
-								}}
-							/>
-							{/* {upgrade.tooltip(stats, upgrade, upgrades)} */}
+							{upgrade.tooltip ? (
+								upgrade.tooltip(stats, upgrade, upgrades)
+							) : (
+								<StatsInfo
+									{...{
+										stats,
+										upgrade,
+										upgrades,
+									}}
+								/>
+							)}
 							{upgrade.cost != 0 && (
 								<div className="text-blue-600">
 									Cost {getCost(stats, upgrade)} ©

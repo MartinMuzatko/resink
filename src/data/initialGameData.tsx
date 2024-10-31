@@ -47,7 +47,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'A',
-		tooltip: (stats) => '+1 Damage',
 		cost: 5,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
@@ -60,7 +59,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'A1',
-		tooltip: (stats) => '+10% Attack speed',
 		cost: 10,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
@@ -73,7 +71,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'AS2',
-		tooltip: (stats) => '+20% Attack speed',
 		cost: 20,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
@@ -86,7 +83,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'AS3',
-		tooltip: (stats) => '+30% Attack speed',
 		cost: 20,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
@@ -99,7 +95,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'A2',
-		tooltip: (stats) => '+50% Size',
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
@@ -112,7 +107,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'A3',
-		description: 'get +2 Power per active Upgrade',
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
@@ -125,7 +119,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'D',
-		tooltip: (stats) => '+1 Health',
 		cost: 4,
 		effect: (stats, upgrade) => ({
 			...stats,
@@ -138,7 +131,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'L',
-		tooltip: (stats) => '+1 Range',
 		cost: 4,
 		effect: (stats, upgrade) => ({
 			...stats,
@@ -150,7 +142,6 @@ export const INITIAL_UPGRADES = [
 	}),
 	createUpgrade({
 		id: 'U',
-		tooltip: (stats) => '+1 Range',
 		cost: 4,
 		effect: (stats, upgrade) => ({
 			...stats,

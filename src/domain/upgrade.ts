@@ -35,7 +35,6 @@ export const createUpgrade = (upgrade: Partial<Upgrade>): Upgrade => ({
 	active: false,
 	cost: 0,
 	effect: (stats) => stats,
-	tooltip: (stats) => '',
 	icon: 'M',
 	health: 10,
 	lastTimeDamageTaken: 0,
