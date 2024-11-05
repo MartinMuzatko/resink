@@ -1,3 +1,4 @@
+import { BsLightningChargeFill } from 'react-icons/bs'
 import { Divider, Tooltip } from '@mantine/core'
 import { Dispatch, SetStateAction, useCallback } from 'react'
 import { useGameContext } from '../contexts/GameContext'
@@ -9,8 +10,7 @@ import {
 	toggleActivation,
 	Upgrade,
 } from '../domain/upgrade'
-import { UpgradeType } from '../domain/upgrade'
-import { getCost, getStatsFromActiveUpgrades, Stats } from '../domain/stats'
+import { getCost, Stats } from '../domain/stats'
 import { HealthBar } from './HealthBar'
 import { StatsInfo } from './StatsInfo'
 
@@ -34,7 +34,7 @@ export const UpgradeNode = ({
 		setUpgrades((upgrades) =>
 			toggleActivation(upgrade, upgrades, connections, stats)
 		)
-	}, [upgrade, stats])
+	}, [upgrade, stats, connections, setUpgrades])
 	const isAffordable = isUpgradeAffordable(
 		upgrade,
 		upgrades,
@@ -82,8 +82,12 @@ export const UpgradeNode = ({
 								/>
 							)}
 							{upgrade.cost != 0 && (
-								<div className="text-blue-600">
-									Cost {getCost(stats, upgrade)} ©
+								<div className="flex items-center">
+									<div className="text-blue-600 mr-2">
+										Cost
+									</div>
+									{getCost(stats, upgrade)}
+									<BsLightningChargeFill className="ml-1" />
 								</div>
 							)}
 						</div>

@@ -1,14 +1,14 @@
 import { connection } from '../domain/connection'
 import { getCost, Stats } from '../domain/stats'
 import { createUpgrade, UpgradeType } from '../domain/upgrade'
-import { BsLightningChargeFill } from 'react-icons/bs'
 import { GiBarracks, GiBroadsword, GiStripedSword } from 'react-icons/gi'
 import { FaHeart } from 'react-icons/fa'
 import { GiResize } from 'react-icons/gi'
 import { StatsInfoPlain } from '../components/StatsInfoPlain'
+import { BiHeartSquare } from 'react-icons/bi'
 
 export const INITIAL_STATS: Stats = {
-	power: 10,
+	power: 20,
 	maxPower: 20,
 	usedPower: 0,
 	powerMultiplier: 1,
@@ -17,9 +17,10 @@ export const INITIAL_STATS: Stats = {
 	globalArmor: 0,
 	upgradeHealth: 0,
 	upgradeArmor: 0,
-	mouseDamage: 1,
+	mouseAttackDamage: 1,
+	mouseHealAmount: 0,
 	mouseSize: 1,
-	mouseAttackSpeed: 250,
+	mouseSpeed: 3000,
 }
 
 export const INITIAL_UPGRADES = () => [
@@ -35,12 +36,8 @@ export const INITIAL_UPGRADES = () => [
 					{...{
 						stats: {
 							...INITIAL_STATS,
-							mouseAttackSpeed: 0,
+							mouseSpeed: 0,
 							mouseSize: 0,
-							power: 10,
-							maxPower: 20,
-							powerMultiplier: 1,
-							upgradeCostMultiplier: 1,
 						},
 					}}
 				/>
@@ -59,7 +56,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			mouseDamage: stats.mouseDamage + 1,
+			mouseAttackDamage: stats.mouseAttackDamage + 1,
 		}),
 		icon: <GiBroadsword className="w-full h-full" />,
 		x: 0,
@@ -71,7 +68,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			mouseAttackSpeed: stats.mouseAttackSpeed * 0.9,
+			mouseSpeed: stats.mouseSpeed * 0.9,
 		}),
 		icon: <GiStripedSword className="w-full h-full" />,
 		x: 0,
@@ -83,7 +80,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			mouseAttackSpeed: stats.mouseAttackSpeed * 0.8,
+			mouseSpeed: stats.mouseSpeed * 0.8,
 		}),
 		icon: 'AS2',
 		x: 0,
@@ -95,7 +92,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			mouseAttackSpeed: stats.mouseAttackSpeed * 0.7,
+			mouseSpeed: stats.mouseSpeed * 0.7,
 		}),
 		icon: 'AS2',
 		x: 1,
@@ -138,6 +135,18 @@ export const INITIAL_UPGRADES = () => [
 		y: 1,
 	}),
 	createUpgrade({
+		id: 'D3',
+		cost: 10,
+		effect: (stats, upgrade) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			mouseHealAmount: stats.mouseHealAmount + 1,
+		}),
+		icon: <BiHeartSquare className="w-full h-full" />,
+		x: 1,
+		y: 2,
+	}),
+	createUpgrade({
 		id: 'L',
 		cost: 4,
 		effect: (stats, upgrade) => ({
@@ -170,6 +179,7 @@ export const INITIAL_CONNECTIONS = [
 	connection('A1', 'AS2'),
 	connection('AS2', 'AS3'),
 	connection('M', 'D'),
+	connection('D', 'D3'),
 	connection('M', 'L'),
 	connection('M', 'U'),
 ]

@@ -4,16 +4,17 @@ import { Stats } from '../domain/stats'
 type StatsInfoProps = {
 	stats: Stats
 }
-
+// TODO: decide whether to show relative or absolute stats
 export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 	return (
 		<div>
 			{(stats.power !== 0 ||
 				stats.globalHealth !== 0 ||
 				stats.globalArmor !== 0 ||
-				stats.mouseDamage !== 0 ||
+				stats.mouseAttackDamage !== 0 ||
 				stats.mouseSize !== 0 ||
-				stats.mouseAttackSpeed !== 0) && (
+				stats.mouseHealAmount !== 0 ||
+				stats.mouseSpeed !== 0) && (
 				<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
 					Global Stats
 				</div>
@@ -41,15 +42,21 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 					{stats.globalArmor}
 				</div>
 			)}
-			{stats.mouseDamage !== 0 && (
+			{stats.mouseAttackDamage !== 0 && (
 				<div>
-					<span className="text-red-600">Damage</span> +{' '}
-					{stats.mouseDamage}
+					<span className="text-red-600">Area Damage</span> +{' '}
+					{stats.mouseAttackDamage}
+				</div>
+			)}
+			{stats.mouseHealAmount !== 0 && (
+				<div>
+					<span className="text-lime-400">Area Heal</span> +{' '}
+					{stats.mouseHealAmount}
 				</div>
 			)}
 			{stats.mouseSize !== 0 && (
 				<div>
-					<span className="text-amber-600">Size</span> +{' '}
+					<span className="text-amber-600">Area Size</span> +{' '}
 					{Math.floor(
 						Math.abs(stats.mouseSize / INITIAL_STATS.mouseSize) *
 							100
@@ -57,14 +64,12 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 					%
 				</div>
 			)}
-			{stats.mouseAttackSpeed !== 0 && (
+			{stats.mouseSpeed !== 0 && (
 				<div>
-					<span className="text-teal-400">Attack Speed</span> +{' '}
+					<span className="text-teal-400">Area Speed</span> +{' '}
 					{Math.floor(
-						Math.abs(
-							stats.mouseAttackSpeed /
-								INITIAL_STATS.mouseAttackSpeed
-						) * 100
+						Math.abs(stats.mouseSpeed / INITIAL_STATS.mouseSpeed) *
+							100
 					)}
 					%
 				</div>

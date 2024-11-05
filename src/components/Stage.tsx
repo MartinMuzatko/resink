@@ -17,11 +17,12 @@ import { Enemy } from '../domain/enemy'
 import { useMouse } from '@mantine/hooks'
 import { HealthBar } from './HealthBar'
 import { INITIAL_CONNECTIONS, INITIAL_UPGRADES } from '../data/initialGameData'
+import { StatsInfoPlain } from './StatsInfoPlain'
 
-const enemyStats = {
-	damage: 1,
-	speed: 1000,
-}
+// const enemyStats = {
+// 	damage: 1,
+// 	speed: 1000,
+// }
 
 const getGridPositionFromWindow = (
 	windowPosition: Position,
@@ -32,9 +33,8 @@ const getGridPositionFromWindow = (
 	y: (windowPosition.y - window.innerHeight / 2 - gridScale / 2) / gridScale,
 })
 
-type AttackArea = Area & {
-	damage: number
-	mouseAttackLastDamageDealtTime: number
+type MouseArea = Area & {
+	mouseLastActivatedTime: number
 }
 
 export const Stage = memo(() => {
@@ -50,24 +50,40 @@ export const Stage = memo(() => {
 		[upgrades, powerThroughEnemiesDefeated]
 	)
 	const mouse = useMouse()
-	const gridMouse = useMemo(
-		() => getGridPositionFromWindow(mouse, window, gridScale),
-		[mouse]
-	)
+	// const gridMouse = useMemo(
+	// 	() => getGridPositionFromWindow(mouse, window, gridScale),
+	// 	[mouse]
+	// )
 
-	const mouseAttackLastDamageDealtTime = useMemo(
-		() => timePassed - (timePassed % stats.mouseAttackSpeed),
+	const mouseLastActivatedTime = useMemo(
+		() => timePassed - (timePassed % stats.mouseSpeed),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[tick]
 	)
 
 	useEffect(() => {
+		// heal upgrades
+
+		setUpgrades((upgrades) =>
+			upgrades.map((upgrade) =>
+				// TODO: real bounding box checking
+				isPositionInsideArea(upgrade, mouseArea)
+					? {
+							...upgrade,
+							health: upgrade.health + stats.mouseHealAmount,
+					  }
+					: upgrade
+			)
+		)
+		// attack enemies
 		setEnemies((prevEnemies) => {
 			const enemiesLeft = prevEnemies
 				.map((enemy) =>
-					isPositionInsideArea(enemy, attackArea)
+					// TODO: real bounding box checking
+					isPositionInsideArea(enemy, mouseArea)
 						? {
 								...enemy,
-								health: enemy.health - stats.mouseDamage,
+								health: enemy.health - stats.mouseAttackDamage,
 						  }
 						: enemy
 				)
@@ -90,9 +106,10 @@ export const Stage = memo(() => {
 			)
 			return enemiesLeft
 		})
-	}, [mouseAttackLastDamageDealtTime])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [mouseLastActivatedTime])
 
-	const attackArea = useMemo((): AttackArea => {
+	const mouseArea = useMemo((): MouseArea => {
 		const center = getGridPositionFromWindow(mouse, window, gridScale)
 		const size = stats.mouseSize
 		return {
@@ -100,10 +117,9 @@ export const Stage = memo(() => {
 			y: center.y - size / 2,
 			width: size,
 			height: size,
-			damage: stats.mouseDamage,
-			mouseAttackLastDamageDealtTime,
+			mouseLastActivatedTime,
 		}
-	}, [mouse, mouseAttackLastDamageDealtTime])
+	}, [mouse, mouseLastActivatedTime, gridScale, stats])
 
 	// Reset game when motor life is 0
 	useEffect(() => {
@@ -133,56 +149,51 @@ export const Stage = memo(() => {
 					stats
 				)
 			)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [tick])
 
 	return (
 		<div className="w-full h-full top-0 left-0 absolute" ref={mouse.ref}>
 			<div
 				className={`absolute ${
-					mouseAttackLastDamageDealtTime > timePassed - 500
+					mouseLastActivatedTime > timePassed - 500
 						? 'bg-orange-200/80'
 						: 'bg-orange-400/50'
 				}`}
 				style={{
 					top: `${
-						attackArea.y * gridScale +
+						mouseArea.y * gridScale +
 						window.innerHeight / 2 +
 						gridScale / 2
 					}px`,
 					left: `${
-						attackArea.x * gridScale +
+						mouseArea.x * gridScale +
 						window.innerWidth / 2 +
 						gridScale / 2
 					}px`,
-					width: `${attackArea.width * gridScale}px`,
-					height: `${attackArea.height * gridScale}px`,
+					width: `${mouseArea.width * gridScale}px`,
+					height: `${mouseArea.height * gridScale}px`,
 				}}
 			>
 				<HealthBar
-					current={timePassed - mouseAttackLastDamageDealtTime}
-					max={stats.mouseAttackSpeed}
+					current={timePassed - mouseLastActivatedTime}
+					max={stats.mouseSpeed}
 				/>
-				{/* {JSON.stringify(attackArea)} */}
 			</div>
 			<div className="absolute left-0 top-0">
-				max: {stats.maxPower}
-				<br />
-				using: {stats.usedPower}
-				<br />
-				generating: {stats.power}
-				<br />
-				powerThroughEnemies: {powerThroughEnemiesDefeated}
-				<br />
-				{mouse.x - window.innerWidth / 2 - gridScale / 2},
+				<div className="border">
+					<StatsInfoPlain stats={stats} />
+				</div>
+				{/* {mouse.x - window.innerWidth / 2 - gridScale / 2},
 				{mouse.y - window.innerHeight / 2 - gridScale / 2}
 				<br />
 				{gridMouse.x.toFixed(0)},{gridMouse.y.toFixed(0)}
-				<br />
+				<br /> */}
 			</div>
 			<div className="absolute left-0 bottom-12">
 				attacktime: {(timePassed / 1000).toFixed(0)}
 				<br />
-				last attack: {mouseAttackLastDamageDealtTime / 1000}
+				last attack: {mouseLastActivatedTime / 1000}
 			</div>
 			<div
 				className="w-full h-full absolute left-0 top-0"
@@ -238,7 +249,6 @@ export const Stage = memo(() => {
 			</div>
 			<Enemies
 				{...{
-					attackArea,
 					upgrades,
 					enemies,
 					setEnemies,
