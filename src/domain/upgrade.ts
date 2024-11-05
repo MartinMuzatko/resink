@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { getDistance, Identifier, Position } from './main'
 import { Connection } from './connection'
-import { Stats } from './stats'
+import { getCost, Stats } from './stats'
 
 export enum UpgradeType {
 	motor,
@@ -214,4 +214,20 @@ export const updateUpgradeDamage = (
 		...u,
 		...(allDeactivatedIds.includes(u.id) ? { active: false } : {}),
 	}))
+}
+
+export const isUpgradeAffordable = (
+	upgrade: Upgrade,
+	upgrades: Upgrade[],
+	connections: Connection[],
+	stats: Stats
+) => {
+	const from = upgrades.find(
+		(u) =>
+			u.id ===
+			connections.find((c) => c.toUpgradeId == upgrade.id)?.fromUpgradeId
+	)
+	return (
+		from?.active && getCost(stats, upgrade) <= stats.power - stats.usedPower
+	)
 }

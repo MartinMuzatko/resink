@@ -5,6 +5,7 @@ import { Connection } from '../domain/connection'
 import {
 	getHealth,
 	getMaxHealth,
+	isUpgradeAffordable,
 	toggleActivation,
 	Upgrade,
 } from '../domain/upgrade'
@@ -34,6 +35,12 @@ export const UpgradeNode = ({
 			toggleActivation(upgrade, upgrades, connections, stats)
 		)
 	}, [upgrade, stats])
+	const isAffordable = isUpgradeAffordable(
+		upgrade,
+		upgrades,
+		connections,
+		stats
+	)
 	return (
 		<div
 			className="absolute flex items-center justify-center"
@@ -101,6 +108,8 @@ export const UpgradeNode = ({
 					className={`relative border-2 cursor-pointer flex text-center items-center justify-center hover:border-red-400 ${
 						upgrade.active
 							? 'bg-red-400 border-red-400'
+							: isAffordable
+							? 'bg-gray-800 border-red-200'
 							: 'bg-gray-800 border-red-900'
 					}`}
 					style={{

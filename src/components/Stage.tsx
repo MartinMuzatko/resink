@@ -1,18 +1,13 @@
 import { memo, useEffect, useMemo, useState } from 'react'
 import { type Connection } from '../domain/connection'
-import {
-	findAllChildren,
-	getHealth,
-	updateUpgradeDamage,
-	Upgrade,
-	UpgradeType,
-} from '../domain/upgrade'
+import { updateUpgradeDamage, Upgrade, UpgradeType } from '../domain/upgrade'
 import { getStatsFromActiveUpgrades } from '../domain/stats'
 import { ConnectionLine } from './ConnectionLine'
 import { UpgradeNode } from './UpgradeNode'
 import { useGameContext } from '../contexts/GameContext'
 import {
 	Area,
+	clamp,
 	equalPosition,
 	isPositionInsideArea,
 	Position,
@@ -45,12 +40,14 @@ type AttackArea = Area & {
 export const Stage = memo(() => {
 	const { tick, timePassed, gridScale } = useGameContext()
 	const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0)
+	const [powerThroughEnemiesDefeated, setPowerThroughEnemiesDefeated] =
+		useState(0)
 	const [enemies, setEnemies] = useState<Enemy[]>([])
-	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES)
+	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES())
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
-		() => getStatsFromActiveUpgrades(upgrades, totalEnemiesDefeated),
-		[upgrades, totalEnemiesDefeated]
+		() => getStatsFromActiveUpgrades(upgrades, powerThroughEnemiesDefeated),
+		[upgrades, powerThroughEnemiesDefeated]
 	)
 	const mouse = useMouse()
 	const gridMouse = useMemo(
@@ -75,6 +72,16 @@ export const Stage = memo(() => {
 						: enemy
 				)
 				.filter((enemy) => enemy.health > 0)
+			setPowerThroughEnemiesDefeated((prevPower) => {
+				const enemiesKilled = prevEnemies.length - enemiesLeft.length
+				// XXX: Calculated gain is based on power - usedPower (difference to max)
+				// e.g. [-----++   ] (5/10) - 5 power (+2 enemies), 0 used, 10 max
+				const maxGainAllowed = Math.max(
+					0,
+					prevPower + enemiesKilled + stats.power - stats.usedPower
+				)
+				return clamp(0, maxGainAllowed)(prevPower + enemiesKilled)
+			})
 			setTotalEnemiesDefeated(
 				(totalEnemiesDefeated) =>
 					totalEnemiesDefeated +
@@ -102,9 +109,10 @@ export const Stage = memo(() => {
 	useEffect(() => {
 		const motor = upgrades.find((u) => u.type === UpgradeType.motor)!
 		if (motor.health <= 0) {
-			setUpgrades(INITIAL_UPGRADES)
+			setUpgrades(INITIAL_UPGRADES())
 			setEnemies([])
 			setTotalEnemiesDefeated(0)
+			setPowerThroughEnemiesDefeated(0)
 		}
 	}, [upgrades])
 
@@ -157,10 +165,13 @@ export const Stage = memo(() => {
 				{/* {JSON.stringify(attackArea)} */}
 			</div>
 			<div className="absolute left-0 top-0">
-				{stats.usedPower}/{stats.power} ({stats.power - stats.usedPower}{' '}
-				left)
+				max: {stats.maxPower}
 				<br />
+				using: {stats.usedPower}
 				<br />
+				generating: {stats.power}
+				<br />
+				powerThroughEnemies: {powerThroughEnemiesDefeated}
 				<br />
 				{mouse.x - window.innerWidth / 2 - gridScale / 2},
 				{mouse.y - window.innerHeight / 2 - gridScale / 2}
@@ -182,7 +193,7 @@ export const Stage = memo(() => {
 				{connections.map((connection) => (
 					<ConnectionLine
 						key={connection.id}
-						{...{ connection, upgrades }}
+						{...{ connection, upgrades, stats }}
 					/>
 				))}
 				{upgrades.map((upgrade) => (
@@ -206,19 +217,23 @@ export const Stage = memo(() => {
 						left: `${-2 * gridScale + gridScale / 4}px`,
 					}}
 				>
-					<div className="font-bold font-mono absolute -rotate-90 origin-top-left top-0 left-0">
+					<div className="font-bold font-mono absolute -rotate-90 origin-top-left top-10 -left-6">
 						Power
 					</div>
+
 					<div
 						className="absolute w-full bottom-0 bg-amber-300"
 						style={{
 							height: `${
 								((stats.power - stats.usedPower) /
-									stats.power) *
+									stats.maxPower) *
 								100
 							}%`,
 						}}
 					></div>
+					<div className="font-bold font-mono absolute -rotate-90 origin-top-left left-6 top-10">
+						{stats.power - stats.usedPower}/{stats.maxPower}
+					</div>
 				</div>
 			</div>
 			<Enemies

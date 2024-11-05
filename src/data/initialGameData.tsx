@@ -5,10 +5,11 @@ import { BsLightningChargeFill } from 'react-icons/bs'
 import { GiBarracks, GiBroadsword, GiStripedSword } from 'react-icons/gi'
 import { FaHeart } from 'react-icons/fa'
 import { GiResize } from 'react-icons/gi'
-import { StatsInfo } from '../components/StatsInfo'
+import { StatsInfoPlain } from '../components/StatsInfoPlain'
 
 export const INITIAL_STATS: Stats = {
 	power: 10,
+	maxPower: 20,
 	usedPower: 0,
 	powerMultiplier: 1,
 	upgradeCostMultiplier: 1,
@@ -18,10 +19,10 @@ export const INITIAL_STATS: Stats = {
 	upgradeArmor: 0,
 	mouseDamage: 1,
 	mouseSize: 1,
-	mouseAttackSpeed: 4000,
+	mouseAttackSpeed: 250,
 }
 
-export const INITIAL_UPGRADES = [
+export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		active: true,
 		id: 'M',
@@ -30,32 +31,16 @@ export const INITIAL_UPGRADES = [
 		description: 'Defend at all cost',
 		tooltip: (stats) => (
 			<div>
-				<StatsInfo
+				<StatsInfoPlain
 					{...{
-						upgrade: createUpgrade({
-							type: UpgradeType.motor,
-							health: 0,
-							icon: '',
-							x: 0,
-							y: 0,
-							active: true,
-							id: 'M',
-							cost: 0,
-							effect: () => INITIAL_STATS,
-						}),
-						upgrades: [],
 						stats: {
-							globalArmor: 0,
-							globalHealth: 0,
-							mouseAttackSpeed: 4000,
-							mouseDamage: 0,
-							mouseSize: 1,
+							...INITIAL_STATS,
+							mouseAttackSpeed: 0,
+							mouseSize: 0,
 							power: 10,
+							maxPower: 20,
 							powerMultiplier: 1,
-							upgradeArmor: 0,
 							upgradeCostMultiplier: 1,
-							upgradeHealth: 0,
-							usedPower: 0,
 						},
 					}}
 				/>
