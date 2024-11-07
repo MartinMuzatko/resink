@@ -9,6 +9,9 @@ import {
 	Area,
 	clamp,
 	equalPosition,
+	getDistance,
+	getSpeedVector,
+	Identifier,
 	isPositionInsideArea,
 	Position,
 } from '../domain/main'
@@ -37,6 +40,15 @@ type MouseArea = Area & {
 	mouseLastActivatedTime: number
 }
 
+export type Bullet = Position &
+	Identifier & {
+		velocity: {
+			x: number
+			y: number
+		}
+		enemyIdsHit: string[]
+	}
+
 export const Stage = memo(() => {
 	const { tick, timePassed, gridScale } = useGameContext()
 	const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0)
@@ -50,6 +62,7 @@ export const Stage = memo(() => {
 		[upgrades, powerThroughEnemiesDefeated]
 	)
 	const mouse = useMouse()
+	const [bullets, setBullets] = useState<Bullet[]>([])
 	// const gridMouse = useMemo(
 	// 	() => getGridPositionFromWindow(mouse, window, gridScale),
 	// 	[mouse]
@@ -132,8 +145,8 @@ export const Stage = memo(() => {
 		}
 	}, [upgrades])
 
-	// update upgrade health on enemy attack
 	useEffect(() => {
+		// update upgrade health on enemy attack
 		const upgradeIdsToTakeDamage = upgrades
 			.filter((upgrade) =>
 				enemies.find((enemy) => equalPosition(upgrade, enemy))
@@ -149,6 +162,99 @@ export const Stage = memo(() => {
 					stats
 				)
 			)
+
+		// create and move bullets
+		setBullets((bullets) => [
+			...(tick % stats.upgradeBulletAttackSpeed === 0 &&
+			stats.upgradeBulletAttackDamage !== 0 &&
+			enemies.length
+				? upgrades
+						.filter((upgrade) =>
+							enemies.some(
+								(enemy) =>
+									getDistance(upgrade, enemy) <
+									stats.upgradeBulletAttackRange
+							)
+						)
+						.flatMap((upgrade) => [
+							{
+								id: crypto.randomUUID(),
+								x: upgrade.x,
+								y: upgrade.y,
+								velocity: getSpeedVector(
+									{ x: 1, y: -2 },
+									enemies[0],
+									0.3
+								),
+								enemyIdsHit: [],
+							},
+						])
+				: []),
+			...bullets
+				.map((bullet) => ({
+					...bullet,
+					x: bullet.x + bullet.velocity.x,
+					y: bullet.y + bullet.velocity.y,
+				}))
+				.filter((bullet) =>
+					// TODO: actual world border?
+					isPositionInsideArea(bullet, {
+						x: -10,
+						y: -10,
+						width: 20,
+						height: 20,
+					})
+				),
+		])
+
+		// hit enemies
+		setEnemies((prevEnemies) => {
+			const enemiesLeft = prevEnemies
+				.map((enemy) => {
+					const bulletsHitIds = bullets
+						.filter((bullet) =>
+							isPositionInsideArea(enemy, {
+								x: bullet.x - 0.5,
+								y: bullet.y - 0.5,
+								height: 1,
+								width: 1,
+							})
+						)
+						.map((bullet) => bullet.id)
+					setBullets((prevBullets) =>
+						prevBullets.filter(
+							(bullet) => !bulletsHitIds.includes(bullet.id)
+						)
+					)
+					// TODO: real bounding box checking
+					return bulletsHitIds.length
+						? {
+								...enemy,
+								health:
+									enemy.health -
+									stats.upgradeBulletAttackDamage,
+						  }
+						: enemy
+				})
+				.filter((enemy) => enemy.health > 0)
+			setPowerThroughEnemiesDefeated((prevPower) => {
+				const enemiesKilled = prevEnemies.length - enemiesLeft.length
+				// XXX: Calculated gain is based on power - usedPower (difference to max)
+				// e.g. [-----++   ] (5/10) - 5 power (+2 enemies), 0 used, 10 max
+				const maxGainAllowed = Math.max(
+					0,
+					prevPower + enemiesKilled + stats.power - stats.usedPower
+				)
+				return clamp(0, maxGainAllowed)(prevPower + enemiesKilled)
+			})
+			setTotalEnemiesDefeated(
+				(totalEnemiesDefeated) =>
+					totalEnemiesDefeated +
+					prevEnemies.length -
+					enemiesLeft.length
+			)
+			return enemiesLeft
+		})
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [tick])
 
@@ -190,7 +296,7 @@ export const Stage = memo(() => {
 				{gridMouse.x.toFixed(0)},{gridMouse.y.toFixed(0)}
 				<br /> */}
 			</div>
-			<div className="absolute left-0 bottom-12">
+			<div className="absolute right-0 bottom-12">
 				attacktime: {(timePassed / 1000).toFixed(0)}
 				<br />
 				last attack: {mouseLastActivatedTime / 1000}
@@ -249,11 +355,32 @@ export const Stage = memo(() => {
 			</div>
 			<Enemies
 				{...{
+					bullets,
 					upgrades,
 					enemies,
 					setEnemies,
 				}}
 			/>
+			<div
+				className="absolute right-0 top-0 w-full h-full pointer-events-none"
+				style={{
+					transform: 'translate(50%, 50%)',
+				}}
+			>
+				{bullets.map((bullet) => (
+					<div
+						className="absolute bg-rose-800 rounded-full"
+						key={bullet.id}
+						style={{
+							transform: 'translate(-50%, -50%)',
+							width: `${gridScale / 6}px`,
+							height: `${gridScale / 6}px`,
+							left: `${bullet.x * gridScale + gridScale / 2}px`,
+							top: `${bullet.y * gridScale + gridScale / 2}px`,
+						}}
+					/>
+				))}
+			</div>
 		</div>
 	)
 })

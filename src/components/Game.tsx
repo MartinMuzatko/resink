@@ -55,16 +55,17 @@ export const Game = () => {
 				}}
 			>
 				<div className="absolute bottom-0 left-0">
-					<br />
-					time: {(timePassed.current / 1000).toFixed(0)}
-					<br />
-					fps:{' '}
-					{(
-						(1 /
-							(deltaTimes.current.reduce((p, c) => p + c, 0) /
-								deltaTimes.current.length)) *
-						1000
-					).toFixed(0)}
+					<p>time: {(timePassed.current / 1000).toFixed(0)}</p>
+					<p>
+						fps:{' '}
+						{(
+							(1 /
+								(deltaTimes.current.reduce((p, c) => p + c, 0) /
+									deltaTimes.current.length)) *
+							1000
+						).toFixed(0)}
+					</p>
+					<p>tick: {tick}</p>
 				</div>
 				{/* <PanZoom> */}
 				<Stage />

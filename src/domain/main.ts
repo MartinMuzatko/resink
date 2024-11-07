@@ -28,6 +28,16 @@ export const createArea = (a: Position, b: Position): Area => ({
 export const equalPosition = (a: Position, b: Position) =>
 	a.x == b.x && a.y == b.y
 
+export const addPosition = (a: Position, b: Position) => ({
+	x: a.x + b.x,
+	y: a.y + b.y,
+})
+
+export const subPosition = (a: Position, b: Position) => ({
+	x: b.x - a.x,
+	y: b.y - a.y,
+})
+
 export const isACloserToTopLeftThanB = (a: Position, b: Position) =>
 	equalPosition(closerToTopLeft(a, b), a)
 
@@ -93,4 +103,16 @@ export const getDistance = (a: Position, b: Position) =>
 export const clamp = (min: number, max: number) => (n: number) =>
 	Math.min(Math.max(n, min), max)
 
-// 1 / ((distance / (experience.speed * delta)))
+export const getSpeedVector = (
+	start: Position,
+	target: Position,
+	speed: number
+): Position => {
+	const diff = subPosition(start, target)
+	const distance = getDistance(start, target)
+	if (distance === 0) return { x: 0, y: 0 }
+	return {
+		x: (diff.x / distance) * speed,
+		y: (diff.y / distance) * speed,
+	}
+}

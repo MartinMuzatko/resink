@@ -14,6 +14,7 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 				stats.mouseAttackDamage !== 0 ||
 				stats.mouseSize !== 0 ||
 				stats.mouseHealAmount !== 0 ||
+				stats.upgradeBulletAttackDamage !== 0 ||
 				stats.mouseSpeed !== 0) && (
 				<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
 					Global Stats
@@ -72,6 +73,18 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 							100
 					)}
 					%
+				</div>
+			)}
+			{stats.upgradeBulletAttackDamage !== 0 && (
+				<div>
+					<span className="text-red-400">Upgrade Bullet Damage</span>{' '}
+					+ {stats.upgradeBulletAttackDamage}
+				</div>
+			)}
+			{stats.upgradeBulletAttackRange !== 0 && (
+				<div>
+					<span className="text-green-400">Upgrade Bullet Range</span>{' '}
+					+ {stats.upgradeBulletAttackRange}
 				</div>
 			)}
 			{(stats.upgradeHealth !== 0 || stats.upgradeArmor !== 0) && (

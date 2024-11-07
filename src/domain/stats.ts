@@ -14,8 +14,13 @@ export type Stats = {
 	mouseHealAmount: number
 	mouseSpeed: number
 	mouseAttackDamage: number
+	upgradeBulletAttackDamage: number
+	upgradeBulletAttackRange: number
+	upgradeBulletAttackSpeed: number
 	// Defense
 	globalHealth: number
+	globalHealthRegenerationAmount: number
+	globalHealthRegenerationSpeed: number
 	globalArmor: number
 	upgradeHealth: number
 	upgradeArmor: number
@@ -32,7 +37,17 @@ export const diffStats = (a: Stats, b: Stats): Stats => ({
 	mouseSize: b.mouseSize - a.mouseSize,
 	mouseHealAmount: b.mouseHealAmount - a.mouseHealAmount,
 	mouseSpeed: b.mouseSpeed - a.mouseSpeed,
+	upgradeBulletAttackDamage:
+		b.upgradeBulletAttackDamage - a.upgradeBulletAttackDamage,
+	upgradeBulletAttackSpeed:
+		b.upgradeBulletAttackSpeed - a.upgradeBulletAttackSpeed,
+	upgradeBulletAttackRange:
+		b.upgradeBulletAttackRange - a.upgradeBulletAttackRange,
 	globalHealth: b.globalHealth - a.globalHealth,
+	globalHealthRegenerationAmount:
+		a.globalHealthRegenerationAmount - b.globalHealthRegenerationAmount,
+	globalHealthRegenerationSpeed:
+		a.globalHealthRegenerationSpeed - b.globalHealthRegenerationSpeed,
 	globalArmor: b.globalArmor - a.globalArmor,
 	upgradeHealth: b.upgradeHealth - a.upgradeHealth,
 	upgradeArmor: b.upgradeArmor - a.upgradeArmor,

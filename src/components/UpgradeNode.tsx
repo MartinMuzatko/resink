@@ -51,6 +51,13 @@ export const UpgradeNode = ({
 				height: `${gridScale}px`,
 			}}
 		>
+			{/* <div
+				className="rounded-full absolute z-10 bg-red-900/10"
+				style={{
+					width: `${stats.upgradeBulletAttackRange * gridScale}px`,
+					height: `${stats.upgradeBulletAttackRange * gridScale}px`,
+				}}
+			/> */}
 			<Tooltip
 				className="p-0"
 				// {...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
@@ -109,7 +116,7 @@ export const UpgradeNode = ({
 				<div
 					onClick={toggleUpgrade}
 					// onMouseEnter={}
-					className={`relative border-2 cursor-pointer flex text-center items-center justify-center hover:border-red-400 ${
+					className={`relative z-20 border-2 cursor-pointer flex text-center items-center justify-center hover:border-red-400 ${
 						upgrade.active
 							? 'bg-red-400 border-red-400'
 							: isAffordable

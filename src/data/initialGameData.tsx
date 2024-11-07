@@ -1,8 +1,13 @@
 import { connection } from '../domain/connection'
 import { getCost, Stats } from '../domain/stats'
 import { createUpgrade, UpgradeType } from '../domain/upgrade'
-import { GiBarracks, GiBroadsword, GiStripedSword } from 'react-icons/gi'
-import { FaHeart } from 'react-icons/fa'
+import {
+	GiBarracks,
+	GiBroadsword,
+	GiStripedSword,
+	GiTurret,
+} from 'react-icons/gi'
+import { FaHeart, FaHeartbeat } from 'react-icons/fa'
 import { GiResize } from 'react-icons/gi'
 import { StatsInfoPlain } from '../components/StatsInfoPlain'
 import { BiHeartSquare } from 'react-icons/bi'
@@ -21,6 +26,13 @@ export const INITIAL_STATS: Stats = {
 	mouseHealAmount: 0,
 	mouseSize: 1,
 	mouseSpeed: 3000,
+	globalHealthRegenerationAmount: 0,
+	globalHealthRegenerationSpeed: 4000,
+	upgradeBulletAttackDamage: 0,
+	// tick based
+	// TODO: make time based and per upgrade
+	upgradeBulletAttackSpeed: 30,
+	upgradeBulletAttackRange: 3,
 }
 
 export const INITIAL_UPGRADES = () => [
@@ -112,13 +124,14 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'A3',
+		title: 'Turn upgrades into turrets',
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			power: stats.power + upgrades.filter((u) => u.active).length * 2,
+			upgradeBulletAttackDamage: stats.upgradeBulletAttackDamage + 1,
 		}),
-		icon: 'A3',
+		icon: <GiTurret className="w-full h-full" />,
 		x: 1,
 		y: -2,
 	}),
@@ -133,6 +146,17 @@ export const INITIAL_UPGRADES = () => [
 		icon: <FaHeart className="w-full h-full" />,
 		x: 0,
 		y: 1,
+	}),
+	createUpgrade({
+		id: 'D1',
+		cost: 10,
+		effect: (stats, upgrade) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+		}),
+		icon: <FaHeartbeat className="w-full h-full" />,
+		x: -1,
+		y: 2,
 	}),
 	createUpgrade({
 		id: 'D3',
@@ -179,6 +203,7 @@ export const INITIAL_CONNECTIONS = [
 	connection('A1', 'AS2'),
 	connection('AS2', 'AS3'),
 	connection('M', 'D'),
+	connection('D', 'D1'),
 	connection('D', 'D3'),
 	connection('M', 'L'),
 	connection('M', 'U'),
