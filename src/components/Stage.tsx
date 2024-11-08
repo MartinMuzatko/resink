@@ -21,6 +21,7 @@ import { useMouse } from '@mantine/hooks'
 import { HealthBar } from './HealthBar'
 import { INITIAL_CONNECTIONS, INITIAL_UPGRADES } from '../data/initialGameData'
 import { StatsInfoPlain } from './StatsInfoPlain'
+import { GiConsoleController } from 'react-icons/gi'
 
 // const enemyStats = {
 // 	damage: 1,
@@ -163,49 +164,83 @@ export const Stage = memo(() => {
 				)
 			)
 
-		// create and move bullets
-		setBullets((bullets) => [
-			...(tick % stats.upgradeBulletAttackSpeed === 0 &&
-			stats.upgradeBulletAttackDamage !== 0 &&
-			enemies.length
-				? upgrades
-						.filter((upgrade) =>
-							enemies.some(
-								(enemy) =>
-									getDistance(upgrade, enemy) <
-									stats.upgradeBulletAttackRange
-							)
+		// create zand move bullets
+		setUpgrades((prevUpgrades) => {
+			const newUpgrades = prevUpgrades.map((upgrade) => {
+				const canShoot =
+					tick - upgrade.lastBulletShotTime >=
+						stats.upgradeBulletAttackSpeed &&
+					stats.upgradeBulletAttackDamage !== 0
+				if (!canShoot) return upgrade // No changes if the upgrade is on cooldown
+
+				// Find enemies in range
+				const isEnemyInRange = enemies.some(
+					(enemy) =>
+						getDistance(upgrade, enemy) <
+						stats.upgradeBulletAttackRange
+				)
+
+				if (!isEnemyInRange) return upgrade // No enemies in range, skip shooting
+				// Update the `lastBulletShotTime` to the current tick, creating a new object
+				return { ...upgrade, lastBulletShotTime: tick }
+			})
+			// Now use the updated `upgrades` state to generate bullets as needed
+			setBullets((bullets) => [
+				...newUpgrades
+					.filter((upgrade) => upgrade.active)
+					.flatMap((upgrade) => {
+						const canShoot =
+							tick === upgrade.lastBulletShotTime &&
+							stats.upgradeBulletAttackDamage !== 0
+						if (!canShoot) return []
+
+						const enemiesInRange = enemies.filter(
+							(enemy) =>
+								getDistance(upgrade, enemy) <
+								stats.upgradeBulletAttackRange
 						)
-						.flatMap((upgrade) => [
+
+						if (enemiesInRange.length === 0) return []
+
+						const targetEnemy = enemiesInRange.reduce(
+							(closest, enemy) =>
+								getDistance(upgrade, enemy) <
+								getDistance(upgrade, closest)
+									? enemy
+									: closest
+						)
+
+						return [
 							{
 								id: crypto.randomUUID(),
 								x: upgrade.x,
 								y: upgrade.y,
 								velocity: getSpeedVector(
-									{ x: 1, y: -2 },
-									enemies[0],
-									0.3
+									{ x: upgrade.x, y: upgrade.y },
+									targetEnemy,
+									0.1
 								),
 								enemyIdsHit: [],
 							},
-						])
-				: []),
-			...bullets
-				.map((bullet) => ({
-					...bullet,
-					x: bullet.x + bullet.velocity.x,
-					y: bullet.y + bullet.velocity.y,
-				}))
-				.filter((bullet) =>
-					// TODO: actual world border?
-					isPositionInsideArea(bullet, {
-						x: -10,
-						y: -10,
-						width: 20,
-						height: 20,
-					})
-				),
-		])
+						]
+					}),
+				...bullets
+					.map((bullet) => ({
+						...bullet,
+						x: bullet.x + bullet.velocity.x,
+						y: bullet.y + bullet.velocity.y,
+					}))
+					.filter((bullet) =>
+						isPositionInsideArea(bullet, {
+							x: -10,
+							y: -10,
+							width: 20,
+							height: 20,
+						})
+					),
+			])
+			return newUpgrades
+		})
 
 		// hit enemies
 		setEnemies((prevEnemies) => {

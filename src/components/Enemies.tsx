@@ -34,7 +34,7 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 	}, [timePassedSinceWaveStart])
 
 	const amountEnemies = Math.ceil(
-		lerp(1, 5, timePassedSinceWaveStart / attackTime)
+		lerp(1, 5 * wave, timePassedSinceWaveStart / attackTime)
 	)
 
 	useEffect(() => {

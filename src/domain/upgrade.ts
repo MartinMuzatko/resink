@@ -24,7 +24,8 @@ export type Upgrade = Identifier &
 		/** cumulates stats */
 		effect: (stats: Stats, upgrade: Upgrade, upgrades: Upgrade[]) => Stats
 		health: number
-		lastTimeDamageTaken: number
+		lastDamageTakenTime: number
+		lastBulletShotTime: number
 	}
 
 export const createUpgrade = (upgrade: Partial<Upgrade>): Upgrade => ({
@@ -37,7 +38,8 @@ export const createUpgrade = (upgrade: Partial<Upgrade>): Upgrade => ({
 	effect: (stats) => stats,
 	icon: 'M',
 	health: 10,
-	lastTimeDamageTaken: 0,
+	lastBulletShotTime: 0,
+	lastDamageTakenTime: 0,
 	...upgrade,
 })
 
@@ -187,12 +189,12 @@ export const updateUpgradeDamage = (
 ) => {
 	const damagedUpgrades = upgrades.map((upgrade) =>
 		upgradeIdsToTakeDamage.includes(upgrade.id) &&
-		upgrade.lastTimeDamageTaken < timePassed - 1000
+		upgrade.lastDamageTakenTime < timePassed - 1000
 			? {
 					...upgrade,
 					health: getHealth(upgrade, stats) - 1,
 					active: getHealth(upgrade, stats) > 0,
-					lastTimeDamageTaken: timePassed,
+					lastDamageTakenTime: timePassed,
 			  }
 			: upgrade
 	)
