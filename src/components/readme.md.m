@@ -1,9 +1,18 @@
 We could add roguelite elements:
 Allow after each round to select random new upgrades, add more to default strength on every run.
+Or when selecting an upgrade node - specialize and replace other upgrade nodes
 
 Upgrade Tree with a central power/resource generator.
 Power is constant - e.g. it produces 10 - you can spend it
 
+
+Mouse Hold areas can be established to replenish parts like ammo, health regeneration, etc.
+
+Trade-Offs:
+
+Shotgun: Bigger area but less attack damage
+Sniper: Smaller area but more attack damage
+Minigun: Medium Area but more attack speed
 
 Upgrades:
 
@@ -11,7 +20,8 @@ Conversion
 Every enemy drops 1 red
 100 red = 1 blue
 100 blue = 1 green
-
+Or sources like bullets
+qq
 Categories for Layout:
 
 Up: Attack
@@ -29,6 +39,7 @@ Engine
 	Range (Visibilty)
 	Power Generation
 	Tier
+
 Upgrade Nodes
 	Improve Mouse Attack
 		Area
@@ -73,6 +84,19 @@ Lure
 	Evenly distribute
 	Generate Decoys that enemies are drawn to
 
+Mines
+
+Defensive Destruction:
+	Enemies attack levels instead of upgrades first as strategy
+
+Decoys
+	Decoy Damage (Mine)
+	Health
+	Amount
+	Speed
+	Attractivity (How much the enemy prefers the decoy)
+
+
 Attackers
 	Increase attacks (reward)
 
@@ -82,6 +106,8 @@ Harvester
 
 Power Generation
 	Constantly gain power
+	Power via area attack
+	Power via upgrade bullets
 
 	get x power per Upgrade
 	Convert power to ammo (1 power -> 100 ammo)

@@ -22,6 +22,8 @@ import { HealthBar } from './HealthBar'
 import { INITIAL_CONNECTIONS, INITIAL_UPGRADES } from '../data/initialGameData'
 import { StatsInfoPlain } from './StatsInfoPlain'
 import { GiConsoleController } from 'react-icons/gi'
+import { Tooltip } from '@mantine/core'
+import { BsLightningChargeFill } from 'react-icons/bs'
 
 // const enemyStats = {
 // 	damage: 1,
@@ -55,12 +57,19 @@ export const Stage = memo(() => {
 	const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0)
 	const [powerThroughEnemiesDefeated, setPowerThroughEnemiesDefeated] =
 		useState(0)
+	const [powerSpentOnAmmo, setPowerSpentOnAmmo] = useState(0)
 	const [enemies, setEnemies] = useState<Enemy[]>([])
 	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES())
+	const [ammo, setAmmo] = useState(10)
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
-		() => getStatsFromActiveUpgrades(upgrades, powerThroughEnemiesDefeated),
-		[upgrades, powerThroughEnemiesDefeated]
+		() =>
+			getStatsFromActiveUpgrades(
+				upgrades,
+				powerThroughEnemiesDefeated,
+				powerSpentOnAmmo
+			),
+		[upgrades, powerThroughEnemiesDefeated, powerSpentOnAmmo]
 	)
 	const mouse = useMouse()
 	const [bullets, setBullets] = useState<Bullet[]>([])
@@ -103,7 +112,9 @@ export const Stage = memo(() => {
 				)
 				.filter((enemy) => enemy.health > 0)
 			setPowerThroughEnemiesDefeated((prevPower) => {
-				const enemiesKilled = prevEnemies.length - enemiesLeft.length
+				const enemiesKilled =
+					(prevEnemies.length - enemiesLeft.length) *
+					stats.powerPerEnemy
 				// XXX: Calculated gain is based on power - usedPower (difference to max)
 				// e.g. [-----++   ] (5/10) - 5 power (+2 enemies), 0 used, 10 max
 				const maxGainAllowed = Math.max(
@@ -148,51 +159,29 @@ export const Stage = memo(() => {
 
 	useEffect(() => {
 		// update upgrade health on enemy attack
-		const upgradeIdsToTakeDamage = upgrades
-			.filter((upgrade) =>
-				enemies.find((enemy) => equalPosition(upgrade, enemy))
-			)
-			.map((upgrade) => upgrade.id)
-		if (upgradeIdsToTakeDamage.length)
-			setUpgrades((upgrades) =>
-				updateUpgradeDamage(
-					upgradeIdsToTakeDamage,
-					upgrades,
-					connections,
-					timePassed,
-					stats
-				)
-			)
 
-		// create zand move bullets
 		setUpgrades((prevUpgrades) => {
-			const newUpgrades = prevUpgrades.map((upgrade) => {
-				const canShoot =
-					tick - upgrade.lastBulletShotTime >=
-						stats.upgradeBulletAttackSpeed &&
-					stats.upgradeBulletAttackDamage !== 0
-				if (!canShoot) return upgrade // No changes if the upgrade is on cooldown
-
-				// Find enemies in range
-				const isEnemyInRange = enemies.some(
-					(enemy) =>
-						getDistance(upgrade, enemy) <
-						stats.upgradeBulletAttackRange
+			const upgradeIdsToTakeDamage = prevUpgrades
+				.filter((upgrade) =>
+					enemies.find((enemy) => equalPosition(upgrade, enemy))
 				)
-
-				if (!isEnemyInRange) return upgrade // No enemies in range, skip shooting
-				// Update the `lastBulletShotTime` to the current tick, creating a new object
-				return { ...upgrade, lastBulletShotTime: tick }
-			})
-			// Now use the updated `upgrades` state to generate bullets as needed
-			setBullets((bullets) => [
-				...newUpgrades
-					.filter((upgrade) => upgrade.active)
-					.flatMap((upgrade) => {
+				.map((upgrade) => upgrade.id)
+			// Specify the accumulator type in the `reduce` function
+			const { upgrades: newUpgrades, bullets: newBullets } =
+				prevUpgrades.reduce<{
+					upgrades: Upgrade[]
+					bullets: Bullet[]
+				}>(
+					({ upgrades, bullets }, upgrade) => {
 						const canShoot =
-							tick === upgrade.lastBulletShotTime &&
-							stats.upgradeBulletAttackDamage !== 0
-						if (!canShoot) return []
+							tick - upgrade.lastBulletShotTime >=
+								stats.upgradeBulletAttackSpeed &&
+							stats.upgradeBulletAttackDamage !== 0 &&
+							upgrade.active &&
+							ammo > 0
+
+						if (!canShoot)
+							return { upgrades: [...upgrades, upgrade], bullets }
 
 						const enemiesInRange = enemies.filter(
 							(enemy) =>
@@ -200,7 +189,8 @@ export const Stage = memo(() => {
 								stats.upgradeBulletAttackRange
 						)
 
-						if (enemiesInRange.length === 0) return []
+						if (enemiesInRange.length === 0)
+							return { upgrades: [...upgrades, upgrade], bullets }
 
 						const targetEnemy = enemiesInRange.reduce(
 							(closest, enemy) =>
@@ -210,20 +200,34 @@ export const Stage = memo(() => {
 									: closest
 						)
 
-						return [
-							{
-								id: crypto.randomUUID(),
-								x: upgrade.x,
-								y: upgrade.y,
-								velocity: getSpeedVector(
-									{ x: upgrade.x, y: upgrade.y },
-									targetEnemy,
-									0.1
-								),
-								enemyIdsHit: [],
-							},
-						]
-					}),
+						const updatedUpgrade = {
+							...upgrade,
+							lastBulletShotTime: tick,
+						}
+						// TODO: React.StrictMode makes this get added twice per tick in dev mode
+						// we could add a tickFired prop and compare then.
+						const newBullet = {
+							id: crypto.randomUUID(),
+							x: upgrade.x,
+							y: upgrade.y,
+							velocity: getSpeedVector(
+								{ x: upgrade.x, y: upgrade.y },
+								targetEnemy,
+								0.1
+							),
+							enemyIdsHit: [],
+						}
+
+						return {
+							upgrades: [...upgrades, updatedUpgrade],
+							bullets: [...bullets, newBullet],
+						}
+					},
+					{ upgrades: [], bullets: [] } // Initial value with the specified type
+				)
+			setAmmo((ammo) => ammo - newBullets.length)
+			setBullets((bullets) => [
+				...newBullets.slice(0, ammo - newBullets.length),
 				...bullets
 					.map((bullet) => ({
 						...bullet,
@@ -239,7 +243,16 @@ export const Stage = memo(() => {
 						})
 					),
 			])
-			return newUpgrades
+
+			return upgradeIdsToTakeDamage.length
+				? updateUpgradeDamage(
+						upgradeIdsToTakeDamage,
+						newUpgrades,
+						connections,
+						timePassed,
+						stats
+				  )
+				: newUpgrades
 		})
 
 		// hit enemies
@@ -387,6 +400,54 @@ export const Stage = memo(() => {
 						{stats.power - stats.usedPower}/{stats.maxPower}
 					</div>
 				</div>
+				<Tooltip
+					label={
+						<div className="flex items-center ">
+							Refill for{' '}
+							{Math.ceil((stats.upgradeBulletMaxAmmo - ammo) / 2)}
+							<BsLightningChargeFill className="ml-1" />
+						</div>
+					}
+					position="right-end"
+				>
+					<div
+						onClick={() => {
+							const toSpend = Math.ceil(
+								(stats.upgradeBulletMaxAmmo - ammo) / 2
+							)
+							if (
+								stats.power - stats.usedPower < toSpend ||
+								ammo === stats.upgradeBulletMaxAmmo
+							)
+								return
+							setAmmo(stats.upgradeBulletMaxAmmo)
+							setPowerSpentOnAmmo((ammo) => ammo + toSpend)
+						}}
+						className="absolute z-30  border-2 cursor-pointer bg-gray-800 border-red-900"
+						style={{
+							width: 1 * gridScale - gridScale / 2,
+							height: 2 * gridScale - gridScale / 2,
+							top: `${-2 * gridScale + gridScale / 4}px`,
+							left: `${3 * gridScale + gridScale / 4}px`,
+						}}
+					>
+						<div className="font-bold font-mono absolute -rotate-90 origin-top-left top-24 -left-6">
+							Bullet&nbsp;Ammo
+						</div>
+
+						<div
+							className="absolute w-full bottom-0 bg-amber-600"
+							style={{
+								height: `${
+									(ammo / stats.upgradeBulletMaxAmmo) * 100
+								}%`,
+							}}
+						></div>
+						<div className="font-bold font-mono absolute -rotate-90 origin-top-left left-6 top-10">
+							{ammo}/{stats.upgradeBulletMaxAmmo}
+						</div>
+					</div>
+				</Tooltip>
 			</div>
 			<Enemies
 				{...{
@@ -404,7 +465,7 @@ export const Stage = memo(() => {
 			>
 				{bullets.map((bullet) => (
 					<div
-						className="absolute bg-rose-800 rounded-full"
+						className="absolute bg-amber-400 rounded-full"
 						key={bullet.id}
 						style={{
 							transform: 'translate(-50%, -50%)',

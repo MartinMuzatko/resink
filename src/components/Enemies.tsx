@@ -16,7 +16,7 @@ enum WaveState {
 	idle = 'idle',
 }
 
-const attackGrace = 10 * 1000
+const attackGrace = 15 * 1000
 const attackTime = 25 * 1000
 // const enemiesAmountScale = 1.5
 
@@ -34,7 +34,7 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 	}, [timePassedSinceWaveStart])
 
 	const amountEnemies = Math.ceil(
-		lerp(1, 5 * wave, timePassedSinceWaveStart / attackTime)
+		lerp(1, 6, timePassedSinceWaveStart / attackTime)
 	)
 
 	useEffect(() => {
@@ -49,7 +49,7 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			)
 			// TODO: Scale amount and toughness of enemies with time.
 			// Also create varients
-			const newEnemies = [
+			const newEnemies: Enemy[] = [
 				...enemies,
 				...(activeUpgrades.length &&
 				waveState == WaveState.ongoing &&
@@ -66,7 +66,8 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 							...generateRandomPositionOnEdge(spawnArea),
 							target: findTarget(upgrades).id,
 							speed: 0.0025,
-							health: 2,
+							health: Math.ceil(wave / 2),
+							maxHealth: Math.ceil(wave / 2),
 					  }))
 					: []),
 			]
@@ -108,7 +109,10 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 							top: `${enemy.y * gridScale + gridScale / 2}px`,
 						}}
 					>
-						<HealthBar current={enemy.health} max={2} />
+						<HealthBar
+							current={enemy.health}
+							max={enemy.maxHealth}
+						/>
 					</div>
 				))}
 			</div>

@@ -58,4 +58,5 @@ export type Enemy = Identifier &
 		target: string
 		speed: number
 		health: number
+		maxHealth: number
 	}

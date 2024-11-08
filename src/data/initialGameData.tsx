@@ -4,19 +4,28 @@ import { createUpgrade, UpgradeType } from '../domain/upgrade'
 import {
 	GiBarracks,
 	GiBroadsword,
+	GiPowerGenerator,
+	GiSentryGun,
 	GiStripedSword,
+	GiSwordAltar,
 	GiTurret,
 } from 'react-icons/gi'
 import { FaHeart, FaHeartbeat } from 'react-icons/fa'
 import { GiResize } from 'react-icons/gi'
 import { StatsInfoPlain } from '../components/StatsInfoPlain'
 import { BiHeartSquare } from 'react-icons/bi'
+import { LuExpand } from 'react-icons/lu'
+import { AiOutlineReload } from 'react-icons/ai'
+import { BsLightningChargeFill } from 'react-icons/bs'
+import { CiDroplet } from 'react-icons/ci'
+import { MdOutlineShield } from 'react-icons/md'
 
 export const INITIAL_STATS: Stats = {
-	power: 20,
-	maxPower: 20,
+	power: 100,
+	maxPower: 100,
 	usedPower: 0,
 	powerMultiplier: 1,
+	powerPerEnemy: 1,
 	upgradeCostMultiplier: 1,
 	globalHealth: 1,
 	globalArmor: 0,
@@ -29,10 +38,11 @@ export const INITIAL_STATS: Stats = {
 	globalHealthRegenerationAmount: 0,
 	globalHealthRegenerationSpeed: 4000,
 	upgradeBulletAttackDamage: 0,
+	upgradeBulletMaxAmmo: 20,
 	// tick based
 	// TODO: make time based and per upgrade
-	upgradeBulletAttackSpeed: 30,
-	upgradeBulletAttackRange: 3,
+	upgradeBulletAttackSpeed: 100,
+	upgradeBulletAttackRange: 1.5,
 }
 
 export const INITIAL_UPGRADES = () => [
@@ -94,7 +104,7 @@ export const INITIAL_UPGRADES = () => [
 			usedPower: stats.usedPower + getCost(stats, upgrade),
 			mouseSpeed: stats.mouseSpeed * 0.8,
 		}),
-		icon: 'AS2',
+		icon: <GiStripedSword className="w-full h-full" />,
 		x: 0,
 		y: -3,
 	}),
@@ -104,11 +114,11 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			mouseSpeed: stats.mouseSpeed * 0.7,
+			mouseSpeed: stats.mouseSpeed * 0.6,
 		}),
-		icon: 'AS2',
-		x: 1,
-		y: -3,
+		icon: <GiStripedSword className="w-full h-full" />,
+		x: 0,
+		y: -4,
 	}),
 	createUpgrade({
 		id: 'A2',
@@ -124,6 +134,18 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'A3',
+		cost: 15,
+		effect: (stats, upgrade, upgrades) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			mouseAttackDamage: stats.mouseAttackDamage + 3,
+		}),
+		icon: <GiSwordAltar className="w-full h-full" />,
+		x: 1,
+		y: -2,
+	}),
+	createUpgrade({
+		id: 'AT',
 		title: 'Turn upgrades into turrets',
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
@@ -133,7 +155,43 @@ export const INITIAL_UPGRADES = () => [
 		}),
 		icon: <GiTurret className="w-full h-full" />,
 		x: 1,
+		y: -3,
+	}),
+	createUpgrade({
+		id: 'AT1',
+		cost: 15,
+		effect: (stats, upgrade, upgrades) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			upgradeBulletAttackDamage: stats.upgradeBulletAttackDamage + 1,
+		}),
+		icon: <GiSentryGun className="w-full h-full" />,
+		x: 2,
 		y: -2,
+	}),
+	createUpgrade({
+		id: 'AT2',
+		cost: 15,
+		effect: (stats, upgrade, upgrades) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			upgradeBulletAttackSpeed: stats.upgradeBulletAttackSpeed * 0.8,
+		}),
+		icon: <AiOutlineReload className="w-full h-full" />,
+		x: 2,
+		y: -3,
+	}),
+	createUpgrade({
+		id: 'AT3',
+		cost: 15,
+		effect: (stats, upgrade, upgrades) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			upgradeBulletAttackRange: stats.upgradeBulletAttackRange + 1,
+		}),
+		icon: <LuExpand className="w-full h-full" />,
+		x: 3,
+		y: -3,
 	}),
 	createUpgrade({
 		id: 'D',
@@ -141,10 +199,10 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			globalHealth: stats.globalHealth + 1,
+			globalHealth: stats.globalHealth + 3,
 		}),
 		icon: <FaHeart className="w-full h-full" />,
-		x: 0,
+		x: 1,
 		y: 1,
 	}),
 	createUpgrade({
@@ -155,7 +213,19 @@ export const INITIAL_UPGRADES = () => [
 			usedPower: stats.usedPower + getCost(stats, upgrade),
 		}),
 		icon: <FaHeartbeat className="w-full h-full" />,
-		x: -1,
+		x: 0,
+		y: 2,
+	}),
+	createUpgrade({
+		id: 'D2',
+		cost: 10,
+		effect: (stats, upgrade) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			globalArmor: stats.globalArmor + 1,
+		}),
+		icon: <MdOutlineShield className="w-full h-full" />,
+		x: 1,
 		y: 2,
 	}),
 	createUpgrade({
@@ -167,8 +237,8 @@ export const INITIAL_UPGRADES = () => [
 			mouseHealAmount: stats.mouseHealAmount + 1,
 		}),
 		icon: <BiHeartSquare className="w-full h-full" />,
-		x: 1,
-		y: 2,
+		x: 2,
+		y: 1,
 	}),
 	createUpgrade({
 		id: 'L',
@@ -176,22 +246,35 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
+			maxPower: stats.maxPower + 10,
 		}),
-		icon: 'L',
+		icon: <BsLightningChargeFill className="w-full h-full" />,
 		x: -1,
-		y: 0,
+		y: 1,
 	}),
 	createUpgrade({
-		id: 'U',
+		id: 'L1',
 		cost: 4,
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			// health: stats.health + 1,
+			maxPower: stats.maxPower + 20,
 		}),
-		icon: 'U',
-		x: 1,
+		icon: <GiPowerGenerator className="w-full h-full" />,
+		x: -2,
 		y: 0,
+	}),
+	createUpgrade({
+		id: 'L2',
+		cost: 30,
+		effect: (stats, upgrade) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			powerPerEnemy: stats.powerPerEnemy + 1,
+		}),
+		icon: <CiDroplet className="w-full h-full" />,
+		x: -2,
+		y: 1,
 	}),
 ]
 
@@ -202,9 +285,15 @@ export const INITIAL_CONNECTIONS = [
 	connection('A', 'A3'),
 	connection('A1', 'AS2'),
 	connection('AS2', 'AS3'),
+	connection('A3', 'AT'),
+	connection('AT', 'AT1'),
+	connection('AT1', 'AT2'),
+	connection('AT2', 'AT3'),
 	connection('M', 'D'),
 	connection('D', 'D1'),
+	connection('D', 'D2'),
 	connection('D', 'D3'),
 	connection('M', 'L'),
-	connection('M', 'U'),
+	connection('L', 'L1'),
+	connection('L', 'L2'),
 ]

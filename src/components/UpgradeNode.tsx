@@ -13,6 +13,7 @@ import {
 import { getCost, Stats } from '../domain/stats'
 import { HealthBar } from './HealthBar'
 import { StatsInfo } from './StatsInfo'
+import { clamp } from '../domain/main'
 
 type UpgradeNodeProps = {
 	upgrade: Upgrade
@@ -29,7 +30,7 @@ export const UpgradeNode = ({
 	setUpgrades,
 	connections,
 }: UpgradeNodeProps) => {
-	const { gridScale } = useGameContext()
+	const { gridScale, tick } = useGameContext()
 	const toggleUpgrade = useCallback(() => {
 		setUpgrades((upgrades) =>
 			toggleActivation(upgrade, upgrades, connections, stats)
@@ -51,13 +52,19 @@ export const UpgradeNode = ({
 				height: `${gridScale}px`,
 			}}
 		>
-			{/* <div
-				className="rounded-full absolute z-10 bg-red-900/10"
-				style={{
-					width: `${stats.upgradeBulletAttackRange * gridScale}px`,
-					height: `${stats.upgradeBulletAttackRange * gridScale}px`,
-				}}
-			/> */}
+			{upgrade.active && stats.upgradeBulletAttackDamage !== 0 && (
+				<div
+					className="rounded-full absolute z-10 bg-red-900/10"
+					style={{
+						width: `${
+							stats.upgradeBulletAttackRange * 2 * gridScale
+						}px`,
+						height: `${
+							stats.upgradeBulletAttackRange * 2 * gridScale
+						}px`,
+					}}
+				/>
+			)}
 			<Tooltip
 				className="p-0"
 				// {...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
@@ -133,7 +140,7 @@ export const UpgradeNode = ({
 						style={{ padding: gridScale / 24 }}
 					>
 						{/* For debugging purposes when connecting */}
-						{/* upgrade.id */}
+						{/* {upgrade.id} */}
 						{upgrade.icon}
 					</div>
 					{upgrade.active && (
@@ -142,6 +149,32 @@ export const UpgradeNode = ({
 							max={getMaxHealth(upgrade, stats)}
 						/>
 					)}
+					{upgrade.active &&
+						stats.upgradeBulletAttackDamage !== 0 && (
+							<div
+								className="absolute top-0 left-full h-full bg-amber-800 z-20"
+								style={{
+									width: gridScale / 16,
+								}}
+							>
+								<div
+									className="absolute top-0 bg-amber-400 z-20"
+									style={{
+										width: gridScale / 16,
+										height: `${
+											clamp(
+												0,
+												1
+											)(
+												(tick -
+													upgrade.lastBulletShotTime) /
+													stats.upgradeBulletAttackSpeed
+											) * 100
+										}%`,
+									}}
+								></div>
+							</div>
+						)}
 				</div>
 			</Tooltip>
 		</div>

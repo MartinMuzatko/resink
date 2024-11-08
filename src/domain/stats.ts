@@ -8,6 +8,7 @@ export type Stats = {
 	maxPower: number
 	usedPower: number
 	powerMultiplier: number
+	powerPerEnemy: number
 	upgradeCostMultiplier: number
 	// Attack
 	mouseSize: number
@@ -17,6 +18,7 @@ export type Stats = {
 	upgradeBulletAttackDamage: number
 	upgradeBulletAttackRange: number
 	upgradeBulletAttackSpeed: number
+	upgradeBulletMaxAmmo: number
 	// Defense
 	globalHealth: number
 	globalHealthRegenerationAmount: number
@@ -32,6 +34,7 @@ export const diffStats = (a: Stats, b: Stats): Stats => ({
 	usedPower: b.usedPower - a.usedPower,
 	maxPower: b.maxPower - a.maxPower,
 	powerMultiplier: b.powerMultiplier - a.powerMultiplier,
+	powerPerEnemy: b.powerPerEnemy - a.powerPerEnemy,
 	upgradeCostMultiplier: b.upgradeCostMultiplier - a.upgradeCostMultiplier,
 	mouseAttackDamage: b.mouseAttackDamage - a.mouseAttackDamage,
 	mouseSize: b.mouseSize - a.mouseSize,
@@ -43,6 +46,7 @@ export const diffStats = (a: Stats, b: Stats): Stats => ({
 		b.upgradeBulletAttackSpeed - a.upgradeBulletAttackSpeed,
 	upgradeBulletAttackRange:
 		b.upgradeBulletAttackRange - a.upgradeBulletAttackRange,
+	upgradeBulletMaxAmmo: b.upgradeBulletMaxAmmo - a.upgradeBulletMaxAmmo,
 	globalHealth: b.globalHealth - a.globalHealth,
 	globalHealthRegenerationAmount:
 		a.globalHealthRegenerationAmount - b.globalHealthRegenerationAmount,
@@ -56,7 +60,8 @@ export const diffStats = (a: Stats, b: Stats): Stats => ({
 // TODO is there an order?
 export const getStatsFromActiveUpgrades = (
 	upgrades: Upgrade[],
-	powerThroughKilledEnemies: number
+	powerThroughKilledEnemies: number,
+	powerSpentOnAmmo: number
 ): Stats => {
 	const activeUpgrades = upgrades.filter((node) => node.active)
 
@@ -69,7 +74,10 @@ export const getStatsFromActiveUpgrades = (
 		power:
 			stats.usedPower +
 			Math.min(
-				stats.power - stats.usedPower + powerThroughKilledEnemies,
+				stats.power -
+					stats.usedPower -
+					powerSpentOnAmmo +
+					powerThroughKilledEnemies,
 				stats.maxPower
 			),
 		// power: stats.power * stats.powerMultiplier,

@@ -17,7 +17,11 @@ Attack (Attack + 1)
 		Size
 		Damage
 		Amount
+		MaxBullets
+		BulletAutoRefill
+		BulletCost
 		Piercing
+
 		Strategy: random, nearest enemy, toughest enemy
 		Homing
 		Explode on Contact (AoE)
@@ -34,9 +38,12 @@ Attack (Attack + 1)
 
 Defense (Health + 1)
 	Armor
+	Energy Shield (Blauer Balken)
 	Health
 	Health Regeneration
+		Global background regeneration
 		Health Regeneration in AttackArea
+	Health Regeneration after wave done
 	Decoy
 		Health
 		Lifetime
@@ -54,5 +61,6 @@ Logistics (Range + 1)
 
 		get x power per Upgrade
 		Constantly gain power
+		Power gain after every wave
 		Convert power to ammo (1 power -> 100 ammo)
 		convert power to tier2 (100 power -> 1 t2 power)

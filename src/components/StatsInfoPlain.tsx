@@ -31,6 +31,12 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 					{stats.maxPower}
 				</div>
 			)}
+			{stats.powerPerEnemy !== 0 && (
+				<div>
+					<span className="text-cyan-400">Power per Enemy</span> +{' '}
+					{stats.powerPerEnemy}
+				</div>
+			)}
 			{stats.globalHealth !== 0 && (
 				<div>
 					<span className="text-green-600">Health</span> +{' '}
@@ -85,6 +91,19 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 				<div>
 					<span className="text-green-400">Upgrade Bullet Range</span>{' '}
 					+ {stats.upgradeBulletAttackRange}
+				</div>
+			)}
+			{stats.upgradeBulletAttackSpeed !== 0 && (
+				<div>
+					<span className="text-teal-400">Upgrade Bullet Speed</span>{' '}
+					+{' '}
+					{Math.floor(
+						Math.abs(
+							stats.upgradeBulletAttackSpeed /
+								INITIAL_STATS.upgradeBulletAttackSpeed
+						) * 100
+					)}
+					%
 				</div>
 			)}
 			{(stats.upgradeHealth !== 0 || stats.upgradeArmor !== 0) && (
