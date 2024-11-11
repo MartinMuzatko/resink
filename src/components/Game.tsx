@@ -54,6 +54,14 @@ export const Game = () => {
 					deltaTime: deltaTime.current ?? 0,
 				}}
 			>
+				<div
+					className="bg-blue-400 w-2 h-2 absolute z-40"
+					style={{
+						top: '50%',
+						left: '50%',
+						transform: 'translate(-50%, -50%)',
+					}}
+				></div>
 				<div className="absolute bottom-0 left-0">
 					<p>time: {(timePassed.current / 1000).toFixed(0)}</p>
 					<p>

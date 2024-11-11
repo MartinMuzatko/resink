@@ -21,7 +21,6 @@ Attack (Attack + 1)
 		BulletAutoRefill
 		BulletCost
 		Piercing
-
 		Strategy: random, nearest enemy, toughest enemy
 		Homing
 		Explode on Contact (AoE)
@@ -56,9 +55,7 @@ Logistics (Range + 1)
 	Range
 	Power Battery
 		Max Capacity
-
 	Power Generation
-
 		get x power per Upgrade
 		Constantly gain power
 		Power gain after every wave

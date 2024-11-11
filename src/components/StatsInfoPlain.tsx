@@ -20,6 +20,8 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 					Global Stats
 				</div>
 			)}
+			{/* TODO: current stats display and changes in two diff. components.
+			Also: automated display based on json, e.g. { displayType: percentage, color, } */}
 			{stats.power !== 0 && (
 				<div>
 					<span className="text-blue-600">Power</span> + {stats.power}
@@ -101,6 +103,25 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 						Math.abs(
 							stats.upgradeBulletAttackSpeed /
 								INITIAL_STATS.upgradeBulletAttackSpeed
+						) * 100
+					)}
+					%
+				</div>
+			)}
+			{stats.upgradeBulletMaxAmmo !== 0 && (
+				<div>
+					<span className="text-green-400">Max Bullet Ammo</span> +{' '}
+					{stats.upgradeBulletMaxAmmo}
+				</div>
+			)}
+			{stats.upgradeBulletAmmoPrice !== 0 && (
+				<div>
+					<span className="text-teal-400">Upgrade Bullet Price</span>{' '}
+					-
+					{Math.floor(
+						Math.abs(
+							stats.upgradeBulletAmmoPrice /
+								INITIAL_STATS.upgradeBulletAmmoPrice
 						) * 100
 					)}
 					%

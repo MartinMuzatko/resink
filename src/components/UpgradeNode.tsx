@@ -50,6 +50,7 @@ export const UpgradeNode = ({
 				top: `${upgrade.y * gridScale}px`,
 				width: `${gridScale}px`,
 				height: `${gridScale}px`,
+				transform: 'translate(-50%, -50%)',
 			}}
 		>
 			{upgrade.active && stats.upgradeBulletAttackDamage !== 0 && (
