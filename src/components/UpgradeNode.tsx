@@ -30,7 +30,7 @@ export const UpgradeNode = ({
 	setUpgrades,
 	connections,
 }: UpgradeNodeProps) => {
-	const { gridScale, tick } = useGameContext()
+	const { gridScale, timePassed } = useGameContext()
 	const toggleUpgrade = useCallback(() => {
 		setUpgrades((upgrades) =>
 			toggleActivation(upgrade, upgrades, connections, stats)
@@ -46,8 +46,12 @@ export const UpgradeNode = ({
 		<div
 			className="absolute flex items-center justify-center"
 			style={{
-				left: `${upgrade.x * gridScale}px`,
-				top: `${upgrade.y * gridScale}px`,
+				left: `${
+					upgrade.x * gridScale - gridScale / 2 + gridScale / 8
+				}px`,
+				top: `${
+					upgrade.y * gridScale - gridScale / 2 + gridScale / 8
+				}px`,
 				width: `${gridScale}px`,
 				height: `${gridScale}px`,
 			}}
@@ -66,7 +70,11 @@ export const UpgradeNode = ({
 				/>
 			)}
 			<Tooltip
-				className="p-0"
+				arrowRadius={0}
+				className="p-0 bg-black/50"
+				position="right-start"
+				arrowPosition="side"
+				arrowSize={gridScale / 8}
 				// {...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
 				label={
 					<>
@@ -112,13 +120,6 @@ export const UpgradeNode = ({
 						</div>
 					</>
 				}
-				position="right-start"
-				arrowPosition="side"
-				arrowSize={gridScale / 8}
-				withArrow
-				classNames={{
-					tooltip: 'bg-black',
-				}}
 			>
 				<div
 					onClick={toggleUpgrade}
@@ -166,7 +167,7 @@ export const UpgradeNode = ({
 												0,
 												1
 											)(
-												(tick -
+												(timePassed -
 													upgrade.lastBulletShotTime) /
 													stats.upgradeBulletAttackSpeed
 											) * 100

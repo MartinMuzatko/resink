@@ -4,6 +4,7 @@ import { createUpgrade, UpgradeType } from '../domain/upgrade'
 import {
 	GiBarracks,
 	GiBroadsword,
+	GiHeavyBullets,
 	GiPowerGenerator,
 	GiSentryGun,
 	GiStripedSword,
@@ -18,11 +19,11 @@ import { LuExpand } from 'react-icons/lu'
 import { AiOutlineReload } from 'react-icons/ai'
 import { BsLightningChargeFill } from 'react-icons/bs'
 import { CiDroplet } from 'react-icons/ci'
-import { MdOutlineShield } from 'react-icons/md'
+import { MdOutlineSell, MdOutlineShield } from 'react-icons/md'
 
 export const INITIAL_STATS: Stats = {
-	power: 100,
-	maxPower: 100,
+	power: 10,
+	maxPower: 20,
 	usedPower: 0,
 	powerMultiplier: 1,
 	powerPerEnemy: 1,
@@ -41,8 +42,9 @@ export const INITIAL_STATS: Stats = {
 	upgradeBulletMaxAmmo: 20,
 	// tick based
 	// TODO: make time based and per upgrade
-	upgradeBulletAttackSpeed: 100,
+	upgradeBulletAttackSpeed: 2000,
 	upgradeBulletAttackRange: 1.5,
+	upgradeBulletAmmoPrice: 0.5,
 }
 
 export const INITIAL_UPGRADES = () => [
@@ -166,8 +168,8 @@ export const INITIAL_UPGRADES = () => [
 			upgradeBulletAttackDamage: stats.upgradeBulletAttackDamage + 1,
 		}),
 		icon: <GiSentryGun className="w-full h-full" />,
-		x: 2,
-		y: -2,
+		x: 1,
+		y: -4,
 	}),
 	createUpgrade({
 		id: 'AT2',
@@ -190,8 +192,32 @@ export const INITIAL_UPGRADES = () => [
 			upgradeBulletAttackRange: stats.upgradeBulletAttackRange + 1,
 		}),
 		icon: <LuExpand className="w-full h-full" />,
+		x: 2,
+		y: -4,
+	}),
+	createUpgrade({
+		id: 'AT4',
+		cost: 15,
+		effect: (stats, upgrade, upgrades) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			upgradeBulletMaxAmmo: stats.upgradeBulletMaxAmmo + 15,
+		}),
+		icon: <GiHeavyBullets className="w-full h-full" />,
 		x: 3,
 		y: -3,
+	}),
+	createUpgrade({
+		id: 'AT5',
+		cost: 15,
+		effect: (stats, upgrade, upgrades) => ({
+			...stats,
+			usedPower: stats.usedPower + getCost(stats, upgrade),
+			upgradeBulletAmmoPrice: stats.upgradeBulletAmmoPrice - 0.15,
+		}),
+		icon: <MdOutlineSell className="w-full h-full" />,
+		x: 4,
+		y: -2,
 	}),
 	createUpgrade({
 		id: 'D',
@@ -287,8 +313,10 @@ export const INITIAL_CONNECTIONS = [
 	connection('AS2', 'AS3'),
 	connection('A3', 'AT'),
 	connection('AT', 'AT1'),
-	connection('AT1', 'AT2'),
-	connection('AT2', 'AT3'),
+	connection('AT', 'AT2'),
+	connection('AT', 'AT3'),
+	connection('AT2', 'AT4'),
+	connection('AT4', 'AT5'),
 	connection('M', 'D'),
 	connection('D', 'D1'),
 	connection('D', 'D2'),

@@ -41,8 +41,18 @@ export const ConnectionLine = ({
 			height={Math.max(strokeWidth, height * gridScale)}
 			className="absolute"
 			style={{
-				top: minY * gridScale + gridScale / 2 - strokeWidth / 2,
-				left: minX * gridScale + gridScale / 2 - strokeWidth / 2,
+				top:
+					minY * gridScale +
+					gridScale / 2 -
+					strokeWidth / 2 -
+					gridScale / 2 +
+					gridScale / 8,
+				left:
+					minX * gridScale +
+					gridScale / 2 -
+					strokeWidth / 2 -
+					gridScale / 2 +
+					gridScale / 8,
 			}}
 		>
 			<line

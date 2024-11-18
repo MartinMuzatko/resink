@@ -19,6 +19,7 @@ export type Stats = {
 	upgradeBulletAttackRange: number
 	upgradeBulletAttackSpeed: number
 	upgradeBulletMaxAmmo: number
+	upgradeBulletAmmoPrice: number
 	// Defense
 	globalHealth: number
 	globalHealthRegenerationAmount: number
@@ -47,6 +48,7 @@ export const diffStats = (a: Stats, b: Stats): Stats => ({
 	upgradeBulletAttackRange:
 		b.upgradeBulletAttackRange - a.upgradeBulletAttackRange,
 	upgradeBulletMaxAmmo: b.upgradeBulletMaxAmmo - a.upgradeBulletMaxAmmo,
+	upgradeBulletAmmoPrice: b.upgradeBulletAmmoPrice - a.upgradeBulletAmmoPrice,
 	globalHealth: b.globalHealth - a.globalHealth,
 	globalHealthRegenerationAmount:
 		a.globalHealthRegenerationAmount - b.globalHealthRegenerationAmount,
@@ -84,6 +86,8 @@ export const getStatsFromActiveUpgrades = (
 		// usedPower: stats.usedPower * stats.upgradeCostMultiplier,
 	}
 }
+
+export const getAvailablePower = (stats: Stats) => stats.power - stats.usedPower
 
 export const hasNotEnoughPower = (stats: Stats) => stats.usedPower > stats.power
 

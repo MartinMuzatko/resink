@@ -23,6 +23,20 @@ export type Upgrade = Identifier &
 		cost: number
 		/** cumulates stats */
 		effect: (stats: Stats, upgrade: Upgrade, upgrades: Upgrade[]) => Stats
+		// activate
+		// deactivate
+		// destroy
+		//
+		onActivate?: (
+			stats: Stats,
+			upgrade: Upgrade,
+			upgrades: Upgrade[]
+		) => Upgrade
+		onDeactivate?: (
+			stats: Stats,
+			upgrade: Upgrade,
+			upgrades: Upgrade[]
+		) => Upgrade
 		health: number
 		lastDamageTakenTime: number
 		lastBulletShotTime: number
@@ -189,7 +203,8 @@ export const updateUpgradeDamage = (
 ) => {
 	const damagedUpgrades = upgrades.map((upgrade) =>
 		upgradeIdsToTakeDamage.includes(upgrade.id) &&
-		upgrade.lastDamageTakenTime < timePassed - 1000
+		upgrade.lastDamageTakenTime <
+			timePassed - stats.upgradeBulletAttackSpeed
 			? {
 					...upgrade,
 					health: getHealth(upgrade, stats) - 1,

@@ -33,6 +33,7 @@ export const addPosition = (a: Position, b: Position) => ({
 	y: a.y + b.y,
 })
 
+/** Subtracts `a` from `b` */
 export const subPosition = (a: Position, b: Position) => ({
 	x: b.x - a.x,
 	y: b.y - a.y,

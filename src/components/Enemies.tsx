@@ -2,7 +2,13 @@ import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import { generateRandomPositionOnEdge, lerp } from '../domain/main'
 import { Upgrade, UpgradeType } from '../domain/upgrade'
-import { Enemy, findTarget, getSpawnArea, moveEnemy } from '../domain/enemy'
+import {
+	createEnemy,
+	Enemy,
+	findTarget,
+	getSpawnArea,
+	moveEnemy,
+} from '../domain/enemy'
 import { HealthBar } from './HealthBar'
 
 type EnemiesProps = {
@@ -33,9 +39,10 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			: WaveState.idle
 	}, [timePassedSinceWaveStart])
 
-	const amountEnemies = Math.ceil(
-		lerp(1, 6, timePassedSinceWaveStart / attackTime)
-	)
+	// const amountEnemies = Math.ceil(
+	// 	lerp(1, 6, timePassedSinceWaveStart / attackTime)
+	// )
+	const amountEnemies = 1
 
 	useEffect(() => {
 		if (timePassedSinceWaveStart >= attackTime + attackGrace) {
@@ -61,14 +68,18 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 									amountEnemies
 								)
 							),
-					  ].map(() => ({
-							id: crypto.randomUUID(),
-							...generateRandomPositionOnEdge(spawnArea),
-							target: findTarget(upgrades).id,
-							speed: 0.0025,
-							health: Math.ceil(wave / 2),
-							maxHealth: Math.ceil(wave / 2),
-					  }))
+					  ].map(() =>
+							createEnemy({
+								id: crypto.randomUUID(),
+								...generateRandomPositionOnEdge(spawnArea),
+								target: findTarget(upgrades).id,
+								attackSpeed: 2000,
+								speed: 0.0025,
+								size: 0.25,
+								health: Math.ceil(wave / 2),
+								maxHealth: Math.ceil(wave / 2),
+							})
+					  )
 					: []),
 			]
 			return newEnemies.map((enemy) =>
@@ -80,7 +91,15 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 
 	return (
 		<>
-			<div className="absolute right-0 top-0">
+			<div
+				className="absolute right-0 top-0"
+				style={{
+					// TODO: Maybe move wave etc to Stage or a context?
+					transform: `translate(-${window.innerWidth / 2}px, -${
+						window.innerHeight / 2
+					}px)`,
+				}}
+			>
 				<p>wave: {wave}</p>
 				<p>waveState: {waveState}</p>
 				<p>waveStarted: {(waveStartedTime / 1000).toFixed()}</p>
@@ -91,31 +110,20 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 				<p>timePassed: {(timePassed / 1000).toFixed()}</p>
 				<p>shouldSpawn: {amountEnemies}</p>
 			</div>
-			<div
-				className="w-full h-full absolute top-0 left-0 pointer-events-none"
-				style={{
-					transform: 'translate(50%, 50%)',
-				}}
-			>
-				{enemies.map((enemy) => (
-					<div
-						className="absolute bg-rose-600"
-						key={enemy.id}
-						style={{
-							transform: 'translate(-50%, -50%)',
-							width: `${gridScale / 4}px`,
-							height: `${gridScale / 4}px`,
-							left: `${enemy.x * gridScale + gridScale / 2}px`,
-							top: `${enemy.y * gridScale + gridScale / 2}px`,
-						}}
-					>
-						<HealthBar
-							current={enemy.health}
-							max={enemy.maxHealth}
-						/>
-					</div>
-				))}
-			</div>
+			{enemies.map((enemy) => (
+				<div
+					className="absolute bg-rose-600"
+					key={enemy.id}
+					style={{
+						width: `${enemy.size * gridScale}px`,
+						height: `${enemy.size * gridScale}px`,
+						left: `${(enemy.x - enemy.size / 2) * gridScale}px`,
+						top: `${(enemy.y - enemy.size / 2) * gridScale}px`,
+					}}
+				>
+					<HealthBar current={enemy.health} max={enemy.maxHealth} />
+				</div>
+			))}
 		</>
 	)
 }

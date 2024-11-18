@@ -38,7 +38,7 @@ export const moveEnemy = (
 	const currentTarget = upgrades.find((u) => u.id == enemy.target)!
 	const target = currentTarget.active ? currentTarget : findTarget(upgrades)
 	const distance = getDistance(enemy, target)
-	const p = lerpPosition(
+	const newPosition = lerpPosition(
 		enemy,
 		{
 			x: target.x,
@@ -48,15 +48,34 @@ export const moveEnemy = (
 	)
 	return {
 		...enemy,
-		...p,
+		...newPosition,
 		target: target.id,
 	}
 }
 
+export const createEnemy = (enemy: Partial<Enemy>): Enemy => ({
+	id: crypto.randomUUID(),
+	x: 0,
+	y: 0,
+	speed: 0.0125,
+	size: 1.25,
+	attackDamage: 1,
+	attackSpeed: 2000,
+	health: 1,
+	maxHealth: 1,
+	lastAttackDealtTime: 0,
+	target: 'none',
+	...enemy,
+})
+
 export type Enemy = Identifier &
 	Position & {
+		size: number
 		target: string
 		speed: number
+		attackDamage: number
+		attackSpeed: number
+		lastAttackDealtTime: number
 		health: number
 		maxHealth: number
 	}
