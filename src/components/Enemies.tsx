@@ -39,10 +39,10 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			: WaveState.idle
 	}, [timePassedSinceWaveStart])
 
-	// const amountEnemies = Math.ceil(
-	// 	lerp(1, 6, timePassedSinceWaveStart / attackTime)
-	// )
-	const amountEnemies = 1
+	const amountEnemies = Math.ceil(
+		lerp(1, 6, timePassedSinceWaveStart / attackTime)
+	)
+	// const amountEnemies = 1
 
 	useEffect(() => {
 		if (timePassedSinceWaveStart >= attackTime + attackGrace) {
@@ -74,7 +74,8 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 								...generateRandomPositionOnEdge(spawnArea),
 								target: findTarget(upgrades).id,
 								attackSpeed: 2000,
-								speed: 0.0025,
+								attackDamage: wave,
+								speed: 0.0125,
 								size: 0.25,
 								health: Math.ceil(wave / 2),
 								maxHealth: Math.ceil(wave / 2),
@@ -92,7 +93,7 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 	return (
 		<>
 			<div
-				className="absolute right-0 top-0"
+				className="absolute right-0 top-0 z-50"
 				style={{
 					// TODO: Maybe move wave etc to Stage or a context?
 					transform: `translate(-${window.innerWidth / 2}px, -${
@@ -112,13 +113,13 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			</div>
 			{enemies.map((enemy) => (
 				<div
-					className="absolute bg-rose-600"
+					className="absolute bg-rose-600 z-30"
 					key={enemy.id}
 					style={{
 						width: `${enemy.size * gridScale}px`,
 						height: `${enemy.size * gridScale}px`,
-						left: `${(enemy.x - enemy.size / 2) * gridScale}px`,
-						top: `${(enemy.y - enemy.size / 2) * gridScale}px`,
+						left: `${enemy.x * gridScale}px`,
+						top: `${enemy.y * gridScale}px`,
 					}}
 				>
 					<HealthBar current={enemy.health} max={enemy.maxHealth} />

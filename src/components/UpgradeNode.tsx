@@ -71,7 +71,7 @@ export const UpgradeNode = ({
 			)}
 			<Tooltip
 				arrowRadius={0}
-				className="p-0 bg-black/50"
+				className="p-0 bg-black/70"
 				position="right-start"
 				arrowPosition="side"
 				arrowSize={gridScale / 8}

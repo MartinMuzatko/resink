@@ -39,7 +39,7 @@ export const INITIAL_STATS: Stats = {
 	globalHealthRegenerationAmount: 0,
 	globalHealthRegenerationSpeed: 4000,
 	upgradeBulletAttackDamage: 0,
-	upgradeBulletMaxAmmo: 20,
+	upgradeBulletMaxAmmo: 10,
 	// tick based
 	// TODO: make time based and per upgrade
 	upgradeBulletAttackSpeed: 2000,

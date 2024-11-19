@@ -50,17 +50,7 @@ type MouseArea = Area & {
 export const Stage = memo(() => {
 	const { tick, timePassed, gridScale, deltaTime } = useGameContext()
 	const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0)
-	const [experienceOrbs, setExperienceOrbs] = useState<ExperienceOrb[]>(
-		[]
-		// [...Array(8)].flatMap((_, x) =>
-		// 	[...Array(8)].flatMap((_, y) => ({
-		// 		id: crypto.randomUUID(),
-		// 		x,
-		// 		y,
-		// 		amount: 1,
-		// 	}))
-		// )
-	)
+	const [experienceOrbs, setExperienceOrbs] = useState<ExperienceOrb[]>([])
 	const [powerThroughEnemiesDefeated, setPowerThroughEnemiesDefeated] =
 		useState(0)
 	const [powerSpentOnAmmo, setPowerSpentOnAmmo] = useState(0)
@@ -79,10 +69,6 @@ export const Stage = memo(() => {
 	)
 	const mouse = useMouse()
 	const [bullets, setBullets] = useState<Bullet[]>([])
-	// const gridMouse = useMemo(
-	// 	() => getGridPositionFromWindow(mouse, window, gridScale),
-	// 	[mouse]
-	// )
 
 	const mouseLastActivatedTime = useMemo(
 		() => timePassed - (timePassed % stats.mouseSpeed),
@@ -165,22 +151,25 @@ export const Stage = memo(() => {
 	useEffect(() => {
 		// update upgrade health on enemy attack
 		setUpgrades((prevUpgrades) => {
-			const upgradesToTakeDamage = prevUpgrades.map((upgrade) => {
-				const enemiesThatDealDamage = enemies.filter(
-					(enemy) =>
-						equalPosition(upgrade, enemy) &&
-						enemy.lastAttackDealtTime + enemy.attackSpeed >=
-							timePassed
-				)
-				return {
-					upgrade,
-					enemiesThatDealDamage,
-					damage: enemiesThatDealDamage.reduce(
-						(acc, cur) => acc + cur.attackDamage,
-						0
-					),
-				}
-			})
+			const upgradesToTakeDamage = prevUpgrades
+				.map((upgrade) => {
+					const enemiesThatDealDamage = enemies.filter(
+						(enemy) =>
+							equalPosition(upgrade, enemy) &&
+							timePassed >=
+								enemy.lastAttackDealtTime + enemy.attackSpeed
+					)
+					return {
+						upgrade,
+						enemiesThatDealDamage,
+						damage: enemiesThatDealDamage.reduce(
+							(acc, cur) => acc + cur.attackDamage,
+							0
+						),
+					}
+				})
+				.filter((u) => u.damage !== 0)
+
 			const enemyIdsThatDealDamage = [
 				...new Set(
 					upgradesToTakeDamage.flatMap((u) =>
@@ -195,8 +184,9 @@ export const Stage = memo(() => {
 				}>(
 					({ upgrades, bullets }, upgrade) => {
 						const canShoot =
-							timePassed - upgrade.lastBulletShotTime >=
-								stats.upgradeBulletAttackSpeed &&
+							timePassed >=
+								upgrade.lastBulletShotTime +
+									stats.upgradeBulletAttackSpeed &&
 							stats.upgradeBulletAttackDamage !== 0 &&
 							upgrade.active &&
 							ammo > 0
@@ -223,7 +213,7 @@ export const Stage = memo(() => {
 
 						const updatedUpgrade = {
 							...upgrade,
-							lastBulletShotTime: tick,
+							lastBulletShotTime: timePassed,
 						}
 						// TODO: React.StrictMode makes this get added twice per tick in dev mode
 						// we could add a tickFired prop and compare then.
@@ -246,7 +236,7 @@ export const Stage = memo(() => {
 					},
 					{ upgrades: [], bullets: [] } // Initial value with the specified type
 				)
-			setAmmo((ammo) => ammo - newBullets.length)
+			setAmmo((ammo) => Math.max(0, ammo - newBullets.length))
 			setBullets((bullets) => [
 				...newBullets.slice(0, ammo - newBullets.length),
 				...bullets
@@ -325,13 +315,7 @@ export const Stage = memo(() => {
 
 			return upgradesToTakeDamage.length
 				? updateUpgradeDamage(
-						[
-							...new Set(
-								upgradesToTakeDamage.flatMap(
-									(u) => u.upgrade.id
-								)
-							),
-						],
+						upgradesToTakeDamage,
 						newUpgrades,
 						connections,
 						timePassed,
@@ -503,7 +487,7 @@ export const Stage = memo(() => {
 				/>
 				{bullets.map((bullet) => (
 					<div
-						className="absolute bg-amber-400 rounded-full"
+						className="absolute bg-amber-400 rounded-full z-40"
 						key={bullet.id}
 						style={{
 							width: `${gridScale / 6}px`,
@@ -519,7 +503,7 @@ export const Stage = memo(() => {
 				))}
 				{experienceOrbs.map((experienceOrb) => (
 					<div
-						className="absolute bg-blue-600 rounded-full"
+						className="absolute bg-blue-600 rounded-full z-40"
 						key={experienceOrb.id}
 						style={{
 							width: `${gridScale / 6}px`,

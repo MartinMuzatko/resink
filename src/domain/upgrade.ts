@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { getDistance, Identifier, Position } from './main'
 import { Connection } from './connection'
 import { getCost, Stats } from './stats'
+import { Enemy } from './enemy'
 
 export enum UpgradeType {
 	motor,
@@ -41,6 +42,12 @@ export type Upgrade = Identifier &
 		lastDamageTakenTime: number
 		lastBulletShotTime: number
 	}
+
+export type UpgradeDamageUpdate = {
+	upgrade: Upgrade
+	enemiesThatDealDamage: Enemy[]
+	damage: number
+}
 
 export const createUpgrade = (upgrade: Partial<Upgrade>): Upgrade => ({
 	id: crypto.randomUUID(),
@@ -195,24 +202,33 @@ export const getMaxHealth = (upgrade: Upgrade, stats: Stats) =>
 		: stats.globalHealth
 
 export const updateUpgradeDamage = (
-	upgradeIdsToTakeDamage: string[],
+	upgradesToTakeDamage: UpgradeDamageUpdate[],
 	upgrades: Upgrade[],
 	connections: Connection[],
 	timePassed: number,
 	stats: Stats
 ) => {
-	const damagedUpgrades = upgrades.map((upgrade) =>
-		upgradeIdsToTakeDamage.includes(upgrade.id) &&
-		upgrade.lastDamageTakenTime <
-			timePassed - stats.upgradeBulletAttackSpeed
+	const upgradeIdsToTakeDamage = [
+		...new Set(upgradesToTakeDamage.flatMap((u) => u.upgrade.id)),
+	]
+	const damagedUpgrades = upgrades.map((upgrade) => {
+		const update = upgradesToTakeDamage.find(
+			(u) => u.upgrade.id === upgrade.id
+		)
+		if (!update || !update.damage) return upgrade
+		return upgradeIdsToTakeDamage.includes(upgrade.id) &&
+			upgrade.lastDamageTakenTime <
+				timePassed - stats.upgradeBulletAttackSpeed
 			? {
 					...upgrade,
-					health: getHealth(upgrade, stats) - 1,
+					health:
+						getHealth(upgrade, stats) -
+						Math.max(update.damage - stats.globalArmor, 0),
 					active: getHealth(upgrade, stats) > 0,
 					lastDamageTakenTime: timePassed,
 			  }
 			: upgrade
-	)
+	})
 
 	const allDeactivatedIds = upgradeIdsToTakeDamage
 		.map((upgradeId) => upgrades.find((u) => u.id === upgradeId)!)
