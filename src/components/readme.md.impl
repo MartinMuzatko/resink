@@ -35,7 +35,10 @@ Attack (Attack + 1)
 			Chain
 		Freeze
 			Slow down
-
+	Battle Drones
+		Collect Experience
+			Distribute to Sites
+		Attack with bullets
 Defense (Health + 1)
 	Armor
 	Energy Shield (Blauer Balken)
@@ -50,8 +53,14 @@ Defense (Health + 1)
 		Amount
 		Placement
 Utility
-	Enemies drop more coins
+	Enemies drop more power
+		For Mouse Attack
 	Reduce Cost
+	Automatically collect experience Orbs
+		Amount Chance
+	Improve experience orbs decay
+		Decay into zombies
+
 Logistics (Range + 1)
 	Range
 	Power Battery
