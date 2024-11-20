@@ -24,6 +24,7 @@ import { StatsInfoPlain } from './StatsInfoPlain'
 import {
 	attractOrb,
 	ExperienceOrb,
+	spawnBasedOnEnemiesKilled,
 	spiralInwards,
 } from '../domain/experienceOrb'
 import { BulletMeter } from './meters/BulletMeter'
@@ -104,14 +105,10 @@ export const Stage = memo(() => {
 			const enemiesLeft = newEnemies.filter((enemy) => enemy.health > 0)
 			setExperienceOrbs((experienceOrbs) => [
 				...experienceOrbs,
-				...newEnemies
-					.filter((enemy) => enemy.health <= 0)
-					.map((enemy) => ({
-						id: crypto.randomUUID(),
-						amount: 1,
-						x: enemy.x,
-						y: enemy.y,
-					})),
+				...spawnBasedOnEnemiesKilled(
+					newEnemies.filter((enemy) => enemy.health <= 0),
+					stats
+				),
 			])
 			setTotalEnemiesDefeated(
 				(totalEnemiesDefeated) =>

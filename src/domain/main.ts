@@ -117,3 +117,12 @@ export const getSpeedVector = (
 		y: (diff.y / distance) * speed,
 	}
 }
+
+export const randomRange = (min: number, max: number) =>
+	Math.random() * (max - min) + min
+
+export const randomRangeInteger = (min: number, max: number) =>
+	Math.round(randomRange(min, max))
+
+export const randomArrayItem = <T>(array: T[]) =>
+	array[randomRangeInteger(0, array.length - 1)]

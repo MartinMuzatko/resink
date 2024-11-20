@@ -67,39 +67,8 @@ export const Game = () => {
 					</p>
 					<p>tick: {tick}</p>
 				</div>
-				{/* <PanZoom> */}
 				<Stage />
-				{/* </PanZoom> */}
 			</GameContext.Provider>
 		</>
-	)
-}
-
-type PanZoomProps = { children: ReactNode }
-const PanZoom = (props: PanZoomProps) => {
-	const [isTranslating, setIsTranslating] = useState(false)
-	const [translate, setTranslate] = useState([0, 0])
-	return (
-		<div
-			style={{
-				transform: `translate(${translate[0]}px, ${translate[1]}px)`,
-			}}
-			className="w-full h-full border border-red-400"
-			onMouseDown={() => {
-				setIsTranslating(true)
-			}}
-			onMouseUp={() => {
-				setIsTranslating(false)
-			}}
-			onMouseMove={(event) => {
-				if (!isTranslating) return
-				setTranslate((translate) => [
-					translate[0] + event.movementX,
-					translate[1] + event.movementY,
-				])
-			}}
-		>
-			{props.children}
-		</div>
 	)
 }

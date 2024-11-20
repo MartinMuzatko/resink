@@ -9,12 +9,20 @@ export type Stats = {
 	usedPower: number
 	powerMultiplier: number
 	powerPerEnemy: number
+	// powerPerEnemy
+	additionalPowerPerEnemyChance: number
+	// powerGenerationAmount
+	// powerGenerationSpeed // (during enemy waves)
 	upgradeCostMultiplier: number
 	// Attack
+	// Attack - Mouse Based
 	mouseSize: number
 	mouseHealAmount: number
 	mouseSpeed: number
 	mouseAttackDamage: number
+	// mousePoisonAttackDamage: number
+	// mousePoisonAttackSpeed: number
+	// Attack - Upgrade Based
 	upgradeBulletAttackDamage: number
 	upgradeBulletAttackRange: number
 	upgradeBulletAttackSpeed: number
@@ -36,6 +44,8 @@ export const diffStats = (a: Stats, b: Stats): Stats => ({
 	maxPower: b.maxPower - a.maxPower,
 	powerMultiplier: b.powerMultiplier - a.powerMultiplier,
 	powerPerEnemy: b.powerPerEnemy - a.powerPerEnemy,
+	additionalPowerPerEnemyChance:
+		b.additionalPowerPerEnemyChance - a.additionalPowerPerEnemyChance,
 	upgradeCostMultiplier: b.upgradeCostMultiplier - a.upgradeCostMultiplier,
 	mouseAttackDamage: b.mouseAttackDamage - a.mouseAttackDamage,
 	mouseSize: b.mouseSize - a.mouseSize,

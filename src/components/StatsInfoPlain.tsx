@@ -58,6 +58,21 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 					{stats.powerPerEnemy}
 				</div>
 			)}
+			{stats.additionalPowerPerEnemyChance !== 0 && (
+				<div>
+					<span className="text-amber-600">
+						Chance to get additional power
+					</span>{' '}
+					+{' '}
+					{Math.floor(
+						Math.abs(
+							stats.additionalPowerPerEnemyChance /
+								INITIAL_STATS.additionalPowerPerEnemyChance
+						) * 10
+					)}
+					%
+				</div>
+			)}
 			{stats.globalHealth !== 0 && (
 				<div>
 					<span className="text-green-600">Health</span> +{' '}

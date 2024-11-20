@@ -1,3 +1,5 @@
+import { Enemy } from './enemy'
+import { randomRange, randomRangeInteger } from './main'
 import {
 	clamp,
 	getDistance,
@@ -7,11 +9,22 @@ import {
 	Position,
 	subPosition,
 } from './main'
+import { Stats } from './stats'
 
 export type ExperienceOrb = Identifier &
 	Position & {
 		amount: number
 	}
+
+export const createExperienceOrb = (
+	experienceOrb: Partial<ExperienceOrb>
+): ExperienceOrb => ({
+	amount: 1,
+	id: crypto.randomUUID(),
+	x: 0,
+	y: 0,
+	...experienceOrb,
+})
 
 export function spiralInwards(point: Position, target: Position): Position {
 	const difference = subPosition(point, target)
@@ -30,11 +43,11 @@ export function spiralInwards(point: Position, target: Position): Position {
 	}
 }
 
-export function attractOrb(
+export const attractOrb = (
 	point: Position,
 	target: Position,
 	deltaTime: number
-): Position {
+): Position => {
 	const distance = getDistance(point, target)
 	if (distance === 0) return point
 	const t = clamp(0, 5)(distance) / 5
@@ -45,4 +58,19 @@ export function attractOrb(
 		(step * deltaTime) / distance
 	)
 	return newPosition
+}
+
+export const spawnBasedOnEnemiesKilled = (
+	enemiesKilled: Enemy[],
+	stats: Stats
+) => {
+	return enemiesKilled.flatMap((enemy) => {
+		return [...Array(randomRangeInteger(1, stats.powerPerEnemy))].map(() =>
+			createExperienceOrb({
+				amount: 1,
+				x: enemy.x,
+				y: enemy.y,
+			})
+		)
+	})
 }

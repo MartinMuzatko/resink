@@ -14,6 +14,7 @@ import { getCost, Stats } from '../domain/stats'
 import { HealthBar } from './HealthBar'
 import { StatsInfo } from './StatsInfo'
 import { clamp } from '../domain/main'
+import { FaHeart, FaShieldAlt } from 'react-icons/fa'
 
 type UpgradeNodeProps = {
 	upgrade: Upgrade
@@ -114,9 +115,18 @@ export const UpgradeNode = ({
 							)}
 						</div>
 						<Divider color="gray" my={4} />
-						<div className="p-2 pt-0">
-							❤️ {getHealth(upgrade, stats)} /{' '}
-							{getMaxHealth(upgrade, stats)}
+						<div className="flex flex-col gap-2 p-2 pt-0">
+							<div className="flex items-center gap-2">
+								<FaHeart className="text-red-600" />{' '}
+								{getHealth(upgrade, stats)} /{' '}
+								{getMaxHealth(upgrade, stats)}
+							</div>
+							{stats.globalArmor !== 0 && (
+								<div className="flex items-center gap-2">
+									<FaShieldAlt className="text-cyan-600" />{' '}
+									{stats.globalArmor}
+								</div>
+							)}
 						</div>
 					</>
 				}

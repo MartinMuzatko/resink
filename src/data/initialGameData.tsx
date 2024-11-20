@@ -22,11 +22,12 @@ import { CiDroplet } from 'react-icons/ci'
 import { MdOutlineSell, MdOutlineShield } from 'react-icons/md'
 
 export const INITIAL_STATS: Stats = {
-	power: 10,
-	maxPower: 20,
+	power: 0,
+	maxPower: 10,
 	usedPower: 0,
 	powerMultiplier: 1,
 	powerPerEnemy: 1,
+	additionalPowerPerEnemyChance: 0.1,
 	upgradeCostMultiplier: 1,
 	globalHealth: 1,
 	globalArmor: 0,
@@ -292,11 +293,15 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'L2',
-		cost: 30,
+		cost: 10,
+		title: 'Delicious',
+		description: 'Get more out of the experience juice',
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
 			powerPerEnemy: stats.powerPerEnemy + 1,
+			additionalPowerPerEnemyChance:
+				stats.additionalPowerPerEnemyChance + 0.1,
 		}),
 		icon: <CiDroplet className="w-full h-full" />,
 		x: -2,

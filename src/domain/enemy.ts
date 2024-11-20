@@ -1,12 +1,23 @@
-import { getDistance, Identifier, lerpPosition, Position } from './main'
+import {
+	getDistance,
+	Identifier,
+	lerpPosition,
+	Position,
+	randomArrayItem,
+} from './main'
 import { findFurthestUpgradePosition, Upgrade, UpgradeType } from './upgrade'
 
-export const randomRange = (min: number, max: number) =>
-	Math.random() * (max - min) + min
-export const randomRangeInteger = (min: number, max: number) =>
-	Math.round(randomRange(min, max))
-export const randomArrayItem = <T>(array: T[]) =>
-	array[randomRangeInteger(0, array.length - 1)]
+export type Enemy = Identifier &
+	Position & {
+		size: number
+		target: string
+		movementSpeed: number
+		attackDamage: number
+		attackSpeed: number
+		lastAttackDealtTime: number
+		health: number
+		maxHealth: number
+	}
 
 export const findTarget = (upgrades: Upgrade[]) => {
 	const activeUpgrades = upgrades.filter(
@@ -44,7 +55,7 @@ export const moveEnemy = (
 			x: target.x,
 			y: target.y,
 		},
-		(enemy.speed * deltaTime) / distance
+		(enemy.movementSpeed * deltaTime) / distance
 	)
 	return {
 		...enemy,
@@ -57,7 +68,7 @@ export const createEnemy = (enemy: Partial<Enemy>): Enemy => ({
 	id: crypto.randomUUID(),
 	x: 0,
 	y: 0,
-	speed: 0.0125,
+	movementSpeed: 0.0125,
 	size: 1.25,
 	attackDamage: 1,
 	attackSpeed: 2000,
@@ -67,15 +78,3 @@ export const createEnemy = (enemy: Partial<Enemy>): Enemy => ({
 	target: 'none',
 	...enemy,
 })
-
-export type Enemy = Identifier &
-	Position & {
-		size: number
-		target: string
-		speed: number
-		attackDamage: number
-		attackSpeed: number
-		lastAttackDealtTime: number
-		health: number
-		maxHealth: number
-	}

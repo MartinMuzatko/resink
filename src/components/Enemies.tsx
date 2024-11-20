@@ -39,8 +39,12 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			: WaveState.idle
 	}, [timePassedSinceWaveStart])
 
-	const amountEnemies = Math.ceil(
-		lerp(1, 6, timePassedSinceWaveStart / attackTime)
+	const amountEnemies = Math.round(
+		lerp(
+			1,
+			lerp(4, 30, Math.min(1, wave / 30)),
+			timePassedSinceWaveStart / attackTime
+		)
 	)
 	// const amountEnemies = 1
 
@@ -50,16 +54,11 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 			setWave((wave) => wave + 1)
 		}
 		setEnemies((enemies) => {
-			const activeUpgrades = upgrades.filter(
-				(upgrade) =>
-					upgrade.active && upgrade.type == UpgradeType.upgrade
-			)
 			// TODO: Scale amount and toughness of enemies with time.
 			// Also create varients
 			const newEnemies: Enemy[] = [
 				...enemies,
-				...(activeUpgrades.length &&
-				waveState == WaveState.ongoing &&
+				...(waveState == WaveState.ongoing &&
 				enemies.length < amountEnemies
 					? [
 							...Array(
@@ -75,10 +74,10 @@ export const Enemies = ({ enemies, setEnemies, upgrades }: EnemiesProps) => {
 								target: findTarget(upgrades).id,
 								attackSpeed: 2000,
 								attackDamage: wave,
-								speed: 0.0125,
+								movementSpeed: 0.0025,
 								size: 0.25,
-								health: Math.ceil(wave / 2),
-								maxHealth: Math.ceil(wave / 2),
+								health: Math.ceil(wave / 3),
+								maxHealth: Math.ceil(wave / 3),
 							})
 					  )
 					: []),
