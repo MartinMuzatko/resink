@@ -166,7 +166,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			upgradeBulletAttackDamage: stats.upgradeBulletAttackDamage + 1,
+			upgradeBulletAttackDamage: stats.upgradeBulletAttackDamage + 2,
 		}),
 		icon: <GiSentryGun className="w-full h-full" />,
 		x: 1,
@@ -202,7 +202,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			upgradeBulletMaxAmmo: stats.upgradeBulletMaxAmmo + 15,
+			upgradeBulletMaxAmmo: stats.upgradeBulletMaxAmmo + 20,
 		}),
 		icon: <GiHeavyBullets className="w-full h-full" />,
 		x: 3,

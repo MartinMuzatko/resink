@@ -1,4 +1,5 @@
 import {
+	equalPosition,
 	getDistance,
 	Identifier,
 	lerpPosition,
@@ -78,3 +79,11 @@ export const createEnemy = (enemy: Partial<Enemy>): Enemy => ({
 	target: 'none',
 	...enemy,
 })
+
+export const canEnemyDealDamage = (
+	enemy: Enemy,
+	upgrade: Upgrade,
+	timePassed: number
+) =>
+	equalPosition(upgrade, enemy) &&
+	timePassed >= enemy.lastAttackDealtTime + enemy.attackSpeed

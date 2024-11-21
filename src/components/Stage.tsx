@@ -1,6 +1,11 @@
 import { memo, useEffect, useMemo, useState } from 'react'
 import { type Connection } from '../domain/connection'
-import { updateUpgradeDamage, Upgrade, UpgradeType } from '../domain/upgrade'
+import {
+	canUpgradeShoot,
+	updateUpgradeDamage,
+	Upgrade,
+	UpgradeType,
+} from '../domain/upgrade'
 import { getStatsFromActiveUpgrades } from '../domain/stats'
 import { ConnectionLine } from './ConnectionLine'
 import { UpgradeNode } from './UpgradeNode'
@@ -9,14 +14,23 @@ import {
 	Area,
 	clamp,
 	equalPosition,
+	generateRandomPositionOnEdge,
 	getDistance,
 	getSpeedVector,
 	Identifier,
 	isPositionInsideArea,
+	lerp,
 	Position,
 } from '../domain/main'
 import { Enemies } from './Enemies'
-import { Enemy } from '../domain/enemy'
+import {
+	canEnemyDealDamage,
+	createEnemy,
+	Enemy,
+	findTarget,
+	getSpawnArea,
+	moveEnemy,
+} from '../domain/enemy'
 import { useMouse } from '@mantine/hooks'
 import { HealthBar } from './HealthBar'
 import { INITIAL_CONNECTIONS, INITIAL_UPGRADES } from '../data/initialGameData'
@@ -28,7 +42,7 @@ import {
 	spiralInwards,
 } from '../domain/experienceOrb'
 import { BulletMeter } from './meters/BulletMeter'
-import { Bullet } from '../domain/bullet'
+import { Bullet, createBullet } from '../domain/bullet'
 
 // const enemyStats = {
 // 	damage: 1,
@@ -46,6 +60,14 @@ const getGridPositionFromWindow = (
 
 type MouseArea = Area & {
 	mouseLastActivatedTime: number
+}
+
+const attackGrace = 15 * 1000
+const attackTime = 25 * 1000
+
+enum WaveState {
+	ongoing = 'ongoing',
+	idle = 'idle',
 }
 
 export const Stage = memo(() => {
@@ -70,6 +92,24 @@ export const Stage = memo(() => {
 	)
 	const mouse = useMouse()
 	const [bullets, setBullets] = useState<Bullet[]>([])
+
+	const [wave, setWave] = useState(1)
+	const [waveStartedTime, setWaveStartedTime] = useState(0)
+
+	const timePassedSinceWaveStart = timePassed - waveStartedTime
+	const waveState = useMemo(() => {
+		return timePassedSinceWaveStart <= attackTime
+			? WaveState.ongoing
+			: WaveState.idle
+	}, [timePassedSinceWaveStart])
+
+	const amountEnemies = Math.round(
+		lerp(
+			1,
+			lerp(4, 30, Math.min(1, wave / 30)),
+			timePassedSinceWaveStart / attackTime
+		)
+	)
 
 	const mouseLastActivatedTime = useMemo(
 		() => timePassed - (timePassed % stats.mouseSpeed),
@@ -132,6 +172,7 @@ export const Stage = memo(() => {
 			mouseLastActivatedTime,
 		}
 	}, [mouse, mouseLastActivatedTime, gridScale, stats])
+	const spawnArea = useMemo(() => getSpawnArea(upgrades), [upgrades])
 
 	// Reset game when motor life is 0
 	useEffect(() => {
@@ -142,19 +183,22 @@ export const Stage = memo(() => {
 			setTotalEnemiesDefeated(0)
 			setExperienceOrbs([])
 			setPowerThroughEnemiesDefeated(0)
+			setWave(0)
+			setWaveStartedTime(0)
 		}
 	}, [upgrades])
 
 	useEffect(() => {
+		if (timePassedSinceWaveStart >= attackTime + attackGrace) {
+			setWaveStartedTime(timePassed)
+			setWave((wave) => wave + 1)
+		}
 		// update upgrade health on enemy attack
 		setUpgrades((prevUpgrades) => {
 			const upgradesToTakeDamage = prevUpgrades
 				.map((upgrade) => {
-					const enemiesThatDealDamage = enemies.filter(
-						(enemy) =>
-							equalPosition(upgrade, enemy) &&
-							timePassed >=
-								enemy.lastAttackDealtTime + enemy.attackSpeed
+					const enemiesThatDealDamage = enemies.filter((enemy) =>
+						canEnemyDealDamage(enemy, upgrade, timePassed)
 					)
 					return {
 						upgrade,
@@ -180,15 +224,7 @@ export const Stage = memo(() => {
 					bullets: Bullet[]
 				}>(
 					({ upgrades, bullets }, upgrade) => {
-						const canShoot =
-							timePassed >=
-								upgrade.lastBulletShotTime +
-									stats.upgradeBulletAttackSpeed &&
-							stats.upgradeBulletAttackDamage !== 0 &&
-							upgrade.active &&
-							ammo > 0
-
-						if (!canShoot)
+						if (!canUpgradeShoot(upgrade, stats, timePassed, ammo))
 							return { upgrades: [...upgrades, upgrade], bullets }
 
 						const enemiesInRange = enemies.filter(
@@ -214,8 +250,7 @@ export const Stage = memo(() => {
 						}
 						// TODO: React.StrictMode makes this get added twice per tick in dev mode
 						// we could add a tickFired prop and compare then.
-						const newBullet = {
-							id: crypto.randomUUID(),
+						const newBullet = createBullet({
 							x: upgrade.x,
 							y: upgrade.y,
 							velocity: getSpeedVector(
@@ -223,8 +258,7 @@ export const Stage = memo(() => {
 								targetEnemy,
 								0.1
 							),
-							enemyIdsHit: [],
-						}
+						})
 
 						return {
 							upgrades: [...upgrades, updatedUpgrade],
@@ -307,7 +341,36 @@ export const Stage = memo(() => {
 						prevEnemies.length -
 						enemiesLeft.length
 				)
-				return enemiesAttackedUpgrades
+
+				const addedEnemies: Enemy[] = [
+					...enemiesAttackedUpgrades,
+					...(waveState == WaveState.ongoing &&
+					enemies.length < amountEnemies
+						? [
+								...Array(
+									Math.min(
+										amountEnemies - enemies.length,
+										amountEnemies
+									)
+								),
+						  ].map(() =>
+								createEnemy({
+									id: crypto.randomUUID(),
+									...generateRandomPositionOnEdge(spawnArea),
+									target: findTarget(upgrades).id,
+									attackSpeed: 2000,
+									attackDamage: wave,
+									movementSpeed: 0.0025,
+									size: 0.25,
+									health: Math.ceil(wave / 3),
+									maxHealth: Math.ceil(wave / 3),
+								})
+						  )
+						: []),
+				]
+				return addedEnemies.map((enemy) =>
+					moveEnemy(enemy, upgrades, deltaTime)
+				)
 			})
 
 			return upgradesToTakeDamage.length
@@ -331,7 +394,6 @@ export const Stage = memo(() => {
 			const newExperienceOrbs = experienceOrbs.map((experienceOrb) => ({
 				...experienceOrb,
 				...attractOrb(experienceOrb, gridMouse, deltaTime),
-				// ...spiralInwards(experienceOrb, gridMouse),
 			}))
 			const experienceOrbsConsumed = newExperienceOrbs.filter(
 				(experienceOrb) =>
@@ -371,10 +433,17 @@ export const Stage = memo(() => {
 
 	return (
 		<div className="w-full h-full top-0 left-0 absolute" ref={mouse.ref}>
-			{/* <div
-				className="absolute bg-green-400 z-40 w-4 h-4"
-				style={{ left: '50%', top: '50%' }}
-			></div> */}
+			<div className="absolute right-0 top-0 z-50">
+				<p>wave: {wave}</p>
+				<p>waveState: {waveState}</p>
+				<p>waveStarted: {(waveStartedTime / 1000).toFixed()}</p>
+				<p>
+					sinceWaveStart:{' '}
+					{(timePassedSinceWaveStart / 1000).toFixed()}
+				</p>
+				<p>timePassed: {(timePassed / 1000).toFixed()}</p>
+				<p>shouldSpawn: {amountEnemies}</p>
+			</div>
 			<div className="absolute left-0 top-0">
 				<div className="border">
 					<StatsInfoPlain stats={stats} />
@@ -476,6 +545,10 @@ export const Stage = memo(() => {
 				/>
 				<Enemies
 					{...{
+						wave,
+						setWave,
+						waveStartedTime,
+						setWaveStartedTime,
 						bullets,
 						upgrades,
 						enemies,

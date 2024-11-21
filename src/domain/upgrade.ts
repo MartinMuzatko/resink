@@ -264,3 +264,15 @@ export const isUpgradeAffordable = (
 		from?.active && getCost(stats, upgrade) <= stats.power - stats.usedPower
 	)
 }
+
+// TODO: ammo might be less than 0 if upgrade shoots, since everything is calculated together
+export const canUpgradeShoot = (
+	upgrade: Upgrade,
+	stats: Stats,
+	timePassed: number,
+	ammo: number
+) =>
+	timePassed >= upgrade.lastBulletShotTime + stats.upgradeBulletAttackSpeed &&
+	stats.upgradeBulletAttackDamage !== 0 &&
+	upgrade.active &&
+	ammo > 0
