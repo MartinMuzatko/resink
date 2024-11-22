@@ -1,4 +1,4 @@
-import { Position, Identifier } from './main'
+import { Position, Identifier, isPositionInsideArea } from './main'
 
 export type Bullet = Position &
 	Identifier & {
@@ -20,3 +20,19 @@ export const createBullet = (bullet: Partial<Bullet>): Bullet => ({
 	enemyIdsHit: [],
 	...bullet,
 })
+
+export const moveBullets = (bullets: Bullet[]) =>
+	bullets
+		.map((bullet) => ({
+			...bullet,
+			x: bullet.x + bullet.velocity.x,
+			y: bullet.y + bullet.velocity.y,
+		}))
+		.filter((bullet) =>
+			isPositionInsideArea(bullet, {
+				x: -10,
+				y: -10,
+				width: 20,
+				height: 20,
+			})
+		)

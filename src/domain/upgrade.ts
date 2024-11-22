@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { getDistance, Identifier, Position } from './main'
 import { Connection } from './connection'
 import { getCost, Stats } from './stats'
-import { Enemy } from './enemy'
+import { canEnemyDealDamage, Enemy } from './enemy'
 
 export enum UpgradeType {
 	motor,
@@ -275,3 +275,21 @@ export const canUpgradeShoot = (
 	stats.upgradeBulletAttackDamage !== 0 &&
 	upgrade.active &&
 	ammo > 0
+
+export const damageUpgrade = (
+	upgrade: Upgrade,
+	enemies: Enemy[],
+	timePassed: number
+) => {
+	const enemiesThatDealDamage = enemies.filter((enemy) =>
+		canEnemyDealDamage(enemy, upgrade, timePassed)
+	)
+	return {
+		upgrade,
+		enemiesThatDealDamage,
+		damage: enemiesThatDealDamage.reduce(
+			(acc, cur) => acc + cur.attackDamage,
+			0
+		),
+	}
+}

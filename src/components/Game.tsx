@@ -1,6 +1,8 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { GameContext } from '../contexts/GameContext'
 import { Stage } from './Stage'
+import { Button } from '@mantine/core'
+import { match } from 'ts-pattern'
 
 const speed = 50
 const gridScale = 64
@@ -17,9 +19,12 @@ export const Game = () => {
 	const update = useCallback(
 		(time: number) => {
 			requestRef.current = requestAnimationFrame(update)
-			if (!isRunning) return
 			if (!lastUpdatedTime.current) {
 				lastUpdatedTime.current = time
+			}
+			if (!isRunning) {
+				lastUpdatedTime.current = time
+				return
 			}
 			deltaTime.current = time - lastUpdatedTime.current
 			deltaTimes.current.unshift(deltaTime.current)
@@ -34,6 +39,16 @@ export const Game = () => {
 		},
 		[isRunning]
 	)
+
+	useEffect(() => {
+		const keyHandler = (event: KeyboardEvent) => {
+			match(event.key).with('Escape', () => {
+				setIsRunning((isRunning) => !isRunning)
+			})
+		}
+		document.addEventListener('keydown', keyHandler)
+		return () => document.removeEventListener('keydown', keyHandler)
+	}, [])
 
 	useEffect(() => {
 		requestRef.current = requestAnimationFrame(update)
@@ -66,6 +81,14 @@ export const Game = () => {
 						).toFixed(0)}
 					</p>
 					<p>tick: {tick}</p>
+					<Button
+						className="z-50"
+						onClick={() => {
+							setIsRunning((isRunning) => !isRunning)
+						}}
+					>
+						{isRunning ? 'Pause' : 'Resume'}
+					</Button>
 				</div>
 				<Stage />
 			</GameContext.Provider>

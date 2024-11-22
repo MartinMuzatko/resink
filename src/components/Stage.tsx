@@ -2,6 +2,7 @@ import { memo, useEffect, useMemo, useState } from 'react'
 import { type Connection } from '../domain/connection'
 import {
 	canUpgradeShoot,
+	damageUpgrade,
 	updateUpgradeDamage,
 	Upgrade,
 	UpgradeType,
@@ -38,7 +39,12 @@ import {
 	spawnBasedOnEnemiesKilled,
 } from '../domain/experienceOrb'
 import { BulletMeter } from './meters/BulletMeter'
-import { Bullet, createBullet } from '../domain/bullet'
+import { Bullet, createBullet, moveBullets } from '../domain/bullet'
+import { PowerMeter } from './meters/PowerMeter'
+import { EnemyRender } from './EnemyRender'
+import { BulletRender } from './BulletRender'
+import { ExperienceOrbRender } from './ExperienceOrbRender'
+import { MouseAreaRender } from './MouseAreaRender'
 
 // const enemyStats = {
 // 	damage: 1,
@@ -110,7 +116,6 @@ export const Stage = memo(() => {
 
 	useEffect(() => {
 		// heal upgrades
-
 		setUpgrades((upgrades) =>
 			upgrades.map((upgrade) =>
 				// TODO: real bounding box checking
@@ -187,19 +192,7 @@ export const Stage = memo(() => {
 		// update upgrade health on enemy attack
 		setUpgrades((prevUpgrades) => {
 			const upgradesToTakeDamage = prevUpgrades
-				.map((upgrade) => {
-					const enemiesThatDealDamage = enemies.filter((enemy) =>
-						canEnemyDealDamage(enemy, upgrade, timePassed)
-					)
-					return {
-						upgrade,
-						enemiesThatDealDamage,
-						damage: enemiesThatDealDamage.reduce(
-							(acc, cur) => acc + cur.attackDamage,
-							0
-						),
-					}
-				})
+				.map((upgrade) => damageUpgrade(upgrade, enemies, timePassed))
 				.filter((u) => u.damage !== 0)
 
 			const enemyIdsThatDealDamage = [
@@ -261,20 +254,7 @@ export const Stage = memo(() => {
 			setAmmo((ammo) => Math.max(0, ammo - newBullets.length))
 			setBullets((bullets) => [
 				...newBullets.slice(0, ammo - newBullets.length),
-				...bullets
-					.map((bullet) => ({
-						...bullet,
-						x: bullet.x + bullet.velocity.x,
-						y: bullet.y + bullet.velocity.y,
-					}))
-					.filter((bullet) =>
-						isPositionInsideArea(bullet, {
-							x: -10,
-							y: -10,
-							width: 20,
-							height: 20,
-						})
-					),
+				...moveBullets(bullets),
 			])
 			// hit enemies
 			setEnemies((prevEnemies) => {
@@ -346,7 +326,6 @@ export const Stage = memo(() => {
 								),
 						  ].map(() =>
 								createEnemy({
-									id: crypto.randomUUID(),
 									...generateRandomPositionOnEdge(spawnArea),
 									target: findTarget(upgrades).id,
 									attackSpeed: 2000,
@@ -408,7 +387,6 @@ export const Stage = memo(() => {
 				(experienceOrb) => !ids.includes(experienceOrb.id)
 			)
 		})
-
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [tick])
 
@@ -429,11 +407,6 @@ export const Stage = memo(() => {
 				<div className="border">
 					<StatsInfoPlain stats={stats} />
 				</div>
-				{/* {mouse.x - window.innerWidth / 2 - gridScale / 2},
-				{mouse.y - window.innerHeight / 2 - gridScale / 2}
-				<br />
-				{gridMouse.x.toFixed(0)},{gridMouse.y.toFixed(0)}
-				<br /> */}
 			</div>
 			<div className="absolute right-0 bottom-12">
 				attacktime: {(timePassed / 1000).toFixed(0)}
@@ -446,25 +419,9 @@ export const Stage = memo(() => {
 					transform: 'translate(50%, 50%)',
 				}}
 			>
-				{/* Mouse Area */}
-				<div
-					className={`absolute ${
-						mouseLastActivatedTime > timePassed - 500
-							? 'bg-orange-200/80'
-							: 'bg-orange-400/50'
-					}`}
-					style={{
-						top: `${mouseArea.y * gridScale}px`,
-						left: `${mouseArea.x * gridScale}px`,
-						width: `${mouseArea.width * gridScale}px`,
-						height: `${mouseArea.height * gridScale}px`,
-					}}
-				>
-					<HealthBar
-						current={timePassed - mouseLastActivatedTime}
-						max={stats.mouseSpeed}
-					/>
-				</div>
+				<MouseAreaRender
+					{...{ mouseArea, mouseLastActivatedTime, stats }}
+				/>
 				{connections.map((connection) => (
 					<ConnectionLine
 						key={connection.id}
@@ -486,34 +443,7 @@ export const Stage = memo(() => {
 					/>
 				))}
 				{/* Power Meter */}
-				<div
-					className="absolute border-2 bg-gray-800 border-red-900"
-					style={{
-						transform: 'translate(-50%, -50%)',
-						width: 0.5 * gridScale,
-						height: 1.5 * gridScale,
-						top: `${
-							3 * gridScale - gridScale / 2 + gridScale / 8
-						}px`,
-						left: `${
-							-0.5 * gridScale - gridScale / 2 + gridScale / 8
-						}px`,
-					}}
-				>
-					<div className="font-bold font-mono absolute -rotate-90 origin-top-left top-10 -left-6">
-						Power
-					</div>
-
-					<div
-						className="absolute w-full bottom-0 bg-amber-300"
-						style={{
-							height: `${(power / stats.maxPower) * 100}%`,
-						}}
-					></div>
-					<div className="font-bold font-mono absolute -rotate-90 origin-top-left left-6 top-10">
-						{power}/{stats.maxPower}
-					</div>
-				</div>
+				<PowerMeter {...{ power, stats }} />
 				<BulletMeter
 					{...{
 						ammo,
@@ -523,48 +453,16 @@ export const Stage = memo(() => {
 						stats,
 					}}
 				/>
-				<Enemies
-					{...{
-						wave,
-						setWave,
-						waveStartedTime,
-						setWaveStartedTime,
-						bullets,
-						upgrades,
-						enemies,
-						setEnemies,
-					}}
-				/>
+				{enemies.map((enemy) => (
+					<EnemyRender key={enemy.id} {...{ enemy }} />
+				))}
 				{bullets.map((bullet) => (
-					<div
-						className="absolute bg-amber-400 rounded-full z-40"
-						key={bullet.id}
-						style={{
-							width: `${gridScale / 6}px`,
-							height: `${gridScale / 6}px`,
-							left: `${
-								bullet.x * gridScale - gridScale / 6 / 2
-							}px`,
-							top: `${
-								bullet.y * gridScale - gridScale / 6 / 2
-							}px`,
-						}}
-					/>
+					<BulletRender key={bullet.id} {...{ bullet }} />
 				))}
 				{experienceOrbs.map((experienceOrb) => (
-					<div
-						className="absolute bg-blue-600 rounded-full z-40"
+					<ExperienceOrbRender
 						key={experienceOrb.id}
-						style={{
-							width: `${gridScale / 6}px`,
-							height: `${gridScale / 6}px`,
-							left: `${
-								experienceOrb.x * gridScale - gridScale / 6 / 2
-							}px`,
-							top: `${
-								experienceOrb.y * gridScale - gridScale / 6 / 2
-							}px`,
-						}}
+						{...{ experienceOrb }}
 					/>
 				))}
 			</div>

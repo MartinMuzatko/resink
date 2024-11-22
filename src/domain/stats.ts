@@ -38,6 +38,14 @@ export type Stats = GlobalStats & UpgradeStats
 
 /** subtracts a from b */
 export const diffStats = (a: Stats, b: Stats): Stats => ({
+	// ...Object.fromEntries(
+	// 	[...new Set([...Object.keys(a), ...Object.keys(b)])].map(
+	// 		(key) => [
+	// 			key,
+	// 			b[key as keyof Stats] - a[key as keyof Stats],
+	// 		]
+	// 	)
+	// ),
 	maxPower: b.maxPower - a.maxPower,
 	powerMultiplier: b.powerMultiplier - a.powerMultiplier,
 	powerPerEnemy: b.powerPerEnemy - a.powerPerEnemy,
