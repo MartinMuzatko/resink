@@ -8,13 +8,9 @@ type StatsInfoProps = {
 export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 	return (
 		<div>
-			{(stats.power !== 0 ||
-				stats.upgradeHealth !== 0 ||
-				stats.upgradeArmor !== 0 ||
-				stats.mouseAttackDamage !== 0 ||
+			{(stats.mouseAttackDamage !== 0 ||
 				stats.mouseSize !== 0 ||
 				stats.mouseHealAmount !== 0 ||
-				stats.upgradeBulletAttackDamage !== 0 ||
 				stats.mouseSpeed !== 0) && (
 				<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
 					Global Stats
@@ -22,30 +18,7 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 			)}
 			{/* TODO: current stats display and changes in two diff. components.
 			Also: automated display based on json, e.g. { displayType: percentage, color, } */}
-			{stats.power !== 0 && (
-				<div>
-					<span className="text-blue-600">Power</span> + {stats.power}
-				</div>
-			)}
-			{stats.upgradeBulletMaxAmmo !== 0 && (
-				<div>
-					<span className="text-green-400">Max Bullet Ammo</span> +{' '}
-					{stats.upgradeBulletMaxAmmo}
-				</div>
-			)}
-			{stats.upgradeBulletAmmoPrice !== 0 && (
-				<div>
-					<span className="text-teal-400">Upgrade Bullet Price</span>{' '}
-					-
-					{Math.floor(
-						Math.abs(
-							stats.upgradeBulletAmmoPrice /
-								INITIAL_STATS.upgradeBulletAmmoPrice
-						) * 100
-					)}
-					%
-				</div>
-			)}
+
 			{stats.maxPower !== 0 && (
 				<div>
 					<span className="text-blue-800">Max Power</span> +{' '}
@@ -73,18 +46,7 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 					%
 				</div>
 			)}
-			{stats.upgradeHealth !== 0 && (
-				<div>
-					<span className="text-green-600">Health</span> +{' '}
-					{stats.upgradeHealth}
-				</div>
-			)}
-			{stats.upgradeArmor !== 0 && (
-				<div>
-					<span className="text-cyan-400">Armor</span> +{' '}
-					{stats.upgradeArmor}
-				</div>
-			)}
+
 			{stats.mouseAttackDamage !== 0 && (
 				<div>
 					<span className="text-red-600">Area Damage</span> +{' '}
@@ -117,6 +79,59 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 					%
 				</div>
 			)}
+
+			{(stats.upgradeHealth !== 0 ||
+				stats.upgradeArmor !== 0 ||
+				stats.upgradeBulletAttackDamage !== 0 ||
+				stats.upgradeBulletAttackRange !== 0 ||
+				stats.upgradeBulletAttackSpeed !== 0) && (
+				<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
+					Upgrade Stats
+				</div>
+			)}
+			{stats.upgradeHealth !== 0 && (
+				<div>
+					<span className="text-green-600">Health</span> +{' '}
+					{stats.upgradeHealth}
+				</div>
+			)}
+			{stats.upgradeArmor !== 0 && (
+				<div>
+					<span className="text-cyan-400">Armor</span> +{' '}
+					{stats.upgradeArmor}
+				</div>
+			)}
+			{stats.upgradeBulletMaxAmmo !== 0 && (
+				<div>
+					<span className="text-green-400">Max Bullet Ammo</span> +{' '}
+					{stats.upgradeBulletMaxAmmo}
+				</div>
+			)}
+			{stats.upgradeBulletAmmoPrice !== 0 && (
+				<div>
+					<span className="text-teal-400">Upgrade Bullet Price</span>{' '}
+					-
+					{Math.floor(
+						Math.abs(
+							stats.upgradeBulletAmmoPrice /
+								INITIAL_STATS.upgradeBulletAmmoPrice
+						) * 100
+					)}
+					%
+				</div>
+			)}
+			{stats.upgradeHealth !== 0 && (
+				<div>
+					<span className="text-green-600">Health</span> +{' '}
+					{stats.upgradeHealth}
+				</div>
+			)}
+			{stats.upgradeArmor !== 0 && (
+				<div>
+					<span className="text-cyan-400">Armor</span> +{' '}
+					{stats.upgradeArmor}
+				</div>
+			)}
 			{stats.upgradeBulletAttackDamage !== 0 && (
 				<div>
 					<span className="text-red-400">Upgrade Bullet Damage</span>{' '}
@@ -140,23 +155,6 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 						) * 100
 					)}
 					%
-				</div>
-			)}
-			{(stats.upgradeHealth !== 0 || stats.upgradeArmor !== 0) && (
-				<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
-					Upgrade Stats
-				</div>
-			)}
-			{stats.upgradeHealth !== 0 && (
-				<div>
-					<span className="text-green-600">Health</span> +{' '}
-					{stats.upgradeHealth}
-				</div>
-			)}
-			{stats.upgradeArmor !== 0 && (
-				<div>
-					<span className="text-cyan-400">Armor</span> +{' '}
-					{stats.upgradeArmor}
 				</div>
 			)}
 		</div>

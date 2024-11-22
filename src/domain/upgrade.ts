@@ -168,15 +168,15 @@ export const toggleActivation = (
 	upgrade: Upgrade,
 	upgrades: Upgrade[],
 	connections: Connection[],
-	stats: Stats
+	stats: Stats,
+	power: number
 ) => {
 	const parentUpgrade = findDirectParent(upgrade, upgrades, connections)
 	if (!parentUpgrade) return upgrades
 
 	const isActivating = !upgrade.active
 	const upgradeIndex = upgrades.findIndex((node) => node.id == upgrade.id)
-	const canActivate =
-		parentUpgrade.active && stats.usedPower + upgrade.cost <= stats.power
+	const canActivate = parentUpgrade.active && power >= getCost(stats, upgrade)
 	if (isActivating)
 		return upgrades.toSpliced(upgradeIndex, 1, {
 			...upgrade,
@@ -253,16 +253,15 @@ export const isUpgradeAffordable = (
 	upgrade: Upgrade,
 	upgrades: Upgrade[],
 	connections: Connection[],
-	stats: Stats
+	stats: Stats,
+	power: number
 ) => {
 	const from = upgrades.find(
 		(u) =>
 			u.id ===
 			connections.find((c) => c.toUpgradeId == upgrade.id)?.fromUpgradeId
 	)
-	return (
-		from?.active && getCost(stats, upgrade) <= stats.power - stats.usedPower
-	)
+	return from?.active && power >= getCost(stats, upgrade)
 }
 
 // TODO: ammo might be less than 0 if upgrade shoots, since everything is calculated together

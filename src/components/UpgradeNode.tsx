@@ -22,6 +22,8 @@ type UpgradeNodeProps = {
 	connections: Connection[]
 	setUpgrades: Dispatch<SetStateAction<Upgrade[]>>
 	stats: Stats
+	power: number
+	setPower: Dispatch<SetStateAction<number>>
 }
 
 export const UpgradeNode = ({
@@ -30,18 +32,45 @@ export const UpgradeNode = ({
 	upgrades,
 	setUpgrades,
 	connections,
+	power,
+	setPower,
 }: UpgradeNodeProps) => {
 	const { gridScale, timePassed } = useGameContext()
 	const toggleUpgrade = useCallback(() => {
-		setUpgrades((upgrades) =>
-			toggleActivation(upgrade, upgrades, connections, stats)
-		)
+		setUpgrades((upgrades) => {
+			const newUpgrades = toggleActivation(
+				upgrade,
+				upgrades,
+				connections,
+				stats,
+				power
+			)
+			const activeUpgradeIds = upgrades
+				.filter((u) => u.active)
+				.map((u) => u.id)
+			const newUpgradesCost = newUpgrades
+				.filter((u) => u.active && !activeUpgradeIds.includes(u.id))
+				.map((u) => getCost(stats, u))
+				.reduce((prev, cur) => prev + cur, 0)
+			const newUpgradesGainback = newUpgrades
+				.filter((u) => !u.active && activeUpgradeIds.includes(u.id))
+				.map((u) => getCost(stats, u))
+				.reduce((prev, cur) => prev + cur, 0)
+			setPower((prevPower) =>
+				Math.max(0, prevPower - newUpgradesCost + newUpgradesGainback)
+			)
+			// const activeNewUpgrades = newUpgrades.filter(
+			// 	(u) => u.active && !activeUpgradeIds.includes(u.id)
+			// )
+			return newUpgrades
+		})
 	}, [upgrade, stats, connections, setUpgrades])
 	const isAffordable = isUpgradeAffordable(
 		upgrade,
 		upgrades,
 		connections,
-		stats
+		stats,
+		power
 	)
 	return (
 		<div

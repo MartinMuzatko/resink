@@ -8,12 +8,14 @@ type ConnectionProps = {
 	connection: Connection
 	upgrades: Upgrade[]
 	stats: Stats
+	power: number
 }
 
 export const ConnectionLine = ({
 	upgrades,
 	connection,
 	stats,
+	power,
 }: ConnectionProps) => {
 	const { gridScale } = useGameContext()
 	const from = upgrades.find(
@@ -28,7 +30,13 @@ export const ConnectionLine = ({
 		: [to, from]
 
 	const active = from.active && to.active
-	const isAffordable = isUpgradeAffordable(to, upgrades, [connection], stats)
+	const isAffordable = isUpgradeAffordable(
+		to,
+		upgrades,
+		[connection],
+		stats,
+		power
+	)
 
 	const strokeWidth = gridScale / 24
 

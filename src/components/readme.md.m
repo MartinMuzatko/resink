@@ -1,3 +1,8 @@
+Experience:
+	To add more experience relevant skills:
+		Make mouse hold experience by default and have it unload in the power area.
+		This could also be a way to transfer power from and to the meters!
+
 We could add roguelite elements:
 Allow after each round to select random new upgrades, add more to default strength on every run.
 Or when selecting an upgrade node - specialize and replace other upgrade nodes

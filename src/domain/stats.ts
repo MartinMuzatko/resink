@@ -1,13 +1,11 @@
 import { INITIAL_STATS } from '../data/initialGameData'
 import { Upgrade } from './upgrade'
 
-type Target = 'all' | 'single' | 'tree'
+type StatsTarget = 'all' | 'single'
 
 type GlobalStats = {
 	// Util
-	power: number
 	maxPower: number
-	usedPower: number
 	powerMultiplier: number
 	powerPerEnemy: number
 	// powerPerEnemy
@@ -40,8 +38,6 @@ export type Stats = GlobalStats & UpgradeStats
 
 /** subtracts a from b */
 export const diffStats = (a: Stats, b: Stats): Stats => ({
-	power: b.power - a.power,
-	usedPower: b.usedPower - a.usedPower,
 	maxPower: b.maxPower - a.maxPower,
 	powerMultiplier: b.powerMultiplier - a.powerMultiplier,
 	powerPerEnemy: b.powerPerEnemy - a.powerPerEnemy,
@@ -69,11 +65,7 @@ export const diffStats = (a: Stats, b: Stats): Stats => ({
 })
 
 // TODO is there an order?
-export const getStatsFromActiveUpgrades = (
-	upgrades: Upgrade[],
-	powerThroughKilledEnemies: number,
-	powerSpentOnAmmo: number
-): Stats => {
+export const getStatsFromActiveUpgrades = (upgrades: Upgrade[]): Stats => {
 	const activeUpgrades = upgrades.filter((node) => node.active)
 
 	const stats = activeUpgrades.reduce<Stats>((prev, cur) => {
@@ -82,23 +74,8 @@ export const getStatsFromActiveUpgrades = (
 	}, INITIAL_STATS)
 	return {
 		...stats,
-		power:
-			stats.usedPower +
-			Math.min(
-				stats.power -
-					stats.usedPower -
-					powerSpentOnAmmo +
-					powerThroughKilledEnemies,
-				stats.maxPower
-			),
-		// power: stats.power * stats.powerMultiplier,
-		// usedPower: stats.usedPower * stats.upgradeCostMultiplier,
 	}
 }
 
-export const getAvailablePower = (stats: Stats) => stats.power - stats.usedPower
-
-export const hasNotEnoughPower = (stats: Stats) => stats.usedPower > stats.power
-
 export const getCost = (stats: Stats, upgrade: Upgrade): number =>
-	upgrade.cost * stats.upgradeCostMultiplier
+	Math.ceil(upgrade.cost * stats.upgradeCostMultiplier)

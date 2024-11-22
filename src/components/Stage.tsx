@@ -12,12 +12,9 @@ import { UpgradeNode } from './UpgradeNode'
 import { useGameContext } from '../contexts/GameContext'
 import {
 	Area,
-	clamp,
-	equalPosition,
 	generateRandomPositionOnEdge,
 	getDistance,
 	getSpeedVector,
-	Identifier,
 	isPositionInsideArea,
 	lerp,
 	Position,
@@ -39,7 +36,6 @@ import {
 	attractOrb,
 	ExperienceOrb,
 	spawnBasedOnEnemiesKilled,
-	spiralInwards,
 } from '../domain/experienceOrb'
 import { BulletMeter } from './meters/BulletMeter'
 import { Bullet, createBullet } from '../domain/bullet'
@@ -76,19 +72,14 @@ export const Stage = memo(() => {
 	const [experienceOrbs, setExperienceOrbs] = useState<ExperienceOrb[]>([])
 	const [powerThroughEnemiesDefeated, setPowerThroughEnemiesDefeated] =
 		useState(0)
-	const [powerSpentOnAmmo, setPowerSpentOnAmmo] = useState(0)
 	const [enemies, setEnemies] = useState<Enemy[]>([])
 	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES())
 	const [ammo, setAmmo] = useState(10)
+	const [power, setPower] = useState(0)
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
-		() =>
-			getStatsFromActiveUpgrades(
-				upgrades,
-				powerThroughEnemiesDefeated,
-				powerSpentOnAmmo
-			),
-		[upgrades, powerThroughEnemiesDefeated, powerSpentOnAmmo]
+		() => getStatsFromActiveUpgrades(upgrades),
+		[upgrades]
 	)
 	const mouse = useMouse()
 	const [bullets, setBullets] = useState<Bullet[]>([])
@@ -404,22 +395,12 @@ export const Stage = memo(() => {
 						height: 0.3,
 					})
 			)
-			setPowerThroughEnemiesDefeated((prevPower) => {
-				// const enemiesKilled = * stats.powerPerEnemy
-				// XXX: Calculated gain is based on power - usedPower (difference to max)
-				// e.g. [-----++   ] (5/10) - 5 power (+2 enemies), 0 used, 10 max
-				const maxGainAllowed = Math.max(
-					0,
-					prevPower +
-						experienceOrbsConsumed.length +
-						stats.power -
-						stats.usedPower
+			setPower((prevPower) =>
+				Math.min(
+					stats.maxPower,
+					prevPower + experienceOrbsConsumed.length
 				)
-				return clamp(
-					0,
-					maxGainAllowed
-				)(prevPower + experienceOrbsConsumed.length)
-			})
+			)
 			const ids = experienceOrbsConsumed.map(
 				(experienceOrb) => experienceOrb.id
 			)
@@ -487,7 +468,7 @@ export const Stage = memo(() => {
 				{connections.map((connection) => (
 					<ConnectionLine
 						key={connection.id}
-						{...{ connection, upgrades, stats }}
+						{...{ connection, upgrades, stats, power }}
 					/>
 				))}
 				{upgrades.map((upgrade) => (
@@ -499,6 +480,8 @@ export const Stage = memo(() => {
 							setUpgrades,
 							stats,
 							connections,
+							power,
+							setPower,
 						}}
 					/>
 				))}
@@ -524,22 +507,19 @@ export const Stage = memo(() => {
 					<div
 						className="absolute w-full bottom-0 bg-amber-300"
 						style={{
-							height: `${
-								((stats.power - stats.usedPower) /
-									stats.maxPower) *
-								100
-							}%`,
+							height: `${(power / stats.maxPower) * 100}%`,
 						}}
 					></div>
 					<div className="font-bold font-mono absolute -rotate-90 origin-top-left left-6 top-10">
-						{stats.power - stats.usedPower}/{stats.maxPower}
+						{power}/{stats.maxPower}
 					</div>
 				</div>
 				<BulletMeter
 					{...{
 						ammo,
 						setAmmo,
-						setPowerSpentOnAmmo,
+						power,
+						setPower,
 						stats,
 					}}
 				/>

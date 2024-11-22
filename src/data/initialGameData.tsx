@@ -1,5 +1,5 @@
 import { connection } from '../domain/connection'
-import { getCost, Stats } from '../domain/stats'
+import { Stats } from '../domain/stats'
 import { createUpgrade, UpgradeType } from '../domain/upgrade'
 import {
 	GiBarracks,
@@ -20,11 +20,10 @@ import { AiOutlineReload } from 'react-icons/ai'
 import { BsLightningChargeFill } from 'react-icons/bs'
 import { CiDroplet } from 'react-icons/ci'
 import { MdOutlineSell, MdOutlineShield } from 'react-icons/md'
+import { TbRosetteDiscount } from 'react-icons/tb'
 
 export const INITIAL_STATS: Stats = {
-	power: 0,
 	maxPower: 10,
-	usedPower: 0,
 	powerMultiplier: 1,
 	powerPerEnemy: 1,
 	additionalPowerPerEnemyChance: 0.1,
@@ -78,7 +77,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 2,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			mouseAttackDamage: stats.mouseAttackDamage + 1,
 		}),
 		icon: <GiBroadsword className="w-full h-full" />,
@@ -90,7 +88,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			mouseSpeed: stats.mouseSpeed * 0.9,
 		}),
 		icon: <GiStripedSword className="w-full h-full" />,
@@ -102,7 +99,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 20,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			mouseSpeed: stats.mouseSpeed * 0.8,
 		}),
 		icon: <GiStripedSword className="w-full h-full" />,
@@ -114,7 +110,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 20,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			mouseSpeed: stats.mouseSpeed * 0.6,
 		}),
 		icon: <GiStripedSword className="w-full h-full" />,
@@ -126,7 +121,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			mouseSize: stats.mouseSize * 1.5,
 		}),
 		icon: <GiResize className="w-full h-full" />,
@@ -138,7 +132,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			mouseAttackDamage: stats.mouseAttackDamage + 3,
 		}),
 		icon: <GiSwordAltar className="w-full h-full" />,
@@ -151,7 +144,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			upgradeBulletAttackDamage: stats.upgradeBulletAttackDamage + 1,
 		}),
 		icon: <GiTurret className="w-full h-full" />,
@@ -163,7 +155,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			upgradeBulletAttackDamage: stats.upgradeBulletAttackDamage + 2,
 		}),
 		icon: <GiSentryGun className="w-full h-full" />,
@@ -175,7 +166,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			upgradeBulletAttackSpeed: stats.upgradeBulletAttackSpeed * 0.8,
 		}),
 		icon: <AiOutlineReload className="w-full h-full" />,
@@ -187,7 +177,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			upgradeBulletAttackRange: stats.upgradeBulletAttackRange + 1,
 		}),
 		icon: <LuExpand className="w-full h-full" />,
@@ -199,7 +188,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			upgradeBulletMaxAmmo: stats.upgradeBulletMaxAmmo + 20,
 		}),
 		icon: <GiHeavyBullets className="w-full h-full" />,
@@ -211,7 +199,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			upgradeBulletAmmoPrice: stats.upgradeBulletAmmoPrice - 0.15,
 		}),
 		icon: <MdOutlineSell className="w-full h-full" />,
@@ -223,7 +210,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 6,
 		effect: (stats, upgrade) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			upgradeHealth: stats.upgradeHealth + 3,
 		}),
 		icon: <FaHeart className="w-full h-full" />,
@@ -235,7 +221,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: (stats, upgrade) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 		}),
 		icon: <FaHeartbeat className="w-full h-full" />,
 		x: 0,
@@ -246,7 +231,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: (stats, upgrade) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			upgradeArmor: stats.upgradeArmor + 1,
 		}),
 		icon: <MdOutlineShield className="w-full h-full" />,
@@ -258,7 +242,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: (stats, upgrade) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			mouseHealAmount: stats.mouseHealAmount + 1,
 		}),
 		icon: <BiHeartSquare className="w-full h-full" />,
@@ -270,7 +253,6 @@ export const INITIAL_UPGRADES = () => [
 		cost: 8,
 		effect: (stats, upgrade) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			maxPower: stats.maxPower + 10,
 		}),
 		icon: <BsLightningChargeFill className="w-full h-full" />,
@@ -279,13 +261,13 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'L1',
-		cost: 4,
+		title: 'Discount',
+		cost: 10,
 		effect: (stats, upgrade) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
-			maxPower: stats.maxPower + 20,
+			upgradeCostMultiplier: stats.upgradeCostMultiplier * 0.8,
 		}),
-		icon: <GiPowerGenerator className="w-full h-full" />,
+		icon: <TbRosetteDiscount className="w-full h-full" />,
 		x: -2,
 		y: 0,
 	}),
@@ -296,7 +278,6 @@ export const INITIAL_UPGRADES = () => [
 		description: 'Get more out of the experience juice',
 		effect: (stats, upgrade) => ({
 			...stats,
-			usedPower: stats.usedPower + getCost(stats, upgrade),
 			powerPerEnemy: stats.powerPerEnemy + 1,
 			additionalPowerPerEnemyChance:
 				stats.additionalPowerPerEnemyChance + 0.1,

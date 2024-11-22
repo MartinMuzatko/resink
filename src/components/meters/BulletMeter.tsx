@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction, useMemo } from 'react'
-import { getAvailablePower, Stats } from '../../domain/stats'
+import { Dispatch, SetStateAction } from 'react'
+import { Stats } from '../../domain/stats'
 import { Tooltip } from '@mantine/core'
 import { BsLightningChargeFill } from 'react-icons/bs'
 import { GiHeavyBullets } from 'react-icons/gi'
@@ -10,20 +10,22 @@ type BulletMeterProps = {
 	stats: Stats
 	ammo: number
 	setAmmo: Dispatch<SetStateAction<number>>
-	setPowerSpentOnAmmo: Dispatch<SetStateAction<number>>
+	power: number
+	setPower: Dispatch<SetStateAction<number>>
 }
 
 export const BulletMeter = ({
 	ammo,
 	setAmmo,
 	stats,
-	setPowerSpentOnAmmo,
+	power,
+	setPower,
 }: BulletMeterProps) => {
 	const toSpend = Math.ceil(
 		clamp(
 			0,
 			(stats.upgradeBulletMaxAmmo - ammo) * stats.upgradeBulletAmmoPrice
-		)(getAvailablePower(stats) * stats.upgradeBulletAmmoPrice)
+		)(power * stats.upgradeBulletAmmoPrice)
 	)
 	const ammoBought = Math.min(
 		Math.ceil(toSpend / stats.upgradeBulletAmmoPrice),
@@ -47,7 +49,7 @@ export const BulletMeter = ({
 					setAmmo((ammo) =>
 						clamp(0, stats.upgradeBulletMaxAmmo)(ammo + ammoBought)
 					)
-					setPowerSpentOnAmmo((spent) => spent + toSpend)
+					setPower((prevPower) => prevPower - toSpend)
 				}}
 				className="absolute z-30 border-2 cursor-pointer bg-gray-800 border-red-900"
 				style={{
