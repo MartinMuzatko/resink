@@ -9,8 +9,8 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 	return (
 		<div>
 			{(stats.power !== 0 ||
-				stats.globalHealth !== 0 ||
-				stats.globalArmor !== 0 ||
+				stats.upgradeHealth !== 0 ||
+				stats.upgradeArmor !== 0 ||
 				stats.mouseAttackDamage !== 0 ||
 				stats.mouseSize !== 0 ||
 				stats.mouseHealAmount !== 0 ||
@@ -73,16 +73,16 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 					%
 				</div>
 			)}
-			{stats.globalHealth !== 0 && (
+			{stats.upgradeHealth !== 0 && (
 				<div>
 					<span className="text-green-600">Health</span> +{' '}
-					{stats.globalHealth}
+					{stats.upgradeHealth}
 				</div>
 			)}
-			{stats.globalArmor !== 0 && (
+			{stats.upgradeArmor !== 0 && (
 				<div>
 					<span className="text-cyan-400">Armor</span> +{' '}
-					{stats.globalArmor}
+					{stats.upgradeArmor}
 				</div>
 			)}
 			{stats.mouseAttackDamage !== 0 && (
@@ -156,7 +156,7 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 			{stats.upgradeArmor !== 0 && (
 				<div>
 					<span className="text-cyan-400">Armor</span> +{' '}
-					{stats.globalArmor}
+					{stats.upgradeArmor}
 				</div>
 			)}
 		</div>

@@ -121,10 +121,10 @@ export const UpgradeNode = ({
 								{getHealth(upgrade, stats)} /{' '}
 								{getMaxHealth(upgrade, stats)}
 							</div>
-							{stats.globalArmor !== 0 && (
+							{stats.upgradeArmor !== 0 && (
 								<div className="flex items-center gap-2">
 									<FaShieldAlt className="text-cyan-600" />{' '}
-									{stats.globalArmor}
+									{stats.upgradeArmor}
 								</div>
 							)}
 						</div>

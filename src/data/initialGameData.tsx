@@ -29,16 +29,14 @@ export const INITIAL_STATS: Stats = {
 	powerPerEnemy: 1,
 	additionalPowerPerEnemyChance: 0.1,
 	upgradeCostMultiplier: 1,
-	globalHealth: 1,
-	globalArmor: 0,
-	upgradeHealth: 0,
+	upgradeHealth: 1,
 	upgradeArmor: 0,
 	mouseAttackDamage: 1,
 	mouseHealAmount: 0,
 	mouseSize: 1,
 	mouseSpeed: 3000,
-	globalHealthRegenerationAmount: 0,
-	globalHealthRegenerationSpeed: 4000,
+	upgradeHealthRegenerationAmount: 0,
+	upgradeHealthRegenerationSpeed: 4000,
 	upgradeBulletAttackDamage: 0,
 	upgradeBulletMaxAmmo: 10,
 	// tick based
@@ -77,7 +75,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'A',
-		cost: 5,
+		cost: 2,
 		effect: (stats, upgrade, upgrades) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
@@ -222,11 +220,11 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'D',
-		cost: 4,
+		cost: 6,
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			globalHealth: stats.globalHealth + 3,
+			upgradeHealth: stats.upgradeHealth + 3,
 		}),
 		icon: <FaHeart className="w-full h-full" />,
 		x: 1,
@@ -249,7 +247,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),
-			globalArmor: stats.globalArmor + 1,
+			upgradeArmor: stats.upgradeArmor + 1,
 		}),
 		icon: <MdOutlineShield className="w-full h-full" />,
 		x: 1,
@@ -269,7 +267,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'L',
-		cost: 4,
+		cost: 8,
 		effect: (stats, upgrade) => ({
 			...stats,
 			usedPower: stats.usedPower + getCost(stats, upgrade),

@@ -1,8 +1,9 @@
 import { INITIAL_STATS } from '../data/initialGameData'
 import { Upgrade } from './upgrade'
 
-// TODO: global stats and per upgrade node stats
-export type Stats = {
+type Target = 'all' | 'single' | 'tree'
+
+type GlobalStats = {
 	// Util
 	power: number
 	maxPower: number
@@ -11,10 +12,6 @@ export type Stats = {
 	powerPerEnemy: number
 	// powerPerEnemy
 	additionalPowerPerEnemyChance: number
-	// powerGenerationAmount
-	// powerGenerationSpeed // (during enemy waves)
-	upgradeCostMultiplier: number
-	// Attack
 	// Attack - Mouse Based
 	mouseSize: number
 	mouseHealAmount: number
@@ -22,20 +19,24 @@ export type Stats = {
 	mouseAttackDamage: number
 	// mousePoisonAttackDamage: number
 	// mousePoisonAttackSpeed: number
-	// Attack - Upgrade Based
+}
+
+type UpgradeStats = {
+	// Attack
 	upgradeBulletAttackDamage: number
 	upgradeBulletAttackRange: number
 	upgradeBulletAttackSpeed: number
 	upgradeBulletMaxAmmo: number
 	upgradeBulletAmmoPrice: number
 	// Defense
-	globalHealth: number
-	globalHealthRegenerationAmount: number
-	globalHealthRegenerationSpeed: number
-	globalArmor: number
 	upgradeHealth: number
+	upgradeHealthRegenerationAmount: number
+	upgradeHealthRegenerationSpeed: number
 	upgradeArmor: number
+	upgradeCostMultiplier: number
 }
+
+export type Stats = GlobalStats & UpgradeStats
 
 /** subtracts a from b */
 export const diffStats = (a: Stats, b: Stats): Stats => ({
@@ -59,13 +60,11 @@ export const diffStats = (a: Stats, b: Stats): Stats => ({
 		b.upgradeBulletAttackRange - a.upgradeBulletAttackRange,
 	upgradeBulletMaxAmmo: b.upgradeBulletMaxAmmo - a.upgradeBulletMaxAmmo,
 	upgradeBulletAmmoPrice: b.upgradeBulletAmmoPrice - a.upgradeBulletAmmoPrice,
-	globalHealth: b.globalHealth - a.globalHealth,
-	globalHealthRegenerationAmount:
-		a.globalHealthRegenerationAmount - b.globalHealthRegenerationAmount,
-	globalHealthRegenerationSpeed:
-		a.globalHealthRegenerationSpeed - b.globalHealthRegenerationSpeed,
-	globalArmor: b.globalArmor - a.globalArmor,
 	upgradeHealth: b.upgradeHealth - a.upgradeHealth,
+	upgradeHealthRegenerationAmount:
+		a.upgradeHealthRegenerationAmount - b.upgradeHealthRegenerationAmount,
+	upgradeHealthRegenerationSpeed:
+		a.upgradeHealthRegenerationSpeed - b.upgradeHealthRegenerationSpeed,
 	upgradeArmor: b.upgradeArmor - a.upgradeArmor,
 })
 

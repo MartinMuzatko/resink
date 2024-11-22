@@ -106,7 +106,7 @@ export const Stage = memo(() => {
 	const amountEnemies = Math.round(
 		lerp(
 			1,
-			lerp(4, 30, Math.min(1, wave / 30)),
+			lerp(2, 30, Math.min(1, wave / 30)),
 			timePassedSinceWaveStart / attackTime
 		)
 	)
@@ -362,8 +362,8 @@ export const Stage = memo(() => {
 									attackDamage: wave,
 									movementSpeed: 0.0025,
 									size: 0.25,
-									health: Math.ceil(wave / 3),
-									maxHealth: Math.ceil(wave / 3),
+									health: 1 + Math.ceil(wave / 3),
+									maxHealth: 1 + Math.ceil(wave / 3),
 								})
 						  )
 						: []),

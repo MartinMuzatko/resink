@@ -182,7 +182,7 @@ export const toggleActivation = (
 			...upgrade,
 			active: canActivate ? !upgrade.active : upgrade.active,
 			health: canActivate
-				? upgrade.effect(stats, upgrade, upgrades).globalHealth
+				? upgrade.effect(stats, upgrade, upgrades).upgradeHealth
 				: upgrade.health,
 		})
 	return deactivateSubTree(upgrade, upgrades, connections)
@@ -193,13 +193,13 @@ export const toggleActivation = (
 
 export const getHealth = (upgrade: Upgrade, stats: Stats) =>
 	upgrade.type == UpgradeType.motor
-		? Math.min(upgrade.health, stats.globalHealth + 9)
-		: Math.min(upgrade.health, stats.globalHealth)
+		? Math.min(upgrade.health, stats.upgradeHealth + 9)
+		: Math.min(upgrade.health, stats.upgradeHealth)
 
 export const getMaxHealth = (upgrade: Upgrade, stats: Stats) =>
 	upgrade.type == UpgradeType.motor
-		? stats.globalHealth + 9
-		: stats.globalHealth
+		? stats.upgradeHealth + 9
+		: stats.upgradeHealth
 
 export const updateUpgradeDamage = (
 	upgradesToTakeDamage: UpgradeDamageUpdate[],
@@ -223,7 +223,7 @@ export const updateUpgradeDamage = (
 					...upgrade,
 					health:
 						getHealth(upgrade, stats) -
-						Math.max(update.damage - stats.globalArmor, 0),
+						Math.max(update.damage - stats.upgradeArmor, 0),
 					active: getHealth(upgrade, stats) > 0,
 					lastDamageTakenTime: timePassed,
 			  }
