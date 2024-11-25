@@ -24,12 +24,12 @@ export const BulletMeter = ({
 	const toSpend = Math.ceil(
 		clamp(
 			0,
-			(stats.upgradeBulletMaxAmmo - ammo) * stats.upgradeBulletAmmoPrice
-		)(power * stats.upgradeBulletAmmoPrice)
+			(stats.bulletMaxAmmo - ammo) * stats.bulletAmmoPrice
+		)(power * stats.bulletAmmoPrice)
 	)
 	const ammoBought = Math.min(
-		Math.ceil(toSpend / stats.upgradeBulletAmmoPrice),
-		stats.upgradeBulletMaxAmmo - ammo
+		Math.ceil(toSpend / stats.bulletAmmoPrice),
+		stats.bulletMaxAmmo - ammo
 	)
 
 	const { gridScale } = useGameContext()
@@ -47,7 +47,7 @@ export const BulletMeter = ({
 			<div
 				onClick={() => {
 					setAmmo((ammo) =>
-						clamp(0, stats.upgradeBulletMaxAmmo)(ammo + ammoBought)
+						clamp(0, stats.bulletMaxAmmo)(ammo + ammoBought)
 					)
 					setPower((prevPower) => prevPower - toSpend)
 				}}
@@ -69,11 +69,11 @@ export const BulletMeter = ({
 				<div
 					className="absolute w-full bottom-0 bg-amber-600"
 					style={{
-						height: `${(ammo / stats.upgradeBulletMaxAmmo) * 100}%`,
+						height: `${(ammo / stats.bulletMaxAmmo) * 100}%`,
 					}}
 				></div>
 				<div className="font-bold font-mono absolute -rotate-90 origin-top-left left-6 top-10">
-					{ammo}/{stats.upgradeBulletMaxAmmo}
+					{ammo}/{stats.bulletMaxAmmo}
 				</div>
 			</div>
 		</Tooltip>

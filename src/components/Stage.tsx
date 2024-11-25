@@ -7,7 +7,7 @@ import {
 	Upgrade,
 	UpgradeType,
 } from '../domain/upgrade'
-import { getStatsFromActiveUpgrades } from '../domain/stats'
+import { getActiveGlobalStats, getActiveStats } from '../domain/stats'
 import { ConnectionLine } from './ConnectionLine'
 import { UpgradeNode } from './UpgradeNode'
 import { useGameContext } from '../contexts/GameContext'
@@ -20,9 +20,7 @@ import {
 	lerp,
 	Position,
 } from '../domain/main'
-import { Enemies } from './Enemies'
 import {
-	canEnemyDealDamage,
 	createEnemy,
 	Enemy,
 	findTarget,
@@ -30,8 +28,11 @@ import {
 	moveEnemy,
 } from '../domain/enemy'
 import { useMouse } from '@mantine/hooks'
-import { HealthBar } from './HealthBar'
-import { INITIAL_CONNECTIONS, INITIAL_UPGRADES } from '../data/initialGameData'
+import {
+	INITIAL_CONNECTIONS,
+	INITIAL_STATS,
+	INITIAL_UPGRADES,
+} from '../data/initialGameData'
 import { StatsInfoPlain } from './StatsInfoPlain'
 import {
 	attractOrb,
@@ -84,7 +85,7 @@ export const Stage = memo(() => {
 	const [power, setPower] = useState(0)
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
-		() => getStatsFromActiveUpgrades(upgrades),
+		() => getActiveGlobalStats(upgrades, connections, INITIAL_STATS),
 		[upgrades]
 	)
 	const mouse = useMouse()
@@ -208,7 +209,20 @@ export const Stage = memo(() => {
 					bullets: Bullet[]
 				}>(
 					({ upgrades, bullets }, upgrade) => {
-						if (!canUpgradeShoot(upgrade, stats, timePassed, ammo))
+						const upgradeStats = getActiveStats(
+							upgrades,
+							connections,
+							INITIAL_STATS,
+							upgrade
+						)
+						if (
+							!canUpgradeShoot(
+								upgrade,
+								upgradeStats,
+								timePassed,
+								ammo
+							)
+						)
 							return { upgrades: [...upgrades, upgrade], bullets }
 
 						const enemiesInRange = enemies.filter(
@@ -261,6 +275,7 @@ export const Stage = memo(() => {
 				const newEnemies = prevEnemies.map((enemy) => {
 					const bulletsHitIds = bullets
 						.filter((bullet) =>
+							// TODO: true hitboxes maybe
 							isPositionInsideArea(enemy, {
 								x: bullet.x - 0.25,
 								y: bullet.y - 0.25,
@@ -348,8 +363,7 @@ export const Stage = memo(() => {
 						upgradesToTakeDamage,
 						newUpgrades,
 						connections,
-						timePassed,
-						stats
+						timePassed
 				  )
 				: newUpgrades
 		})

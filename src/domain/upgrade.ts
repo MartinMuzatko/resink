@@ -1,8 +1,9 @@
 import { ReactNode } from 'react'
 import { getDistance, Identifier, Position } from './main'
 import { Connection } from './connection'
-import { getCost, Stats } from './stats'
+import { getActiveStats, getCost, Stats, UpgradeStats } from './stats'
 import { canEnemyDealDamage, Enemy } from './enemy'
+import { INITIAL_STATS } from '../data/initialGameData'
 
 export enum UpgradeType {
 	motor,
@@ -23,7 +24,11 @@ export type Upgrade = Identifier &
 		) => ReactNode
 		cost: number
 		/** cumulates stats */
-		effect: (stats: Stats, upgrade: Upgrade, upgrades: Upgrade[]) => Stats
+		effect: (
+			stats: Stats,
+			upgrade: Upgrade,
+			upgrades: Upgrade[]
+		) => Partial<UpgradeStats>
 		// activate
 		// deactivate
 		// destroy
@@ -49,14 +54,15 @@ export type UpgradeDamageUpdate = {
 	damage: number
 }
 
-export const createUpgrade = (upgrade: Partial<Upgrade>): Upgrade => ({
+export const createUpgrade = (
+	upgrade: Partial<Upgrade> & Pick<Upgrade, 'effect'>
+): Upgrade => ({
 	id: crypto.randomUUID(),
 	type: UpgradeType.upgrade,
 	x: 0,
 	y: 0,
 	active: false,
 	cost: 0,
-	effect: (stats) => stats,
 	icon: 'M',
 	health: 10,
 	lastBulletShotTime: 0,
@@ -168,22 +174,26 @@ export const toggleActivation = (
 	upgrade: Upgrade,
 	upgrades: Upgrade[],
 	connections: Connection[],
-	stats: Stats,
 	power: number
 ) => {
+	const upgradeStats = getActiveStats(
+		upgrades,
+		connections,
+		INITIAL_STATS,
+		upgrade
+	)
 	const parentUpgrade = findDirectParent(upgrade, upgrades, connections)
 	if (!parentUpgrade) return upgrades
 
 	const isActivating = !upgrade.active
 	const upgradeIndex = upgrades.findIndex((node) => node.id == upgrade.id)
-	const canActivate = parentUpgrade.active && power >= getCost(stats, upgrade)
+	const canActivate =
+		parentUpgrade.active && power >= getCost(upgradeStats, upgrade)
 	if (isActivating)
 		return upgrades.toSpliced(upgradeIndex, 1, {
 			...upgrade,
 			active: canActivate ? !upgrade.active : upgrade.active,
-			health: canActivate
-				? upgrade.effect(stats, upgrade, upgrades).upgradeHealth
-				: upgrade.health,
+			health: canActivate ? upgradeStats.upgradeHealth : upgrade.health,
 		})
 	return deactivateSubTree(upgrade, upgrades, connections)
 	// TODO: If we can no longer afford nodes, deactivate other nodes until we have money.
@@ -205,26 +215,30 @@ export const updateUpgradeDamage = (
 	upgradesToTakeDamage: UpgradeDamageUpdate[],
 	upgrades: Upgrade[],
 	connections: Connection[],
-	timePassed: number,
-	stats: Stats
+	timePassed: number
 ) => {
 	const upgradeIdsToTakeDamage = [
 		...new Set(upgradesToTakeDamage.flatMap((u) => u.upgrade.id)),
 	]
 	const damagedUpgrades = upgrades.map((upgrade) => {
+		const upgradeStats = getActiveStats(
+			upgrades,
+			connections,
+			INITIAL_STATS
+		)
 		const update = upgradesToTakeDamage.find(
 			(u) => u.upgrade.id === upgrade.id
 		)
 		if (!update || !update.damage) return upgrade
 		return upgradeIdsToTakeDamage.includes(upgrade.id) &&
 			upgrade.lastDamageTakenTime <
-				timePassed - stats.upgradeBulletAttackSpeed
+				timePassed - upgradeStats.upgradeBulletAttackSpeed
 			? {
 					...upgrade,
 					health:
-						getHealth(upgrade, stats) -
-						Math.max(update.damage - stats.upgradeArmor, 0),
-					active: getHealth(upgrade, stats) > 0,
+						getHealth(upgrade, upgradeStats) -
+						Math.max(update.damage - upgradeStats.upgradeArmor, 0),
+					active: getHealth(upgrade, upgradeStats) > 0,
 					lastDamageTakenTime: timePassed,
 			  }
 			: upgrade

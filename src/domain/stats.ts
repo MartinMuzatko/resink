@@ -1,89 +1,220 @@
-import { INITIAL_STATS } from '../data/initialGameData'
-import { Upgrade } from './upgrade'
+import { Connection } from './connection'
+import { createUpgrade, Upgrade } from './upgrade'
 
-type StatsTarget = 'all' | 'single'
+type TargetFilterFunction = (
+	upgrade: Upgrade,
+	upgrades: Upgrade[],
+	connections: Connection[]
+) => boolean
 
-type GlobalStats = {
+export enum StatDisplay {
+	'value',
+	'percentage',
+}
+
+export enum StatType {
+	'global',
+	'scoped',
+}
+
+type StatDefinition = {
+	name: string
+	className: string
+	display: StatDisplay
+	type: StatType
+}
+
+export const statDefinitions = {
 	// Util
-	maxPower: number
-	powerMultiplier: number
-	powerPerEnemy: number
-	// powerPerEnemy
-	additionalPowerPerEnemyChance: number
-	// Attack - Mouse Based
-	mouseSize: number
-	mouseHealAmount: number
-	mouseSpeed: number
-	mouseAttackDamage: number
-	// mousePoisonAttackDamage: number
-	// mousePoisonAttackSpeed: number
+	maxPower: {
+		name: 'Max Power',
+		className: 'text-blue-800',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	powerMultiplier: {
+		name: 'Power Multiplier',
+		className: '',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	powerPerEnemy: {
+		name: 'Power Per Enemy',
+		className: 'text-cyan-400',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	additionalPowerPerEnemyChance: {
+		name: 'Additional Power Per Enemy Chance',
+		className: 'text-red-600',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	// MouseArea
+	mouseSize: {
+		name: 'Mouse Size',
+		className: 'text-amber-600',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	mouseHealAmount: {
+		name: 'Mouse Heal Amount',
+		className: 'text-lime-400',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	mouseSpeed: {
+		name: 'Mouse Speed',
+		className: 'text-teal-400',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	mouseAttackDamage: {
+		name: 'Mouse Attack Damage',
+		className: 'text-red-600',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	// Bullets
+	bulletMaxAmmo: {
+		name: 'Bullet Max Ammo',
+		className: 'text-green-400',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	bulletAmmoPrice: {
+		name: 'Bullet Ammo Price',
+		className: 'text-teal-400',
+		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	upgradeBulletAttackDamage: {
+		name: 'Bullet Attack Damage',
+		className: 'text-red-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradeBulletAttackRange: {
+		name: 'Bullet Attack Range',
+		className: 'text-green-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradeBulletAttackSpeed: {
+		name: 'Bullet Attack Speed',
+		className: 'text-teal-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradeHealth: {
+		name: 'Health',
+		className: 'text-green-600',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradeHealthRegenerationAmount: {
+		name: 'Health Regeneration Amount',
+		className: 'text-teal-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradeHealthRegenerationSpeed: {
+		name: 'Health Regeneration Speed',
+		className: 'text-teal-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradeArmor: {
+		name: 'Armor',
+		className: 'text-cyan-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradeCostMultiplier: {
+		name: 'Cost Multiplier',
+		className: 'text-cyan-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+} as const satisfies Record<string, StatDefinition>
+
+export type StatKeys = keyof typeof statDefinitions
+
+type GlobalStat = number
+type ScopedStat = {
+	value: number
+	filter: TargetFilterFunction
 }
 
-type UpgradeStats = {
-	// Attack
-	upgradeBulletAttackDamage: number
-	upgradeBulletAttackRange: number
-	upgradeBulletAttackSpeed: number
-	upgradeBulletMaxAmmo: number
-	upgradeBulletAmmoPrice: number
-	// Defense
-	upgradeHealth: number
-	upgradeHealthRegenerationAmount: number
-	upgradeHealthRegenerationSpeed: number
-	upgradeArmor: number
-	upgradeCostMultiplier: number
+export type UpgradeStats = {
+	[K in keyof typeof statDefinitions]: (typeof statDefinitions)[K]['type'] extends StatType.global
+		? GlobalStat
+		: ScopedStat
 }
 
-export type Stats = GlobalStats & UpgradeStats
+export type Stats = Record<StatKeys, number>
 
 /** subtracts a from b */
 export const diffStats = (a: Stats, b: Stats): Stats => ({
-	// ...Object.fromEntries(
-	// 	[...new Set([...Object.keys(a), ...Object.keys(b)])].map(
-	// 		(key) => [
-	// 			key,
-	// 			b[key as keyof Stats] - a[key as keyof Stats],
-	// 		]
-	// 	)
-	// ),
-	maxPower: b.maxPower - a.maxPower,
-	powerMultiplier: b.powerMultiplier - a.powerMultiplier,
-	powerPerEnemy: b.powerPerEnemy - a.powerPerEnemy,
-	additionalPowerPerEnemyChance:
-		b.additionalPowerPerEnemyChance - a.additionalPowerPerEnemyChance,
-	upgradeCostMultiplier: b.upgradeCostMultiplier - a.upgradeCostMultiplier,
-	mouseAttackDamage: b.mouseAttackDamage - a.mouseAttackDamage,
-	mouseSize: b.mouseSize - a.mouseSize,
-	mouseHealAmount: b.mouseHealAmount - a.mouseHealAmount,
-	mouseSpeed: b.mouseSpeed - a.mouseSpeed,
-	upgradeBulletAttackDamage:
-		b.upgradeBulletAttackDamage - a.upgradeBulletAttackDamage,
-	upgradeBulletAttackSpeed:
-		b.upgradeBulletAttackSpeed - a.upgradeBulletAttackSpeed,
-	upgradeBulletAttackRange:
-		b.upgradeBulletAttackRange - a.upgradeBulletAttackRange,
-	upgradeBulletMaxAmmo: b.upgradeBulletMaxAmmo - a.upgradeBulletMaxAmmo,
-	upgradeBulletAmmoPrice: b.upgradeBulletAmmoPrice - a.upgradeBulletAmmoPrice,
-	upgradeHealth: b.upgradeHealth - a.upgradeHealth,
-	upgradeHealthRegenerationAmount:
-		a.upgradeHealthRegenerationAmount - b.upgradeHealthRegenerationAmount,
-	upgradeHealthRegenerationSpeed:
-		a.upgradeHealthRegenerationSpeed - b.upgradeHealthRegenerationSpeed,
-	upgradeArmor: b.upgradeArmor - a.upgradeArmor,
+	...(Object.fromEntries(
+		[...new Set([...Object.keys(a), ...Object.keys(b)])].map((key) => [
+			key,
+			b[key as keyof Stats] - a[key as keyof Stats],
+		])
+	) as Stats),
 })
 
-// TODO is there an order?
-export const getStatsFromActiveUpgrades = (upgrades: Upgrade[]): Stats => {
-	const activeUpgrades = upgrades.filter((node) => node.active)
+/** adds b to a  */
+export const addStats = (a: Stats, b: Stats): Stats => ({
+	...(Object.fromEntries(
+		[...new Set([...Object.keys(a), ...Object.keys(b)])].map((key) => [
+			key,
+			a[key as keyof Stats] + b[key as keyof Stats],
+		])
+	) as Stats),
+})
 
-	const stats = activeUpgrades.reduce<Stats>((prev, cur) => {
-		const stats = cur.effect(prev, cur, upgrades)
-		return stats
-	}, INITIAL_STATS)
-	return {
-		...stats,
-	}
+const NULL_FILTER_UPGRADE = () =>
+	createUpgrade({
+		id: 'NULL_FILTER_UPGRADE',
+		effect: () => ({}),
+	})
+
+export const getActiveStats = (
+	upgrades: Upgrade[],
+	connections: Connection[],
+	initialStats: Stats,
+	filterUpgrade?: Upgrade
+): Stats => {
+	const activeUpgrades = upgrades.filter((node) => node.active)
+	return activeUpgrades.reduce((acc, upgrade) => {
+		const upgradeStats = upgrade.effect(acc, upgrade, upgrades)
+		return {
+			...initialStats,
+			...Object.fromEntries(
+				Object.entries(upgradeStats).map(([key, stat]) => [
+					key,
+					typeof stat == 'number'
+						? stat
+						: stat.filter(
+								filterUpgrade ?? NULL_FILTER_UPGRADE(),
+								upgrades,
+								connections
+						  )
+						? stat.value
+						: acc[key as keyof Stats],
+				])
+			),
+		} as Stats
+	}, initialStats)
 }
+
+export const getActiveGlobalStats = (
+	upgrades: Upgrade[],
+	connections: Connection[],
+	initialStats: Stats
+): Stats =>
+	getActiveStats(upgrades, connections, initialStats, NULL_FILTER_UPGRADE())
 
 export const getCost = (stats: Stats, upgrade: Upgrade): number =>
 	Math.ceil(upgrade.cost * stats.upgradeCostMultiplier)

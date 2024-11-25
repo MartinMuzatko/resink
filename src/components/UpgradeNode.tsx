@@ -1,6 +1,6 @@
 import { BsLightningChargeFill } from 'react-icons/bs'
 import { Divider, Tooltip } from '@mantine/core'
-import { Dispatch, SetStateAction, useCallback } from 'react'
+import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import { Connection } from '../domain/connection'
 import {
@@ -10,11 +10,12 @@ import {
 	toggleActivation,
 	Upgrade,
 } from '../domain/upgrade'
-import { getCost, Stats } from '../domain/stats'
+import { getActiveStats, getCost, Stats } from '../domain/stats'
 import { HealthBar } from './HealthBar'
 import { StatsInfo } from './StatsInfo'
 import { clamp } from '../domain/main'
 import { FaHeart, FaShieldAlt } from 'react-icons/fa'
+import { INITIAL_STATS } from '../data/initialGameData'
 
 type UpgradeNodeProps = {
 	upgrade: Upgrade
@@ -36,13 +37,16 @@ export const UpgradeNode = ({
 	setPower,
 }: UpgradeNodeProps) => {
 	const { gridScale, timePassed } = useGameContext()
+	const upgradeStats = useMemo(
+		() => getActiveStats(upgrades, connections, INITIAL_STATS, upgrade),
+		[upgrade, upgrades, connections]
+	)
 	const toggleUpgrade = useCallback(() => {
 		setUpgrades((upgrades) => {
 			const newUpgrades = toggleActivation(
 				upgrade,
 				upgrades,
 				connections,
-				stats,
 				power
 			)
 			const activeUpgradeIds = upgrades
@@ -86,15 +90,19 @@ export const UpgradeNode = ({
 				height: `${gridScale}px`,
 			}}
 		>
-			{upgrade.active && stats.upgradeBulletAttackDamage !== 0 && (
+			{upgrade.active && upgradeStats.upgradeBulletAttackDamage !== 0 && (
 				<div
 					className="rounded-full absolute z-10 bg-red-900/10"
 					style={{
 						width: `${
-							stats.upgradeBulletAttackRange * 2 * gridScale
+							upgradeStats.upgradeBulletAttackRange *
+							2 *
+							gridScale
 						}px`,
 						height: `${
-							stats.upgradeBulletAttackRange * 2 * gridScale
+							upgradeStats.upgradeBulletAttackRange *
+							2 *
+							gridScale
 						}px`,
 					}}
 				/>
@@ -127,9 +135,10 @@ export const UpgradeNode = ({
 							) : (
 								<StatsInfo
 									{...{
-										stats,
+										stats: upgradeStats,
 										upgrade,
 										upgrades,
+										connections,
 									}}
 								/>
 							)}
@@ -147,13 +156,13 @@ export const UpgradeNode = ({
 						<div className="flex flex-col gap-2 p-2 pt-0">
 							<div className="flex items-center gap-2">
 								<FaHeart className="text-red-600" />{' '}
-								{getHealth(upgrade, stats)} /{' '}
-								{getMaxHealth(upgrade, stats)}
+								{getHealth(upgrade, upgradeStats)} /{' '}
+								{getMaxHealth(upgrade, upgradeStats)}
 							</div>
-							{stats.upgradeArmor !== 0 && (
+							{upgradeStats.upgradeArmor !== 0 && (
 								<div className="flex items-center gap-2">
 									<FaShieldAlt className="text-cyan-600" />{' '}
-									{stats.upgradeArmor}
+									{upgradeStats.upgradeArmor}
 								</div>
 							)}
 						</div>
@@ -185,8 +194,8 @@ export const UpgradeNode = ({
 					</div>
 					{upgrade.active && (
 						<HealthBar
-							current={getHealth(upgrade, stats)}
-							max={getMaxHealth(upgrade, stats)}
+							current={getHealth(upgrade, upgradeStats)}
+							max={getMaxHealth(upgrade, upgradeStats)}
 						/>
 					)}
 					{upgrade.active &&
@@ -208,7 +217,7 @@ export const UpgradeNode = ({
 											)(
 												(timePassed -
 													upgrade.lastBulletShotTime) /
-													stats.upgradeBulletAttackSpeed
+													upgradeStats.upgradeBulletAttackSpeed
 											) * 100
 										}%`,
 									}}
