@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { getDistance, Identifier, Position } from './main'
 import { Connection } from './connection'
-import { getActiveStats, getCost, Stats, UpgradeStats } from './stats'
+import { getActiveStats, getCost, Stats, StatsEffect } from './stats'
 import { canEnemyDealDamage, Enemy } from './enemy'
 import { INITIAL_STATS } from '../data/initialGameData'
 
@@ -28,7 +28,7 @@ export type Upgrade = Identifier &
 			stats: Stats,
 			upgrade: Upgrade,
 			upgrades: Upgrade[]
-		) => Partial<UpgradeStats>
+		) => StatsEffect[]
 		// activate
 		// deactivate
 		// destroy

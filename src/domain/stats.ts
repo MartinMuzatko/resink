@@ -140,17 +140,26 @@ export const statDefinitions = {
 
 export type StatKeys = keyof typeof statDefinitions
 
-type GlobalStat = number
-type ScopedStat = {
-	value: number
+type GlobalStatKeys = {
+	[K in keyof typeof statDefinitions]: typeof statDefinitions[K]['type'] extends StatType.global ? K : never;
+}[keyof typeof statDefinitions];
+
+type UpgradeStatKeys = {
+	[K in keyof typeof statDefinitions]: typeof statDefinitions[K]['type'] extends StatType.scoped ? K : never;
+}[keyof typeof statDefinitions];
+
+// filter: TargetFilterFunction
+
+type UpgradeStatsEffect = {
+	stats: Partial<Record<UpgradeStatKeys, number>>
 	filter: TargetFilterFunction
 }
 
-export type UpgradeStats = {
-	[K in keyof typeof statDefinitions]: (typeof statDefinitions)[K]['type'] extends StatType.global
-		? GlobalStat
-		: ScopedStat
+type GlobalStatsEffect = {
+	stats: Partial<Record<StatKeys, number>>
 }
+
+export type StatsEffect = UpgradeStatsEffect | GlobalStatsEffect
 
 export type Stats = Record<StatKeys, number>
 
@@ -177,7 +186,7 @@ export const addStats = (a: Stats, b: Stats): Stats => ({
 const NULL_FILTER_UPGRADE = () =>
 	createUpgrade({
 		id: 'NULL_FILTER_UPGRADE',
-		effect: () => ({}),
+		effect: () => [],
 	})
 
 export const getActiveStats = (
