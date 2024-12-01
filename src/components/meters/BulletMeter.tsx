@@ -7,7 +7,7 @@ import { useGameContext } from '../../contexts/GameContext'
 import { clamp } from '../../domain/main'
 
 type BulletMeterProps = {
-	stats: Stats
+	stats: StatsEffectResult
 	ammo: number
 	setAmmo: Dispatch<SetStateAction<number>>
 	power: number

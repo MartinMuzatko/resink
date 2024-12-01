@@ -1,18 +1,19 @@
 import { expect, test } from 'vitest'
 import { addStats, getActiveStats, mergeStats } from './stats'
 import { createUpgrade } from './upgrade'
-import { INITIAL_STATS } from '../data/initialGameData'
+import { INITIAL_STATS, INITIAL_UPGRADES } from '../data/initialGameData'
 
 test('calculate stats for global', () => {
 	const x = getActiveStats(
 		[
 			createUpgrade({
+				id: 'A',
 				active: true,
-				effect: (stats) => [
+				effect: [
 					{
-						stats: {
+						stats: (stats) => ({
 							upgradeArmor: stats.upgradeArmor + 1,
-						},
+						}),
 					},
 				],
 			}),
@@ -25,7 +26,7 @@ test('calculate stats for global', () => {
 			...INITIAL_STATS,
 			upgradeArmor: 3,
 		},
-		upgradeStats: new Map(),
+		upgradeStats: new Map([['A', { ...INITIAL_STATS, upgradeArmor: 3 }]]),
 	})
 })
 
@@ -35,40 +36,58 @@ test('calculate stats for upgrade', () => {
 			createUpgrade({
 				active: true,
 				id: 'A',
-				effect: (stats) => [
+				effect: [
 					{
-						stats: {
-							upgradeArmor: stats.upgradeArmor + 3,
-						},
+						stats: (stats) => ({
+							upgradeArmor: stats.upgradeArmor + 32,
+						}),
+					},
+					{
+						stats: (stats) => ({
+							upgradeArmor: stats.upgradeArmor + 64,
+						}),
 					},
 				],
 			}),
 			createUpgrade({
 				active: true,
 				id: 'B',
-				effect: (stats) => [
+				effect: [
 					{
 						filter: (upgrade) => upgrade.id === 'A',
-						stats: {
-							upgradeArmor: stats.upgradeArmor + 5,
-						},
+						stats: (stats) => ({
+							upgradeArmor: stats.upgradeArmor + 4,
+						}),
+					},
+					{
+						filter: (upgrade) => upgrade.id === 'A',
+						stats: (stats) => ({
+							upgradeArmor: stats.upgradeArmor + 8,
+						}),
+					},
+					{
+						filter: (upgrade) => upgrade.id === 'A',
+						stats: (stats) => ({
+							upgradeArmor: stats.upgradeArmor + 16,
+						}),
 					},
 				],
 			}),
 		],
 		[],
-		{ ...INITIAL_STATS, upgradeArmor: 2 }
+		{ ...INITIAL_STATS, upgradeArmor: 1 }
 	)
 	expect(x).toStrictEqual({
 		globalStats: {
 			...INITIAL_STATS,
-			upgradeArmor: 5,
+			upgradeArmor: 1 + 32 + 64,
 		},
 		upgradeStats: new Map([
 			[
 				'A',
 				{
-					upgradeArmor: 10,
+					...INITIAL_STATS,
+					upgradeArmor: 1 + 32 + 64 + 4 + 8 + 16,
 				},
 			],
 		]),
@@ -76,8 +95,11 @@ test('calculate stats for upgrade', () => {
 })
 
 test('merge stats', () => {
-	const result = mergeStats({ mouseSize: 1 }, { mouseSize: 3 })
-	expect(result).toStrictEqual({ mouseSize: 3 })
+	const result = mergeStats(
+		{ ...INITIAL_STATS, mouseSize: 1 },
+		{ mouseSize: 3 }
+	)
+	expect(result).toStrictEqual({ ...INITIAL_STATS, mouseSize: 3 })
 })
 
 test('add stats', () => {

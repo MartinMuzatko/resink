@@ -2,12 +2,12 @@ import { useGameContext } from '../contexts/GameContext'
 import { isACloserToTopLeftThanB, createArea } from '../domain/main'
 import { type Connection } from '../domain/connection'
 import { isUpgradeAffordable, Upgrade } from '../domain/upgrade'
-import { Stats } from '../domain/stats'
+import { StatsEffectResult } from '../domain/stats'
 
 type ConnectionProps = {
 	connection: Connection
 	upgrades: Upgrade[]
-	stats: Stats
+	stats: StatsEffectResult
 	power: number
 }
 

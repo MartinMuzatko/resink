@@ -1,12 +1,12 @@
 import { useGameContext } from '../contexts/GameContext'
 import { Area } from '../domain/main'
-import { Stats } from '../domain/stats'
+import { Stats, StatsEffectResult } from '../domain/stats'
 import { HealthBar } from './HealthBar'
 
 type MouseAreaRenderProps = {
 	mouseLastActivatedTime: number
 	mouseArea: Area
-	stats: Stats
+	stats: StatsEffectResult
 }
 
 export const MouseAreaRender = ({
@@ -31,7 +31,7 @@ export const MouseAreaRender = ({
 		>
 			<HealthBar
 				current={timePassed - mouseLastActivatedTime}
-				max={stats.mouseSpeed}
+				max={stats.globalStats.mouseSpeed}
 			/>
 		</div>
 	)

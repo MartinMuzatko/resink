@@ -10,7 +10,12 @@ import {
 	toggleActivation,
 	Upgrade,
 } from '../domain/upgrade'
-import { getActiveStats, getCost, Stats } from '../domain/stats'
+import {
+	getActiveStats,
+	getCost,
+	Stats,
+	StatsEffectResult,
+} from '../domain/stats'
 import { HealthBar } from './HealthBar'
 import { StatsInfo } from './StatsInfo'
 import { clamp } from '../domain/main'
@@ -22,7 +27,7 @@ type UpgradeNodeProps = {
 	upgrades: Upgrade[]
 	connections: Connection[]
 	setUpgrades: Dispatch<SetStateAction<Upgrade[]>>
-	stats: Stats
+	stats: StatsEffectResult
 	power: number
 	setPower: Dispatch<SetStateAction<number>>
 }
@@ -37,17 +42,15 @@ export const UpgradeNode = ({
 	setPower,
 }: UpgradeNodeProps) => {
 	const { gridScale, timePassed } = useGameContext()
-	const upgradeStats = useMemo(
-		() => getActiveStats(upgrades, connections, INITIAL_STATS, upgrade),
-		[upgrade, upgrades, connections]
-	)
+	const upgradeStats = stats.upgradeStats.get(upgrade.id)!
 	const toggleUpgrade = useCallback(() => {
 		setUpgrades((upgrades) => {
 			const newUpgrades = toggleActivation(
 				upgrade,
 				upgrades,
 				connections,
-				power
+				power,
+				stats
 			)
 			const activeUpgradeIds = upgrades
 				.filter((u) => u.active)
@@ -135,7 +138,7 @@ export const UpgradeNode = ({
 							) : (
 								<StatsInfo
 									{...{
-										stats: upgradeStats,
+										stats,
 										upgrade,
 										upgrades,
 										connections,
@@ -156,8 +159,8 @@ export const UpgradeNode = ({
 						<div className="flex flex-col gap-2 p-2 pt-0">
 							<div className="flex items-center gap-2">
 								<FaHeart className="text-red-600" />{' '}
-								{getHealth(upgrade, upgradeStats)} /{' '}
-								{getMaxHealth(upgrade, upgradeStats)}
+								{getHealth(upgrade, stats)} /{' '}
+								{getMaxHealth(upgrade, stats)}
 							</div>
 							{upgradeStats.upgradeArmor !== 0 && (
 								<div className="flex items-center gap-2">
@@ -194,12 +197,12 @@ export const UpgradeNode = ({
 					</div>
 					{upgrade.active && (
 						<HealthBar
-							current={getHealth(upgrade, upgradeStats)}
-							max={getMaxHealth(upgrade, upgradeStats)}
+							current={getHealth(upgrade, stats)}
+							max={getMaxHealth(upgrade, stats)}
 						/>
 					)}
 					{upgrade.active &&
-						stats.upgradeBulletAttackDamage !== 0 && (
+						upgradeStats.upgradeBulletAttackDamage !== 0 && (
 							<div
 								className="absolute top-0 left-full h-full bg-amber-800 z-20"
 								style={{

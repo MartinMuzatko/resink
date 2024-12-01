@@ -1,7 +1,14 @@
 import { ReactNode } from 'react'
 import { getDistance, Identifier, Position } from './main'
 import { Connection } from './connection'
-import { getActiveStats, getCost, Stats, StatsEffect } from './stats'
+import {
+	getActiveStats,
+	getCost,
+	Stats,
+	StatsEffect,
+	StatsEffectResult,
+	UpgradeStats,
+} from './stats'
 import { canEnemyDealDamage, Enemy } from './enemy'
 import { INITIAL_STATS } from '../data/initialGameData'
 
@@ -18,31 +25,27 @@ export type Upgrade = Identifier &
 		description?: ReactNode
 		title?: ReactNode
 		tooltip?: (
-			stats: Stats,
+			stats: StatsEffectResult,
 			upgrade: Upgrade,
 			upgrades: Upgrade[]
 		) => ReactNode
 		cost: number
 		/** cumulates stats */
-		effect: (
-			stats: Stats,
-			upgrade: Upgrade,
-			upgrades: Upgrade[]
-		) => StatsEffect[]
+		effect: StatsEffect[]
 		// activate
 		// deactivate
 		// destroy
 		//
-		onActivate?: (
-			stats: Stats,
-			upgrade: Upgrade,
-			upgrades: Upgrade[]
-		) => Upgrade
-		onDeactivate?: (
-			stats: Stats,
-			upgrade: Upgrade,
-			upgrades: Upgrade[]
-		) => Upgrade
+		// onActivate?: (
+		// 	stats: StatsEffectResult,
+		// 	upgrade: Upgrade,
+		// 	upgrades: Upgrade[]
+		// ) => Upgrade
+		// onDeactivate?: (
+		// 	stats: StatsEffectResult,
+		// 	upgrade: Upgrade,
+		// 	upgrades: Upgrade[]
+		// ) => Upgrade
 		health: number
 		lastDamageTakenTime: number
 		lastBulletShotTime: number
@@ -174,26 +177,22 @@ export const toggleActivation = (
 	upgrade: Upgrade,
 	upgrades: Upgrade[],
 	connections: Connection[],
-	power: number
+	power: number,
+	stats: StatsEffectResult
 ) => {
-	const upgradeStats = getActiveStats(
-		upgrades,
-		connections,
-		INITIAL_STATS,
-		upgrade
-	)
 	const parentUpgrade = findDirectParent(upgrade, upgrades, connections)
 	if (!parentUpgrade) return upgrades
 
 	const isActivating = !upgrade.active
 	const upgradeIndex = upgrades.findIndex((node) => node.id == upgrade.id)
-	const canActivate =
-		parentUpgrade.active && power >= getCost(upgradeStats, upgrade)
+	const canActivate = parentUpgrade.active && power >= getCost(stats, upgrade)
 	if (isActivating)
 		return upgrades.toSpliced(upgradeIndex, 1, {
 			...upgrade,
 			active: canActivate ? !upgrade.active : upgrade.active,
-			health: canActivate ? upgradeStats.upgradeHealth : upgrade.health,
+			health: canActivate
+				? stats.upgradeStats.get(upgrade.id)!.upgradeHealth
+				: upgrade.health,
 		})
 	return deactivateSubTree(upgrade, upgrades, connections)
 	// TODO: If we can no longer afford nodes, deactivate other nodes until we have money.
@@ -201,44 +200,52 @@ export const toggleActivation = (
 	// Instead the player has to make room for resources or shift strategy - more fun maybe
 }
 
-export const getHealth = (upgrade: Upgrade, stats: Stats) =>
+export const getHealth = (upgrade: Upgrade, stats: StatsEffectResult) =>
 	upgrade.type == UpgradeType.motor
-		? Math.min(upgrade.health, stats.upgradeHealth + 9)
-		: Math.min(upgrade.health, stats.upgradeHealth)
+		? Math.min(
+				upgrade.health,
+				stats.upgradeStats.get(upgrade.id)!.upgradeHealth + 9
+		  )
+		: Math.min(
+				upgrade.health,
+				stats.upgradeStats.get(upgrade.id)!.upgradeHealth
+		  )
 
-export const getMaxHealth = (upgrade: Upgrade, stats: Stats) =>
+export const getMaxHealth = (upgrade: Upgrade, stats: StatsEffectResult) =>
 	upgrade.type == UpgradeType.motor
-		? stats.upgradeHealth + 9
-		: stats.upgradeHealth
+		? stats.upgradeStats.get(upgrade.id)!.upgradeHealth + 9
+		: stats.upgradeStats.get(upgrade.id)!.upgradeHealth
 
 export const updateUpgradeDamage = (
 	upgradesToTakeDamage: UpgradeDamageUpdate[],
 	upgrades: Upgrade[],
 	connections: Connection[],
-	timePassed: number
+	timePassed: number,
+	stats: StatsEffectResult
 ) => {
 	const upgradeIdsToTakeDamage = [
 		...new Set(upgradesToTakeDamage.flatMap((u) => u.upgrade.id)),
 	]
 	const damagedUpgrades = upgrades.map((upgrade) => {
-		const upgradeStats = getActiveStats(
-			upgrades,
-			connections,
-			INITIAL_STATS
-		)
 		const update = upgradesToTakeDamage.find(
 			(u) => u.upgrade.id === upgrade.id
 		)
 		if (!update || !update.damage) return upgrade
 		return upgradeIdsToTakeDamage.includes(upgrade.id) &&
 			upgrade.lastDamageTakenTime <
-				timePassed - upgradeStats.upgradeBulletAttackSpeed
+				timePassed -
+					stats.upgradeStats.get(upgrade.id)!.upgradeBulletAttackSpeed
 			? {
 					...upgrade,
 					health:
-						getHealth(upgrade, upgradeStats) -
-						Math.max(update.damage - upgradeStats.upgradeArmor, 0),
-					active: getHealth(upgrade, upgradeStats) > 0,
+						getHealth(upgrade, stats) -
+						Math.max(
+							update.damage -
+								stats.upgradeStats.get(upgrade.id)!
+									.upgradeArmor,
+							0
+						),
+					active: getHealth(upgrade, stats) > 0,
 					lastDamageTakenTime: timePassed,
 			  }
 			: upgrade
@@ -267,7 +274,7 @@ export const isUpgradeAffordable = (
 	upgrade: Upgrade,
 	upgrades: Upgrade[],
 	connections: Connection[],
-	stats: Stats,
+	stats: StatsEffectResult,
 	power: number
 ) => {
 	const from = upgrades.find(
@@ -281,7 +288,7 @@ export const isUpgradeAffordable = (
 // TODO: ammo might be less than 0 if upgrade shoots, since everything is calculated together
 export const canUpgradeShoot = (
 	upgrade: Upgrade,
-	stats: Stats,
+	stats: UpgradeStats,
 	timePassed: number,
 	ammo: number
 ) =>

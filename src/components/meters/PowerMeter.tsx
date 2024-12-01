@@ -1,8 +1,8 @@
 import { useGameContext } from '../../contexts/GameContext'
-import { Stats } from '../../domain/stats'
+import { Stats, StatsEffectResult } from '../../domain/stats'
 
 type PowerMeterProps = {
-	stats: Stats
+	stats: StatsEffectResult
 	power: number
 }
 
@@ -26,11 +26,11 @@ export const PowerMeter = ({ stats, power }: PowerMeterProps) => {
 			<div
 				className="absolute w-full bottom-0 bg-amber-300"
 				style={{
-					height: `${(power / stats.maxPower) * 100}%`,
+					height: `${(power / stats.globalStats.maxPower) * 100}%`,
 				}}
 			></div>
 			<div className="font-bold font-mono absolute -rotate-90 origin-top-left left-6 top-10">
-				{power}/{stats.maxPower}
+				{power}/{stats.globalStats.maxPower}
 			</div>
 		</div>
 	)

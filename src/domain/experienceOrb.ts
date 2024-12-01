@@ -9,7 +9,7 @@ import {
 	Position,
 	subPosition,
 } from './main'
-import { Stats } from './stats'
+import { Stats, StatsEffectResult } from './stats'
 
 export type ExperienceOrb = Identifier &
 	Position & {
@@ -62,10 +62,12 @@ export const attractOrb = (
 
 export const spawnBasedOnEnemiesKilled = (
 	enemiesKilled: Enemy[],
-	stats: Stats
+	stats: StatsEffectResult
 ) => {
 	return enemiesKilled.flatMap((enemy) => {
-		return [...Array(randomRangeInteger(1, stats.powerPerEnemy))].map(() =>
+		return [
+			...Array(randomRangeInteger(1, stats.globalStats.powerPerEnemy)),
+		].map(() =>
 			createExperienceOrb({
 				amount: 1,
 				x: enemy.x,

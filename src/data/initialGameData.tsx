@@ -65,7 +65,7 @@ export const INITIAL_UPGRADES = () => [
 				/>
 			</div>
 		),
-		effect: (stats) => ({}),
+		effect: [],
 		icon: <GiBarracks className="w-full h-full" />,
 		x: 0,
 		y: 0,
@@ -73,9 +73,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'A',
 		cost: 2,
-		effect: (stats, upgrade, upgrades) => ({
-			mouseAttackDamage: stats.mouseAttackDamage + 1,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					mouseAttackDamage: stats.mouseAttackDamage + 1,
+				}),
+			},
+		],
 		icon: <GiBroadsword className="w-full h-full" />,
 		x: 0,
 		y: -1,
@@ -83,9 +87,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'A1',
 		cost: 10,
-		effect: (stats, upgrade, upgrades) => ({
-			mouseSpeed: stats.mouseSpeed * 0.9,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					mouseSpeed: stats.mouseSpeed * 0.9,
+				}),
+			},
+		],
 		icon: <GiStripedSword className="w-full h-full" />,
 		x: 0,
 		y: -2,
@@ -93,9 +101,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'AS2',
 		cost: 20,
-		effect: (stats, upgrade, upgrades) => ({
-			mouseSpeed: stats.mouseSpeed * 0.8,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					mouseSpeed: stats.mouseSpeed * 0.8,
+				}),
+			},
+		],
 		icon: <GiStripedSword className="w-full h-full" />,
 		x: 0,
 		y: -3,
@@ -103,9 +115,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'AS3',
 		cost: 20,
-		effect: (stats, upgrade, upgrades) => ({
-			mouseSpeed: stats.mouseSpeed * 0.6,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					mouseSpeed: stats.mouseSpeed * 0.6,
+				}),
+			},
+		],
 		icon: <GiStripedSword className="w-full h-full" />,
 		x: 0,
 		y: -4,
@@ -113,9 +129,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'A2',
 		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			mouseSize: stats.mouseSize * 1.5,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					mouseSize: stats.mouseSize * 1.5,
+				}),
+			},
+		],
 		icon: <GiResize className="w-full h-full" />,
 		x: -1,
 		y: -2,
@@ -123,9 +143,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'A3',
 		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			mouseAttackDamage: stats.mouseAttackDamage + 3,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					mouseAttackDamage: stats.mouseAttackDamage + 3,
+				}),
+			},
+		],
 		icon: <GiSwordAltar className="w-full h-full" />,
 		x: 1,
 		y: -2,
@@ -134,12 +158,14 @@ export const INITIAL_UPGRADES = () => [
 		id: 'AT',
 		title: 'Turn upgrades into turrets',
 		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			upgradeBulletAttackDamage: {
-				value: stats.upgradeBulletAttackDamage + 1,
-				filter: () => true,
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					upgradeBulletAttackDamage:
+						stats.upgradeBulletAttackDamage + 1,
+				}),
 			},
-		}),
+		],
 		icon: <GiTurret className="w-full h-full" />,
 		x: 1,
 		y: -3,
@@ -147,12 +173,14 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'AT1',
 		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			upgradeBulletAttackDamage: {
-				value: stats.upgradeBulletAttackDamage + 2,
-				filter: () => true,
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					upgradeBulletAttackDamage:
+						stats.upgradeBulletAttackDamage + 2,
+				}),
 			},
-		}),
+		],
 		icon: <GiSentryGun className="w-full h-full" />,
 		x: 1,
 		y: -4,
@@ -160,12 +188,14 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'AT2',
 		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			upgradeBulletAttackSpeed: {
-				value: stats.upgradeBulletAttackSpeed * 0.8,
-				filter: () => true,
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					upgradeBulletAttackSpeed:
+						stats.upgradeBulletAttackSpeed * 0.8,
+				}),
 			},
-		}),
+		],
 		icon: <AiOutlineReload className="w-full h-full" />,
 		x: 2,
 		y: -3,
@@ -173,12 +203,14 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'AT3',
 		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			upgradeBulletAttackRange: {
-				value: stats.upgradeBulletAttackRange + 1,
-				filter: () => true,
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					upgradeBulletAttackRange:
+						stats.upgradeBulletAttackRange + 1,
+				}),
 			},
-		}),
+		],
 		icon: <LuExpand className="w-full h-full" />,
 		x: 2,
 		y: -4,
@@ -186,9 +218,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'AT4',
 		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			bulletMaxAmmo: stats.bulletMaxAmmo + 20,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					bulletMaxAmmo: stats.bulletMaxAmmo + 20,
+				}),
+			},
+		],
 		icon: <GiHeavyBullets className="w-full h-full" />,
 		x: 3,
 		y: -3,
@@ -196,9 +232,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'AT5',
 		cost: 15,
-		effect: (stats, upgrade, upgrades) => ({
-			bulletAmmoPrice: stats.bulletAmmoPrice - 0.15,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade, upgrades) => ({
+					bulletAmmoPrice: stats.bulletAmmoPrice - 0.15,
+				}),
+			},
+		],
 		icon: <MdOutlineSell className="w-full h-full" />,
 		x: 4,
 		y: -2,
@@ -206,12 +246,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'D',
 		cost: 6,
-		effect: (stats, upgrade) => ({
-			upgradeHealth: {
-				value: stats.upgradeHealth + 3,
-				filter: () => true,
+		effect: [
+			{
+				stats: (stats, upgrade) => ({
+					upgradeHealth: stats.upgradeHealth + 3,
+				}),
 			},
-		}),
+		],
 		icon: <FaHeart className="w-full h-full" />,
 		x: 1,
 		y: 1,
@@ -219,7 +260,7 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'D1',
 		cost: 10,
-		effect: (stats, upgrade) => ({}),
+		effect: [],
 		icon: <FaHeartbeat className="w-full h-full" />,
 		x: 0,
 		y: 2,
@@ -227,9 +268,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'D2',
 		cost: 10,
-		effect: (stats, upgrade) => ({
-			upgradeArmor: { value: stats.upgradeArmor + 1, filter: () => true },
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade) => ({
+					upgradeArmor: stats.upgradeArmor + 1,
+				}),
+			},
+		],
 		icon: <MdOutlineShield className="w-full h-full" />,
 		x: 1,
 		y: 2,
@@ -237,9 +282,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'D3',
 		cost: 10,
-		effect: (stats, upgrade) => ({
-			mouseHealAmount: stats.mouseHealAmount + 1,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade) => ({
+					mouseHealAmount: stats.mouseHealAmount + 1,
+				}),
+			},
+		],
 		icon: <BiHeartSquare className="w-full h-full" />,
 		x: 2,
 		y: 1,
@@ -247,9 +296,13 @@ export const INITIAL_UPGRADES = () => [
 	createUpgrade({
 		id: 'L',
 		cost: 8,
-		effect: (stats, upgrade) => ({
-			maxPower: stats.maxPower + 10,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade) => ({
+					maxPower: stats.maxPower + 10,
+				}),
+			},
+		],
 		icon: <BsLightningChargeFill className="w-full h-full" />,
 		x: -1,
 		y: 1,
@@ -258,12 +311,13 @@ export const INITIAL_UPGRADES = () => [
 		id: 'L1',
 		title: 'Discount',
 		cost: 10,
-		effect: (stats, upgrade) => ({
-			upgradeCostMultiplier: {
-				value: stats.upgradeCostMultiplier * 0.8,
-				filter: () => true,
+		effect: [
+			{
+				stats: (stats, upgrade) => ({
+					upgradeCostMultiplier: stats.upgradeCostMultiplier * 0.8,
+				}),
 			},
-		}),
+		],
 		icon: <TbRosetteDiscount className="w-full h-full" />,
 		x: -2,
 		y: 0,
@@ -273,11 +327,15 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		title: 'Delicious',
 		description: 'Get more out of the experience juice',
-		effect: (stats, upgrade) => ({
-			powerPerEnemy: stats.powerPerEnemy + 1,
-			additionalPowerPerEnemyChance:
-				stats.additionalPowerPerEnemyChance + 0.1,
-		}),
+		effect: [
+			{
+				stats: (stats, upgrade) => ({
+					powerPerEnemy: stats.powerPerEnemy + 1,
+					additionalPowerPerEnemyChance:
+						stats.additionalPowerPerEnemyChance + 0.1,
+				}),
+			},
+		],
 		icon: <CiDroplet className="w-full h-full" />,
 		x: -2,
 		y: 1,

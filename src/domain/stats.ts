@@ -141,12 +141,6 @@ export const statDefinitions = {
 
 export type StatKeys = keyof typeof statDefinitions
 
-type GlobalStatKeys = {
-	[K in keyof typeof statDefinitions]: (typeof statDefinitions)[K]['type'] extends StatType.global
-		? K
-		: never
-}[keyof typeof statDefinitions]
-
 type UpgradeStatKeys = {
 	[K in keyof typeof statDefinitions]: (typeof statDefinitions)[K]['type'] extends StatType.scoped
 		? K
@@ -156,12 +150,20 @@ type UpgradeStatKeys = {
 type UpgradeStatsEffectStats = Partial<Record<UpgradeStatKeys, number>>
 
 type UpgradeStatsEffect = {
-	stats: UpgradeStatsEffectStats
+	stats: (
+		stats: Stats,
+		upgrade: Upgrade,
+		upgrades: Upgrade[]
+	) => UpgradeStatsEffectStats
 	filter: TargetFilterFunction
 }
 
 type GlobalStatsEffect = {
-	stats: Partial<Record<StatKeys, number>>
+	stats: (
+		stats: Stats,
+		upgrade: Upgrade,
+		upgrades: Upgrade[]
+	) => Partial<Record<StatKeys, number>>
 }
 
 export type StatsEffect = UpgradeStatsEffect | GlobalStatsEffect
@@ -169,17 +171,10 @@ export type StatsEffect = UpgradeStatsEffect | GlobalStatsEffect
 export type Stats = Record<StatKeys, number>
 export type UpgradeStats = Record<UpgradeStatKeys, number>
 
-type StatsEffectResult = {
+export type StatsEffectResult = {
 	globalStats: Stats
 	upgradeStats: Map<string, UpgradeStats>
 }
-
-type IntermediateStatsEffectResult = {
-	globalStats: Partial<Stats>
-	upgradeStats: Map<string, Partial<UpgradeStats>>
-}
-
-type ResolvedStats = Map<string, Stats>
 
 /** subtracts a from b */
 export const diffStats = (a: Stats, b: Stats): Stats => ({
@@ -204,10 +199,7 @@ export const addStats = (
 	) as Stats),
 })
 
-export const mergeStats = (
-	a: Partial<Stats>,
-	b: Partial<Stats>
-): Partial<Stats> => ({
+export const mergeStats = (a: Stats, b: Partial<Stats>): Stats => ({
 	...(Object.fromEntries(
 		[...new Set([...Object.keys(a), ...Object.keys(b)])].map((key) => [
 			key,
@@ -217,7 +209,8 @@ export const mergeStats = (
 })
 
 /**
- * Get stats for all upgrades
+ * Get stats for all upgrades and global stats
+ * All stats are completely calculated
  */
 export const getActiveStats = (
 	upgrades: Upgrade[],
@@ -225,64 +218,49 @@ export const getActiveStats = (
 	initialStats: Stats
 ): StatsEffectResult => {
 	const activeUpgrades = upgrades.filter((node) => node.active)
-	return activeUpgrades.reduce(
-		(acc, upgrade) => {
-			const stats = addStats(
-				acc.globalStats,
-				acc.upgradeStats.get(upgrade.id) || {}
-			) as Stats
-			const statsEffects = upgrade.effect(stats, upgrade, upgrades)
-			const statsEffectResult = statsEffects.reduce(
-				(acc, statsEffect) => {
-					const shouldFilter = 'filter' in statsEffect
-					if (!shouldFilter)
-						return {
-							globalStats: mergeStats(
-								acc.globalStats,
-								statsEffect.stats
-							),
-							upgradeStats: acc.upgradeStats,
-						} satisfies IntermediateStatsEffectResult
-					const upgradeStats = new Map(
-						upgrades.flatMap((upgrade) => {
-							const doesEffect = statsEffect.filter(
-								upgrade,
-								upgrades,
-								connections
-							)
-							return doesEffect
-								? [[upgrade.id, statsEffect.stats]]
-								: []
-							// ({upgradeId: upgrade.id, filter: filter(upgrade)})
-						}) as [string, UpgradeStatsEffectStats][]
-					)
-					return {
-						globalStats: acc.globalStats,
-						upgradeStats: new Map(
-							upgradeStats
-								.entries()
-								.map(([upgradeId, upgradeStat]) => [
-									upgradeId,
-									addStats(
-										acc.upgradeStats.get(upgradeId) ?? {},
-										upgradeStat
-									),
-								])
-						),
-					} satisfies IntermediateStatsEffectResult
-				},
-				{
-					globalStats: initialStats,
-					upgradeStats: new Map<string, UpgradeStats>(),
-				} as IntermediateStatsEffectResult
-			) as StatsEffectResult
-			return statsEffectResult
-		},
-		{
-			globalStats: initialStats,
-			upgradeStats: new Map(),
-		} as StatsEffectResult
+	const statsEffects = activeUpgrades.flatMap((upgrade) =>
+		upgrade.effect.map((effect) => ({ upgrade, effect }))
 	)
+
+	const globalStats = statsEffects.reduce((acc, { upgrade, effect }) => {
+		if ('filter' in effect) return acc
+		const s = effect.stats(acc, upgrade, upgrades)
+		return mergeStats(acc, s)
+	}, initialStats)
+
+	const upgradeStats = statsEffects.reduce((acc, { effect }) => {
+		if (!('filter' in effect)) return acc
+		const upgradeStats = new Map(
+			upgrades.flatMap((upgrade) => {
+				const doesEffect = effect.filter(upgrade, upgrades, connections)
+				return doesEffect
+					? [
+							[
+								upgrade.id,
+								effect.stats(
+									acc.get(upgrade.id)!,
+									upgrade,
+									upgrades
+								),
+							],
+					  ]
+					: []
+			}) as [string, UpgradeStatsEffectStats][]
+		)
+		return new Map(
+			upgradeStats
+				.entries()
+				.map(([upgradeId, upgradeStat]) => [
+					upgradeId,
+					mergeStats(acc.get(upgradeId)!, upgradeStat),
+				])
+		)
+	}, new Map(upgrades.map((u) => [u.id, globalStats])))
+
+	return {
+		globalStats,
+		upgradeStats,
+	}
 }
 
 // export const getActiveGlobalStats = (
@@ -292,5 +270,7 @@ export const getActiveStats = (
 // ): Stats =>
 // 	getActiveStats(upgrades, connections, initialStats, NULL_FILTER_UPGRADE())
 
-export const getCost = (stats: Stats, upgrade: Upgrade): number =>
-	Math.ceil(upgrade.cost * stats.upgradeCostMultiplier)
+export const getCost = (stats: StatsEffectResult, upgrade: Upgrade): number =>
+	Math.ceil(
+		upgrade.cost * stats.upgradeStats.get(upgrade.id)!.upgradeCostMultiplier
+	)

@@ -7,7 +7,7 @@ import {
 	Upgrade,
 	UpgradeType,
 } from '../domain/upgrade'
-import { getActiveGlobalStats, getActiveStats } from '../domain/stats'
+import { getActiveStats } from '../domain/stats'
 import { ConnectionLine } from './ConnectionLine'
 import { UpgradeNode } from './UpgradeNode'
 import { useGameContext } from '../contexts/GameContext'
@@ -85,7 +85,7 @@ export const Stage = memo(() => {
 	const [power, setPower] = useState(0)
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
-		() => getActiveGlobalStats(upgrades, connections, INITIAL_STATS),
+		() => getActiveStats(upgrades, connections, INITIAL_STATS),
 		[upgrades]
 	)
 	const mouse = useMouse()
@@ -110,7 +110,7 @@ export const Stage = memo(() => {
 	)
 
 	const mouseLastActivatedTime = useMemo(
-		() => timePassed - (timePassed % stats.mouseSpeed),
+		() => timePassed - (timePassed % stats.globalStats.mouseSpeed),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[tick]
 	)
@@ -123,7 +123,9 @@ export const Stage = memo(() => {
 				isPositionInsideArea(upgrade, mouseArea)
 					? {
 							...upgrade,
-							health: upgrade.health + stats.mouseHealAmount,
+							health:
+								upgrade.health +
+								stats.globalStats.mouseHealAmount,
 					  }
 					: upgrade
 			)
@@ -135,7 +137,9 @@ export const Stage = memo(() => {
 				isPositionInsideArea(enemy, mouseArea)
 					? {
 							...enemy,
-							health: enemy.health - stats.mouseAttackDamage,
+							health:
+								enemy.health -
+								stats.globalStats.mouseAttackDamage,
 					  }
 					: enemy
 			)
@@ -160,7 +164,7 @@ export const Stage = memo(() => {
 
 	const mouseArea = useMemo((): MouseArea => {
 		const center = getGridPositionFromWindow(mouse, window, gridScale)
-		const size = stats.mouseSize
+		const size = stats.globalStats.mouseSize
 		return {
 			x: center.x - size / 2,
 			y: center.y - size / 2,
@@ -209,12 +213,7 @@ export const Stage = memo(() => {
 					bullets: Bullet[]
 				}>(
 					({ upgrades, bullets }, upgrade) => {
-						const upgradeStats = getActiveStats(
-							upgrades,
-							connections,
-							INITIAL_STATS,
-							upgrade
-						)
+						const upgradeStats = stats.upgradeStats.get(upgrade.id)!
 						if (
 							!canUpgradeShoot(
 								upgrade,
@@ -228,7 +227,8 @@ export const Stage = memo(() => {
 						const enemiesInRange = enemies.filter(
 							(enemy) =>
 								getDistance(upgrade, enemy) <
-								stats.upgradeBulletAttackRange
+								stats.upgradeStats.get(upgrade.id)!
+									.upgradeBulletAttackRange
 						)
 
 						if (enemiesInRange.length === 0)
@@ -295,7 +295,8 @@ export const Stage = memo(() => {
 								...enemy,
 								health:
 									enemy.health -
-									stats.upgradeBulletAttackDamage,
+									// TODO: Needs to take individual turret attack damage into account
+									stats.globalStats.upgradeBulletAttackDamage,
 						  }
 						: enemy
 				})
@@ -363,7 +364,8 @@ export const Stage = memo(() => {
 						upgradesToTakeDamage,
 						newUpgrades,
 						connections,
-						timePassed
+						timePassed,
+						stats
 				  )
 				: newUpgrades
 		})
@@ -390,7 +392,7 @@ export const Stage = memo(() => {
 			)
 			setPower((prevPower) =>
 				Math.min(
-					stats.maxPower,
+					stats.globalStats.maxPower,
 					prevPower + experienceOrbsConsumed.length
 				)
 			)
@@ -419,7 +421,7 @@ export const Stage = memo(() => {
 			</div>
 			<div className="absolute left-0 top-0">
 				<div className="border">
-					<StatsInfoPlain stats={stats} />
+					<StatsInfoPlain stats={stats.globalStats} />
 				</div>
 			</div>
 			<div className="absolute right-0 bottom-12">
