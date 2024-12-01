@@ -6,6 +6,7 @@ export type Bullet = Position &
 			x: number
 			y: number
 		}
+		attackDamage: number
 		enemyIdsHit: string[]
 	}
 
@@ -13,6 +14,7 @@ export const createBullet = (bullet: Partial<Bullet>): Bullet => ({
 	id: crypto.randomUUID(),
 	x: 0,
 	y: 0,
+	attackDamage: 1,
 	velocity: {
 		x: 0,
 		y: 0,

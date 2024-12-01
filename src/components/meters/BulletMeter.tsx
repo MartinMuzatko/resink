@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react'
-import { Stats } from '../../domain/stats'
+import { Stats, StatsEffectResult } from '../../domain/stats'
 import { Tooltip } from '@mantine/core'
 import { BsLightningChargeFill } from 'react-icons/bs'
 import { GiHeavyBullets } from 'react-icons/gi'
@@ -24,12 +24,13 @@ export const BulletMeter = ({
 	const toSpend = Math.ceil(
 		clamp(
 			0,
-			(stats.bulletMaxAmmo - ammo) * stats.bulletAmmoPrice
-		)(power * stats.bulletAmmoPrice)
+			(stats.globalStats.bulletMaxAmmo - ammo) *
+				stats.globalStats.bulletAmmoPrice
+		)(power * stats.globalStats.bulletAmmoPrice)
 	)
 	const ammoBought = Math.min(
-		Math.ceil(toSpend / stats.bulletAmmoPrice),
-		stats.bulletMaxAmmo - ammo
+		Math.ceil(toSpend / stats.globalStats.bulletAmmoPrice),
+		stats.globalStats.bulletMaxAmmo - ammo
 	)
 
 	const { gridScale } = useGameContext()
@@ -47,7 +48,10 @@ export const BulletMeter = ({
 			<div
 				onClick={() => {
 					setAmmo((ammo) =>
-						clamp(0, stats.bulletMaxAmmo)(ammo + ammoBought)
+						clamp(
+							0,
+							stats.globalStats.bulletMaxAmmo
+						)(ammo + ammoBought)
 					)
 					setPower((prevPower) => prevPower - toSpend)
 				}}
@@ -69,11 +73,13 @@ export const BulletMeter = ({
 				<div
 					className="absolute w-full bottom-0 bg-amber-600"
 					style={{
-						height: `${(ammo / stats.bulletMaxAmmo) * 100}%`,
+						height: `${
+							(ammo / stats.globalStats.bulletMaxAmmo) * 100
+						}%`,
 					}}
 				></div>
 				<div className="font-bold font-mono absolute -rotate-90 origin-top-left left-6 top-10">
-					{ammo}/{stats.bulletMaxAmmo}
+					{ammo}/{stats.globalStats.bulletMaxAmmo}
 				</div>
 			</div>
 		</Tooltip>

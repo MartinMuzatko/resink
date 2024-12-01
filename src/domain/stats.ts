@@ -1,5 +1,5 @@
 import { Connection } from './connection'
-import { createUpgrade, Upgrade } from './upgrade'
+import { Upgrade } from './upgrade'
 
 /** will be executed for each upgrade */
 type TargetFilterFunction = (
@@ -233,20 +233,21 @@ export const getActiveStats = (
 		const upgradeStats = new Map(
 			upgrades.flatMap((upgrade) => {
 				const doesEffect = effect.filter(upgrade, upgrades, connections)
-				return doesEffect
-					? [
-							[
-								upgrade.id,
-								effect.stats(
+				return [
+					[
+						upgrade.id,
+						doesEffect
+							? effect.stats(
 									acc.get(upgrade.id)!,
 									upgrade,
 									upgrades
-								),
-							],
-					  ]
-					: []
+							  )
+							: globalStats,
+					],
+				]
 			}) as [string, UpgradeStatsEffectStats][]
 		)
+
 		return new Map(
 			upgradeStats
 				.entries()

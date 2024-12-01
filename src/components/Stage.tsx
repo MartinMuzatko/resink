@@ -251,6 +251,8 @@ export const Stage = memo(() => {
 						const newBullet = createBullet({
 							x: upgrade.x,
 							y: upgrade.y,
+							attackDamage:
+								upgradeStats.upgradeBulletAttackDamage,
 							velocity: getSpeedVector(
 								{ x: upgrade.x, y: upgrade.y },
 								targetEnemy,
@@ -273,30 +275,30 @@ export const Stage = memo(() => {
 			// hit enemies
 			setEnemies((prevEnemies) => {
 				const newEnemies = prevEnemies.map((enemy) => {
-					const bulletsHitIds = bullets
-						.filter((bullet) =>
-							// TODO: true hitboxes maybe
-							isPositionInsideArea(enemy, {
-								x: bullet.x - 0.25,
-								y: bullet.y - 0.25,
-								height: 0.5,
-								width: 0.5,
-							})
-						)
-						.map((bullet) => bullet.id)
+					const bulletsHit = bullets.filter((bullet) =>
+						// TODO: true hitboxes maybe
+						isPositionInsideArea(enemy, {
+							x: bullet.x - 0.25,
+							y: bullet.y - 0.25,
+							height: 0.5,
+							width: 0.5,
+						})
+					)
+					const bulletsHitIds = bulletsHit.map((bullet) => bullet.id)
 					setBullets((prevBullets) =>
 						prevBullets.filter(
 							(bullet) => !bulletsHitIds.includes(bullet.id)
 						)
 					)
+					const bulletAttackDamage = bulletsHit.reduce(
+						(acc, bullet) => acc + bullet.attackDamage,
+						0
+					)
 					// TODO: real bounding box checking
 					return bulletsHitIds.length
 						? {
 								...enemy,
-								health:
-									enemy.health -
-									// TODO: Needs to take individual turret attack damage into account
-									stats.globalStats.upgradeBulletAttackDamage,
+								health: enemy.health - bulletAttackDamage,
 						  }
 						: enemy
 				})

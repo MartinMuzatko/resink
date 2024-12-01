@@ -15,7 +15,7 @@ export const StatsInfoPlain = ({ stats }: StatsInfoProps) => {
 
 	return (
 		<div>
-			<pre>{JSON.stringify(stats, null, 4)}</pre>
+			{/* <pre>{JSON.stringify(stats, null, 4)}</pre> */}
 			{filteredStats.map((stat) => (
 				<div key={stat.key}>
 					<span className={stat.className}>{stat.name}</span>

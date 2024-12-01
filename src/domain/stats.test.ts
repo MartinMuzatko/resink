@@ -90,6 +90,13 @@ test('calculate stats for upgrade', () => {
 					upgradeArmor: 1 + 32 + 64 + 4 + 8 + 16,
 				},
 			],
+			[
+				'B',
+				{
+					...INITIAL_STATS,
+					upgradeArmor: 1 + 32 + 64,
+				},
+			],
 		]),
 	})
 })

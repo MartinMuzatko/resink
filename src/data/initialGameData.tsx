@@ -160,6 +160,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: [
 			{
+				filter: (upgrade) => upgrade.id === 'M',
 				stats: (stats, upgrade, upgrades) => ({
 					upgradeBulletAttackDamage:
 						stats.upgradeBulletAttackDamage + 1,
