@@ -46,6 +46,7 @@ import { EnemyRender } from './EnemyRender'
 import { BulletRender } from './BulletRender'
 import { ExperienceOrbRender } from './ExperienceOrbRender'
 import { MouseAreaRender } from './MouseAreaRender'
+import { ConnectionLineRender } from './ConnectionLineRender'
 
 // const enemyStats = {
 // 	damage: 1,
@@ -446,6 +447,7 @@ export const Stage = memo(() => {
 						{...{ connection, upgrades, stats, power }}
 					/>
 				))}
+
 				{upgrades.map((upgrade) => (
 					<UpgradeNode
 						key={upgrade.id}

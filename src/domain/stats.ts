@@ -264,6 +264,38 @@ export const getActiveStats = (
 	}
 }
 
+export const getUpgradeDisplayStats = (
+	upgrade: Upgrade,
+	upgrades: Upgrade[],
+	connections: Connection[],
+	initialStats: Stats,
+	stats: StatsEffectResult
+): StatsEffectResult => {
+	const statsWithUpgradeActive = getActiveStats(
+		upgrades.toSpliced(
+			upgrades.findIndex((u) => u.id === upgrade.id),
+			1,
+			{ ...upgrade, active: true }
+		),
+		connections,
+		initialStats
+	)
+	return {
+		globalStats: diffStats(
+			stats.globalStats,
+			statsWithUpgradeActive.globalStats
+		),
+		upgradeStats: new Map(
+			statsWithUpgradeActive.upgradeStats
+				.entries()
+				.map(([upgradeId, upgradeStats]) => [
+					upgradeId,
+					diffStats(stats.upgradeStats.get(upgradeId), upgradeStats),
+				])
+		),
+	}
+}
+
 // export const getActiveGlobalStats = (
 // 	upgrades: Upgrade[],
 // 	connections: Connection[],

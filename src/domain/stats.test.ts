@@ -1,5 +1,10 @@
 import { expect, test } from 'vitest'
-import { addStats, getActiveStats, mergeStats } from './stats'
+import {
+	addStats,
+	getActiveStats,
+	getUpgradeDisplayStats,
+	mergeStats,
+} from './stats'
 import { createUpgrade } from './upgrade'
 import { INITIAL_STATS, INITIAL_UPGRADES } from '../data/initialGameData'
 
@@ -31,7 +36,7 @@ test('calculate stats for global', () => {
 })
 
 test('calculate stats for upgrade', () => {
-	const x = getActiveStats(
+	const stats = getActiveStats(
 		[
 			createUpgrade({
 				active: true,
@@ -77,7 +82,7 @@ test('calculate stats for upgrade', () => {
 		[],
 		{ ...INITIAL_STATS, upgradeArmor: 1 }
 	)
-	expect(x).toStrictEqual({
+	expect(stats).toStrictEqual({
 		globalStats: {
 			...INITIAL_STATS,
 			upgradeArmor: 1 + 32 + 64,
@@ -99,6 +104,56 @@ test('calculate stats for upgrade', () => {
 			],
 		]),
 	})
+})
+
+test.only('display stats', () => {
+	const upgradeA = createUpgrade({
+		active: true,
+		id: 'A',
+		effect: [
+			{
+				stats: (stats) => ({
+					upgradeArmor: stats.upgradeArmor + 1,
+				}),
+			},
+			{
+				stats: (stats) => ({
+					upgradeArmor: stats.upgradeArmor + 1,
+				}),
+			},
+		],
+	})
+	const upgradeB = createUpgrade({
+		active: false,
+		id: 'B',
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'A',
+				stats: (stats) => ({
+					upgradeArmor: stats.upgradeArmor + 3,
+				}),
+			},
+			{
+				stats: (stats) => ({
+					upgradeArmor: stats.upgradeArmor + 1,
+				}),
+			},
+		],
+	})
+	const stats = getActiveStats([upgradeA, upgradeB], [], {
+		...INITIAL_STATS,
+	})
+	const x = getUpgradeDisplayStats(
+		upgradeB,
+		[upgradeA, upgradeB],
+		[],
+		{
+			...INITIAL_STATS,
+		},
+		stats
+	)
+
+	expect(x).toStrictEqual({})
 })
 
 test('merge stats', () => {
