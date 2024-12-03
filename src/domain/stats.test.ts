@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import {
 	addStats,
+	diffStats,
 	getActiveStats,
 	getUpgradeDisplayStats,
 	mergeStats,
@@ -106,7 +107,7 @@ test('calculate stats for upgrade', () => {
 	})
 })
 
-test.only('display stats', () => {
+test('display stats', () => {
 	const upgradeA = createUpgrade({
 		active: true,
 		id: 'A',
@@ -152,8 +153,30 @@ test.only('display stats', () => {
 		},
 		stats
 	)
+	const blankStats = diffStats(INITIAL_STATS, INITIAL_STATS)
 
-	expect(x).toStrictEqual({})
+	expect(x).toStrictEqual({
+		globalStats: {
+			...blankStats,
+			upgradeArmor: 1,
+		},
+		upgradeStats: new Map([
+			[
+				'A',
+				{
+					...blankStats,
+					upgradeArmor: 4,
+				},
+			],
+			[
+				'B',
+				{
+					...blankStats,
+					upgradeArmor: 1,
+				},
+			],
+		]),
+	})
 })
 
 test('merge stats', () => {

@@ -296,13 +296,6 @@ export const getUpgradeDisplayStats = (
 	}
 }
 
-// export const getActiveGlobalStats = (
-// 	upgrades: Upgrade[],
-// 	connections: Connection[],
-// 	initialStats: Stats
-// ): Stats =>
-// 	getActiveStats(upgrades, connections, initialStats, NULL_FILTER_UPGRADE())
-
 export const getCost = (stats: StatsEffectResult, upgrade: Upgrade): number =>
 	Math.ceil(
 		upgrade.cost * stats.upgradeStats.get(upgrade.id)!.upgradeCostMultiplier
