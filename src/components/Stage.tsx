@@ -424,7 +424,7 @@ export const Stage = memo(() => {
 			</div>
 			<div className="absolute left-0 top-0">
 				<div className="border">
-					<StatsInfoPlain stats={stats.globalStats} />
+					{/* <StatsInfoPlain stats={stats} /> */}
 				</div>
 			</div>
 			<div className="absolute right-0 bottom-12">

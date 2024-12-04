@@ -1,5 +1,5 @@
 import { BsLightningChargeFill } from 'react-icons/bs'
-import { Divider, Tooltip } from '@mantine/core'
+import { Divider, HoverCard, Tooltip } from '@mantine/core'
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import { Connection } from '../domain/connection'
@@ -13,6 +13,7 @@ import {
 import {
 	getActiveStats,
 	getCost,
+	getUpgradeDisplayStats,
 	Stats,
 	StatsEffectResult,
 } from '../domain/stats'
@@ -22,6 +23,7 @@ import { clamp } from '../domain/main'
 import { FaHeart, FaShieldAlt } from 'react-icons/fa'
 import { INITIAL_STATS } from '../data/initialGameData'
 import { ConnectionLineRender } from './ConnectionLineRender'
+import { useHover } from '@mantine/hooks'
 
 type UpgradeNodeProps = {
 	upgrade: Upgrade
@@ -43,6 +45,15 @@ export const UpgradeNode = ({
 	setPower,
 }: UpgradeNodeProps) => {
 	const { gridScale, timePassed } = useGameContext()
+	const upgradeDisplayStats = useMemo(() => {
+		return getUpgradeDisplayStats(
+			upgrade,
+			upgrades,
+			connections,
+			INITIAL_STATS,
+			stats
+		)
+	}, [upgrade])
 	const upgradeStats = stats.upgradeStats.get(upgrade.id)!
 	const toggleUpgrade = useCallback(() => {
 		setUpgrades((upgrades) => {
@@ -80,22 +91,38 @@ export const UpgradeNode = ({
 		stats,
 		power
 	)
+	const { hovered, ref } = useHover()
+
 	return (
 		<>
 			{/* TODO: display connection lines to all relevant upgrades for stats */}
-			{/* <ConnectionLineRender
-				{...{
-					from: {
-						x: 0,
-						y: 0,
-					},
-					to: {
-						x: upgrade.x,
-						y: upgrade.y,
-					},
-					className: 'stroke-blue-400',
-				}}
-			/> */}
+			{hovered && (
+				<>
+					{[...upgradeDisplayStats.upgradeStats.entries()].map(
+						([upgradeId, upgradeStats]) => {
+							const targetUpgrade = upgrades.find(
+								(u) => u.id === upgradeId
+							)!
+							return (
+								<ConnectionLineRender
+									key={upgradeId}
+									{...{
+										from: {
+											x: targetUpgrade.x,
+											y: targetUpgrade.y,
+										},
+										to: {
+											x: upgrade.x,
+											y: upgrade.y,
+										},
+										className: 'stroke-blue-400',
+									}}
+								/>
+							)
+						}
+					)}
+				</>
+			)}
 			<div
 				className="absolute flex items-center justify-center"
 				style={{
@@ -109,6 +136,7 @@ export const UpgradeNode = ({
 					height: `${gridScale}px`,
 				}}
 			>
+				{/* Bullet reload bar */}
 				{upgrade.active &&
 					upgradeStats.upgradeBulletAttackDamage !== 0 && (
 						<div
@@ -133,7 +161,6 @@ export const UpgradeNode = ({
 					position="right-start"
 					arrowPosition="side"
 					arrowSize={gridScale / 8}
-					// {...(upgrade.type == UpgradeType.motor ? { opened: true } : {})}
 					label={
 						<>
 							{(upgrade.title || upgrade.description) && (
@@ -162,17 +189,17 @@ export const UpgradeNode = ({
 										}}
 									/>
 								)}
-								{upgrade.cost != 0 && (
-									<div className="flex items-center">
-										<div className="text-blue-600 mr-2">
-											Cost
-										</div>
-										{getCost(stats, upgrade)}
-										<BsLightningChargeFill className="ml-1" />
-									</div>
-								)}
 							</div>
 							<Divider color="gray" my={4} />
+							{upgrade.cost != 0 && (
+								<div className="flex items-center p-2">
+									<div className="text-blue-600 mr-2">
+										Cost
+									</div>
+									{getCost(stats, upgrade)}
+									<BsLightningChargeFill className="ml-1" />
+								</div>
+							)}
 							<div className="flex flex-col gap-2 p-2 pt-0">
 								<div className="flex items-center gap-2">
 									<FaHeart className="text-red-600" />{' '}
@@ -190,6 +217,7 @@ export const UpgradeNode = ({
 					}
 				>
 					<div
+						ref={ref}
 						onClick={toggleUpgrade}
 						// onMouseEnter={}
 						className={`relative z-20 border-2 cursor-pointer flex text-center items-center justify-center hover:border-red-400 ${

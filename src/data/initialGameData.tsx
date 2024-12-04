@@ -54,7 +54,7 @@ export const INITIAL_UPGRADES = () => [
 		description: 'Defend at all cost',
 		tooltip: (stats) => (
 			<div>
-				<StatsInfoPlain
+				{/* <StatsInfoPlain
 					{...{
 						stats: {
 							...INITIAL_STATS,
@@ -62,7 +62,7 @@ export const INITIAL_UPGRADES = () => [
 							mouseSize: 0,
 						},
 					}}
-				/>
+				/> */}
 			</div>
 		),
 		effect: [],
@@ -160,7 +160,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: [
 			{
-				filter: (upgrade) => upgrade.id === 'M',
+				filter: (upgrade) => upgrade.id === 'M' || upgrade.id === 'D',
 				stats: (stats, upgrade, upgrades) => ({
 					upgradeBulletAttackDamage:
 						stats.upgradeBulletAttackDamage + 1,

@@ -208,6 +208,14 @@ export const mergeStats = (a: Stats, b: Partial<Stats>): Stats => ({
 	) as Stats),
 })
 
+export const removeEmtpyStatKeys = (stats: Partial<Stats>): Partial<Stats> =>
+	Object.fromEntries(
+		Object.entries(stats).filter(([key, stat]) => stat !== 0)
+	) as Stats
+
+export const isStatsEmpty = (stats: Stats): boolean =>
+	Object.entries(stats).some(([key, value]) => value !== 0)
+
 /**
  * Get stats for all upgrades and global stats
  * All stats are completely calculated
@@ -280,18 +288,36 @@ export const getUpgradeDisplayStats = (
 		connections,
 		initialStats
 	)
+
+	const relatedUpgradeIds = [
+		...new Set(
+			upgrade.effect.flatMap((effect) => {
+				if (!('filter' in effect)) return []
+				return upgrades.flatMap((upgrade) =>
+					effect.filter(upgrade, upgrades, connections)
+						? [upgrade.id]
+						: []
+				)
+			})
+		),
+	]
+
 	return {
 		globalStats: diffStats(
 			stats.globalStats,
 			statsWithUpgradeActive.globalStats
 		),
 		upgradeStats: new Map(
-			statsWithUpgradeActive.upgradeStats
-				.entries()
-				.map(([upgradeId, upgradeStats]) => [
-					upgradeId,
-					diffStats(stats.upgradeStats.get(upgradeId), upgradeStats),
-				])
+			relatedUpgradeIds.map(
+				(upgradeId) =>
+					[
+						upgradeId,
+						diffStats(
+							stats.upgradeStats.get(upgradeId)!,
+							statsWithUpgradeActive.upgradeStats.get(upgradeId)!
+						),
+					] as const
+			)
 		),
 	}
 }

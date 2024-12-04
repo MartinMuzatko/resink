@@ -1,8 +1,10 @@
+import { useMemo } from 'react'
 import { INITIAL_STATS } from '../data/initialGameData'
 import { Connection } from '../domain/connection'
 import {
 	diffStats,
 	getActiveStats,
+	getUpgradeDisplayStats,
 	Stats,
 	StatsEffectResult,
 } from '../domain/stats'
@@ -22,6 +24,16 @@ export const StatsInfo = ({
 	upgrades,
 	connections,
 }: StatsInfoProps) => {
-	const diffedStats = diffStats(INITIAL_STATS, stats.globalStats)
-	return <StatsInfoPlain stats={diffedStats} />
+	const upgradeDisplayStats = useMemo(
+		() =>
+			getUpgradeDisplayStats(
+				upgrade,
+				upgrades,
+				connections,
+				INITIAL_STATS,
+				stats
+			),
+		[stats]
+	)
+	return <StatsInfoPlain {...{ upgrades, stats: upgradeDisplayStats }} />
 }
