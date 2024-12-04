@@ -5,6 +5,7 @@ import {
 	getActiveStats,
 	getUpgradeDisplayStats,
 	mergeStats,
+	reduceStatsEffects,
 } from './stats'
 import { createUpgrade } from './upgrade'
 import { INITIAL_STATS, INITIAL_UPGRADES } from '../data/initialGameData'
@@ -107,6 +108,129 @@ test('calculate stats for upgrade', () => {
 	})
 })
 
+test('stats dont override each other', () => {
+	const upgradeM = createUpgrade({
+		active: true,
+		id: 'M',
+		effect: [],
+	})
+	const upgradeA = createUpgrade({
+		active: true,
+		id: 'A',
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'M',
+				stats: (stats) => ({
+					upgradeBulletAttackDamage:
+						stats.upgradeBulletAttackDamage + 1,
+				}),
+			},
+		],
+	})
+	const upgradeL = createUpgrade({
+		active: true,
+		id: 'L',
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'L',
+				stats: (stats) => ({
+					upgradePowerGenerationAmount:
+						stats.upgradePowerGenerationAmount + 1,
+				}),
+			},
+		],
+	})
+	const stats = getActiveStats(
+		[upgradeM, upgradeA, upgradeL],
+		[],
+		INITIAL_STATS
+	)
+	expect(stats).toStrictEqual({
+		globalStats: INITIAL_STATS,
+		upgradeStats: new Map([
+			[
+				'M',
+				{
+					...INITIAL_STATS,
+					upgradeBulletAttackDamage: 1,
+				},
+			],
+			['A', INITIAL_STATS],
+			[
+				'L',
+				{
+					...INITIAL_STATS,
+					upgradePowerGenerationAmount: 1,
+				},
+			],
+		]),
+	})
+})
+
+test('accumulate upgrade filtered stats', () => {
+	const upgradeM = createUpgrade({
+		active: true,
+		id: 'M',
+		effect: [],
+	})
+	const upgradeA = createUpgrade({
+		active: true,
+		id: 'A',
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'M',
+				stats: (stats) => ({
+					upgradeBulletAttackDamage:
+						stats.upgradeBulletAttackDamage + 1,
+				}),
+			},
+		],
+	})
+	const upgradeL = createUpgrade({
+		active: true,
+		id: 'L',
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'L',
+				stats: (stats) => ({
+					upgradePowerGenerationAmount:
+						stats.upgradePowerGenerationAmount + 1,
+				}),
+			},
+		],
+	})
+	const upgrades = [upgradeM, upgradeA, upgradeL]
+	const stats = getActiveStats(upgrades, [], INITIAL_STATS)
+	const first = reduceStatsEffects(
+		upgrades,
+		new Map(upgrades.map((u) => [u.id, stats.globalStats])),
+		upgradeA.effect[0],
+		stats.globalStats,
+		[]
+	)
+	expect(first).toStrictEqual(
+		new Map([
+			['M', { ...INITIAL_STATS, upgradeBulletAttackDamage: 1 }],
+			['A', { ...INITIAL_STATS }],
+			['L', { ...INITIAL_STATS }],
+		])
+	)
+	const second = reduceStatsEffects(
+		upgrades,
+		first,
+		upgradeL.effect[0],
+		stats.globalStats,
+		[]
+	)
+	expect(second).toStrictEqual(
+		new Map([
+			['M', { ...INITIAL_STATS, upgradeBulletAttackDamage: 1 }],
+			['A', { ...INITIAL_STATS }],
+			['L', { ...INITIAL_STATS, upgradePowerGenerationAmount: 1 }],
+		])
+	)
+})
+
 test('display stats', () => {
 	const upgradeA = createUpgrade({
 		active: true,
@@ -166,13 +290,6 @@ test('display stats', () => {
 				{
 					...blankStats,
 					upgradeArmor: 4,
-				},
-			],
-			[
-				'B',
-				{
-					...blankStats,
-					upgradeArmor: 1,
 				},
 			],
 		]),

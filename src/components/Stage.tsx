@@ -34,6 +34,7 @@ import {
 } from '../domain/enemy'
 import { useMouse } from '@mantine/hooks'
 import {
+	DEBUG,
 	INITIAL_CONNECTIONS,
 	INITIAL_STATS,
 	INITIAL_UPGRADES,
@@ -90,7 +91,7 @@ export const Stage = memo(() => {
 	const [enemies, setEnemies] = useState<Enemy[]>([])
 	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES())
 	const [ammo, setAmmo] = useState(10)
-	const [power, setPower] = useState(0)
+	const [power, setPower] = useState(DEBUG ? 1000 : 0)
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
 		() => getActiveStats(upgrades, connections, INITIAL_STATS),
@@ -128,7 +129,7 @@ export const Stage = memo(() => {
 		setUpgrades((upgrades) =>
 			upgrades.map((upgrade) =>
 				doRectanglesIntersect(
-					{ ...upgrade, width: 1, height: 1 },
+					{ ...upgrade, width: 0.5, height: 0.5 },
 					mouseArea
 				)
 					? {

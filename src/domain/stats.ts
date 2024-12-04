@@ -222,6 +222,34 @@ export const removeEmtpyStatKeys = (stats: Partial<Stats>): Partial<Stats> =>
 export const isStatsEmpty = (stats: Stats): boolean =>
 	Object.entries(stats).some(([key, value]) => value !== 0)
 
+export const reduceStatsEffects = (
+	upgrades: Upgrade[],
+	acc: Map<string, Stats>,
+	effect: StatsEffect,
+	globalStats: Stats,
+	connections: Connection[]
+) => {
+	if (!('filter' in effect)) return acc
+
+	return new Map(
+		upgrades.flatMap((upgrade) => {
+			const currentStats = acc.get(upgrade.id)!
+			const doesEffect = effect.filter(upgrade, upgrades, connections)
+			return [
+				[
+					upgrade.id,
+					mergeStats(
+						currentStats,
+						doesEffect
+							? effect.stats(currentStats, upgrade, upgrades)
+							: {}
+					),
+				],
+			]
+		}) as [string, Stats][]
+	)
+}
+
 /**
  * Get stats for all upgrades and global stats
  * All stats are completely calculated
@@ -243,32 +271,12 @@ export const getActiveStats = (
 	}, initialStats)
 
 	const upgradeStats = statsEffects.reduce((acc, { effect }) => {
-		if (!('filter' in effect)) return acc
-		const upgradeStats = new Map(
-			upgrades.flatMap((upgrade) => {
-				const doesEffect = effect.filter(upgrade, upgrades, connections)
-				return [
-					[
-						upgrade.id,
-						doesEffect
-							? effect.stats(
-									acc.get(upgrade.id)!,
-									upgrade,
-									upgrades
-							  )
-							: globalStats,
-					],
-				]
-			}) as [string, UpgradeStatsEffectStats][]
-		)
-
-		return new Map(
-			upgradeStats
-				.entries()
-				.map(([upgradeId, upgradeStat]) => [
-					upgradeId,
-					mergeStats(acc.get(upgradeId)!, upgradeStat),
-				])
+		return reduceStatsEffects(
+			upgrades,
+			acc,
+			effect,
+			globalStats,
+			connections
 		)
 	}, new Map(upgrades.map((u) => [u.id, globalStats])))
 

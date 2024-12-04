@@ -24,8 +24,10 @@ import { TbRosetteDiscount } from 'react-icons/tb'
 import { IoMagnetSharp } from 'react-icons/io5'
 import { FaArrowUpRightDots } from 'react-icons/fa6'
 
+export const DEBUG = true
+
 export const INITIAL_STATS: Stats = {
-	maxPower: 10,
+	maxPower: DEBUG ? 1000 : 10,
 	powerMultiplier: 1,
 	experienceOrbAttractionRadius: 2,
 	powerPerEnemy: 1,
@@ -42,8 +44,6 @@ export const INITIAL_STATS: Stats = {
 	upgradeHealthRegenerationAmount: 0,
 	upgradeHealthRegenerationSpeed: 4000,
 	upgradeBulletAttackDamage: 0,
-	// tick based
-	// TODO: make time based and per upgrade
 	upgradeBulletAttackSpeed: 2000,
 	upgradeBulletAttackRange: 1.5,
 	upgradePowerGenerationAmount: 0,
