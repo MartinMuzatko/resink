@@ -1,8 +1,11 @@
 import { memo, useEffect, useMemo, useState } from 'react'
 import { type Connection } from '../domain/connection'
 import {
+	canUpgradeGeneratePower,
 	canUpgradeShoot,
 	damageUpgrade,
+	generateExperienceOrbs,
+	shootBullets,
 	updateUpgradeDamage,
 	Upgrade,
 	UpgradeType,
@@ -213,71 +216,24 @@ export const Stage = memo(() => {
 					)
 				),
 			]
-			const { upgrades: newUpgrades, bullets: newBullets } =
-				prevUpgrades.reduce<{
-					upgrades: Upgrade[]
-					bullets: Bullet[]
-				}>(
-					({ upgrades, bullets }, upgrade) => {
-						const upgradeStats = stats.upgradeStats.get(upgrade.id)!
-						if (
-							!canUpgradeShoot(
-								upgrade,
-								upgradeStats,
-								timePassed,
-								ammo
-							)
-						)
-							return { upgrades: [...upgrades, upgrade], bullets }
-
-						const enemiesInRange = enemies.filter(
-							(enemy) =>
-								getDistance(upgrade, enemy) <
-								stats.upgradeStats.get(upgrade.id)!
-									.upgradeBulletAttackRange
-						)
-
-						if (enemiesInRange.length === 0)
-							return { upgrades: [...upgrades, upgrade], bullets }
-
-						const targetEnemy = enemiesInRange.reduce(
-							(closest, enemy) =>
-								getDistance(upgrade, enemy) <
-								getDistance(upgrade, closest)
-									? enemy
-									: closest
-						)
-
-						const updatedUpgrade = {
-							...upgrade,
-							lastBulletShotTime: timePassed,
-						}
-						// TODO: React.StrictMode makes this get added twice per tick in dev mode
-						// we could add a tickFired prop and compare then.
-						const newBullet = createBullet({
-							x: upgrade.x,
-							y: upgrade.y,
-							attackDamage:
-								upgradeStats.upgradeBulletAttackDamage,
-							velocity: getSpeedVector(
-								{ x: upgrade.x, y: upgrade.y },
-								targetEnemy,
-								0.1
-							),
-						})
-
-						return {
-							upgrades: [...upgrades, updatedUpgrade],
-							bullets: [...bullets, newBullet],
-						}
-					},
-					{ upgrades: [], bullets: [] } // Initial value with the specified type
-				)
+			const { upgrades: upgradesToShootBullets, bullets: newBullets } =
+				shootBullets(prevUpgrades, stats, timePassed, ammo, enemies)
 			setAmmo((ammo) => Math.max(0, ammo - newBullets.length))
 			setBullets((bullets) => [
 				...newBullets.slice(0, ammo - newBullets.length),
 				...moveBullets(bullets),
 			])
+
+			const {
+				upgrades: upgradesToGeneratePower,
+				experienceOrbs: experienceOrbsGenerated,
+			} = generateExperienceOrbs(
+				upgradesToShootBullets,
+				stats,
+				timePassed,
+				experienceOrbs
+			)
+
 			// hit enemies
 			setEnemies((prevEnemies) => {
 				const newEnemies = prevEnemies.map((enemy) => {
@@ -321,6 +277,7 @@ export const Stage = memo(() => {
 				}))
 				setExperienceOrbs((experienceOrbs) => [
 					...experienceOrbs,
+					...experienceOrbsGenerated,
 					...newEnemies
 						.filter((enemy) => enemy.health <= 0)
 						.map((enemy) =>
@@ -371,15 +328,13 @@ export const Stage = memo(() => {
 			return upgradesToTakeDamage.length
 				? updateUpgradeDamage(
 						upgradesToTakeDamage,
-						newUpgrades,
+						upgradesToGeneratePower,
 						connections,
 						timePassed,
 						stats
 				  )
-				: newUpgrades
+				: upgradesToGeneratePower
 		})
-
-		// TODO: Add from generator
 
 		setExperienceOrbs((experienceOrbs) => {
 			// Move orb
@@ -390,7 +345,12 @@ export const Stage = memo(() => {
 			)
 			const newExperienceOrbs = experienceOrbs.map((experienceOrb) => ({
 				...experienceOrb,
-				...attractOrb(experienceOrb, gridMouse, deltaTime),
+				...attractOrb(
+					experienceOrb,
+					gridMouse,
+					deltaTime,
+					stats.globalStats
+				),
 			}))
 			const experienceOrbsConsumed = newExperienceOrbs.filter(
 				(experienceOrb) =>

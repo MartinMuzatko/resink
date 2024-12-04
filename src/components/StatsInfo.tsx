@@ -1,13 +1,7 @@
 import { useMemo } from 'react'
 import { INITIAL_STATS } from '../data/initialGameData'
 import { Connection } from '../domain/connection'
-import {
-	diffStats,
-	getActiveStats,
-	getUpgradeDisplayStats,
-	Stats,
-	StatsEffectResult,
-} from '../domain/stats'
+import { getUpgradeDisplayStats, StatsEffectResult } from '../domain/stats'
 import { Upgrade } from '../domain/upgrade'
 import { StatsInfoPlain } from './StatsInfoPlain'
 

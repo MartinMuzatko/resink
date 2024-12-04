@@ -62,7 +62,8 @@ export const UpgradeNode = ({
 				upgrades,
 				connections,
 				power,
-				stats
+				stats,
+				timePassed
 			)
 			const activeUpgradeIds = upgrades
 				.filter((u) => u.active)

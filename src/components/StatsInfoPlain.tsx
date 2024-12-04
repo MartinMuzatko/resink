@@ -1,39 +1,11 @@
 import { useGameContext } from '../contexts/GameContext'
 import {
 	removeEmtpyStatKeys,
-	statDefinitions,
-	StatKeys,
-	Stats,
 	StatsEffectResult,
 	StatType,
 } from '../domain/stats'
 import { Upgrade } from '../domain/upgrade'
-
-type StatsDisplayProps = {
-	displayStatType: StatType
-	stats: Partial<Stats>
-}
-
-export const StatsDisplay = ({ stats, displayStatType }: StatsDisplayProps) => {
-	const statsWithDefinition = Object.entries(stats).map(([key, value]) => ({
-		...statDefinitions[key as StatKeys],
-		key,
-		value,
-	}))
-	return (
-		<>
-			{statsWithDefinition
-				.filter((stat) => stat.type === displayStatType)
-				.map((stat) => (
-					<div key={stat.key}>
-						<span className={stat.className}>{stat.name}</span>
-						{stat.value > 0 && '+'}
-						{stat.value}
-					</div>
-				))}
-		</>
-	)
-}
+import { StatsDisplay } from './StatsDisplay'
 
 type StatsInfoProps = {
 	upgrades: Upgrade[]

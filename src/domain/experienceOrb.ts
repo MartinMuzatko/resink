@@ -53,11 +53,14 @@ export function spiralInwards(point: Position, target: Position): Position {
 export const attractOrb = (
 	point: Position,
 	target: Position,
-	deltaTime: number
+	deltaTime: number,
+	stats: Stats
 ): Position => {
 	const distance = getDistance(point, target)
 	if (distance === 0) return point
-	const t = clamp(0, 5)(distance) / 5
+	const t =
+		clamp(0, stats.experienceOrbAttractionRadius)(distance) /
+		stats.experienceOrbAttractionRadius
 	const step = lerp(0.04, 0, t * t)
 	const newPosition = lerpPosition(
 		point,
@@ -82,4 +85,16 @@ export const spawnBasedOnEnemiesKilled = (
 			})
 		)
 	})
+}
+
+export const distributePointOnCircle = (
+	totalPoints: number,
+	pointIndex: number,
+	radius: number = 1
+): { x: number; y: number } => {
+	const angle = pointIndex * ((2 * Math.PI) / totalPoints)
+	return {
+		x: radius * Math.cos(angle),
+		y: radius * Math.sin(angle),
+	}
 }

@@ -21,10 +21,13 @@ import { BsLightningChargeFill } from 'react-icons/bs'
 import { CiDroplet } from 'react-icons/ci'
 import { MdOutlineSell, MdOutlineShield } from 'react-icons/md'
 import { TbRosetteDiscount } from 'react-icons/tb'
+import { IoMagnetSharp } from 'react-icons/io5'
+import { FaArrowUpRightDots } from 'react-icons/fa6'
 
 export const INITIAL_STATS: Stats = {
 	maxPower: 10,
 	powerMultiplier: 1,
+	experienceOrbAttractionRadius: 2,
 	powerPerEnemy: 1,
 	additionalPowerPerEnemyChance: 0.1,
 	upgradeCostMultiplier: 1,
@@ -45,7 +48,7 @@ export const INITIAL_STATS: Stats = {
 	upgradeBulletAttackRange: 1.5,
 	upgradePowerGenerationAmount: 0,
 	upgradePowerGenerationDecay: 2000,
-	upgradePowerGenerationMaxAmount: 4,
+	upgradePowerGenerationMaxAmount: 0,
 	upgradePowerGenerationSpeed: 5000,
 }
 
@@ -300,13 +303,15 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'L',
+		title: 'Turn on the engine',
 		description: 'Passively generates power',
 		cost: 8,
 		effect: [
 			{
 				stats: (stats, upgrade) => ({
 					maxPower: stats.maxPower + 10,
-					// maxPower: stats.maxPower + 10,
+					upgradePowerGenerationMaxAmount:
+						stats.upgradePowerGenerationMaxAmount + 3,
 				}),
 			},
 			{
@@ -353,6 +358,37 @@ export const INITIAL_UPGRADES = () => [
 		x: -2,
 		y: 1,
 	}),
+	createUpgrade({
+		id: 'L3',
+		cost: 10,
+		effect: [
+			{
+				stats: (stats, upgrade) => ({
+					experienceOrbAttractionRadius:
+						stats.experienceOrbAttractionRadius + 2,
+				}),
+			},
+		],
+		icon: <IoMagnetSharp className="w-full h-full" />,
+		x: -2,
+		y: 2,
+	}),
+	createUpgrade({
+		id: 'L31',
+		cost: 10,
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'L',
+				stats: (stats, upgrade) => ({
+					upgradePowerGenerationSpeed:
+						stats.upgradePowerGenerationSpeed * 0.6,
+				}),
+			},
+		],
+		icon: <FaArrowUpRightDots className="w-full h-full" />,
+		x: -3,
+		y: 2,
+	}),
 ]
 
 export const INITIAL_CONNECTIONS = [
@@ -375,4 +411,6 @@ export const INITIAL_CONNECTIONS = [
 	connection('M', 'L'),
 	connection('L', 'L1'),
 	connection('L', 'L2'),
+	connection('L', 'L3'),
+	connection('L3', 'L31'),
 ]

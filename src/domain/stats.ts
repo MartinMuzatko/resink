@@ -8,11 +8,6 @@ type TargetFilterFunction = (
 	connections: Connection[]
 ) => boolean
 
-export enum StatDisplay {
-	'value',
-	'percentage',
-}
-
 export enum StatType {
 	'global',
 	'scoped',
@@ -21,144 +16,131 @@ export enum StatType {
 type StatDefinition = {
 	name: string
 	className: string
-	display: StatDisplay
 	type: StatType
+	format?: (value: number) => string
 }
 
 export const statDefinitions = {
-	// Util
+	// Power
 	maxPower: {
 		name: 'Max Power',
-		className: 'text-blue-800',
-		display: StatDisplay.value,
+		className: 'text-amber-400',
 		type: StatType.global,
 	},
 	powerMultiplier: {
 		name: 'Power Multiplier',
 		className: '',
-		display: StatDisplay.value,
 		type: StatType.global,
 	},
 	powerPerEnemy: {
 		name: 'Power Per Enemy',
 		className: 'text-cyan-400',
-		display: StatDisplay.value,
 		type: StatType.global,
 	},
 	additionalPowerPerEnemyChance: {
 		name: 'Additional Power Per Enemy Chance',
 		className: 'text-red-600',
-		display: StatDisplay.value,
+		type: StatType.global,
+	},
+	experienceOrbAttractionRadius: {
+		name: 'Experience Attraction Radius',
+		className: 'text-purple-300',
 		type: StatType.global,
 	},
 	// MouseArea
 	mouseSize: {
-		name: 'Mouse Size',
+		name: 'Area Size',
 		className: 'text-amber-600',
-		display: StatDisplay.value,
 		type: StatType.global,
 	},
 	mouseHealAmount: {
-		name: 'Mouse Heal Amount',
+		name: 'Area Heal Amount',
 		className: 'text-lime-400',
-		display: StatDisplay.value,
 		type: StatType.global,
 	},
 	mouseSpeed: {
-		name: 'Mouse Speed',
+		name: 'Area Attack Speed',
 		className: 'text-teal-400',
-		display: StatDisplay.value,
 		type: StatType.global,
+		format: (value) => `${value / 10}%`,
 	},
 	mouseAttackDamage: {
-		name: 'Mouse Attack Damage',
+		name: 'Area Attack Damage',
 		className: 'text-red-600',
-		display: StatDisplay.value,
 		type: StatType.global,
 	},
 	// Bullets
 	bulletMaxAmmo: {
 		name: 'Bullet Max Ammo',
 		className: 'text-green-400',
-		display: StatDisplay.value,
 		type: StatType.global,
 	},
 	bulletAmmoPrice: {
 		name: 'Bullet Ammo Price',
 		className: 'text-teal-400',
-		display: StatDisplay.value,
 		type: StatType.global,
 	},
 	upgradeBulletAttackDamage: {
 		name: 'Bullet Attack Damage',
 		className: 'text-red-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 	upgradeBulletAttackRange: {
 		name: 'Bullet Attack Range',
 		className: 'text-green-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 	upgradeBulletAttackSpeed: {
 		name: 'Bullet Attack Speed',
 		className: 'text-teal-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
+	// Health
 	upgradeHealth: {
 		name: 'Health',
 		className: 'text-green-600',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 	upgradeHealthRegenerationAmount: {
 		name: 'Health Regeneration Amount',
 		className: 'text-teal-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 	upgradeHealthRegenerationSpeed: {
 		name: 'Health Regeneration Speed',
 		className: 'text-teal-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 	upgradeArmor: {
 		name: 'Armor',
 		className: 'text-cyan-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 	upgradeCostMultiplier: {
 		name: 'Cost Multiplier',
 		className: 'text-cyan-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
+	// Power Generation
 	upgradePowerGenerationSpeed: {
 		name: 'Power Generation Speed',
 		className: 'text-cyan-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
+		format: (value) => `${value / 1000}s`,
 	},
 	upgradePowerGenerationAmount: {
 		name: 'Power Generation Amount',
 		className: 'text-cyan-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 	upgradePowerGenerationMaxAmount: {
 		name: 'Power Generation Max Amount',
 		className: 'text-cyan-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 	upgradePowerGenerationDecay: {
 		name: 'Experience Decay',
 		className: 'text-cyan-400',
-		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
 } as const satisfies Record<string, StatDefinition>
