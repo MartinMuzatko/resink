@@ -2,7 +2,6 @@ import { ReactNode } from 'react'
 import { getDistance, Identifier, Position } from './main'
 import { Connection } from './connection'
 import {
-	getActiveStats,
 	getCost,
 	Stats,
 	StatsEffect,
@@ -10,7 +9,6 @@ import {
 	UpgradeStats,
 } from './stats'
 import { canEnemyDealDamage, Enemy } from './enemy'
-import { INITIAL_STATS } from '../data/initialGameData'
 
 export enum UpgradeType {
 	motor,
@@ -49,6 +47,7 @@ export type Upgrade = Identifier &
 		health: number
 		lastDamageTakenTime: number
 		lastBulletShotTime: number
+		lastExperienceOrbGeneratedTime: number
 	}
 
 export type UpgradeDamageUpdate = {
@@ -70,6 +69,7 @@ export const createUpgrade = (
 	health: 10,
 	lastBulletShotTime: 0,
 	lastDamageTakenTime: 0,
+	lastExperienceOrbGeneratedTime: 0,
 	...upgrade,
 })
 

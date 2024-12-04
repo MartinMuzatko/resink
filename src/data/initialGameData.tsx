@@ -34,15 +34,19 @@ export const INITIAL_STATS: Stats = {
 	mouseHealAmount: 0,
 	mouseSize: 1,
 	mouseSpeed: 3000,
+	bulletMaxAmmo: 10,
+	bulletAmmoPrice: 0.5,
 	upgradeHealthRegenerationAmount: 0,
 	upgradeHealthRegenerationSpeed: 4000,
 	upgradeBulletAttackDamage: 0,
-	bulletMaxAmmo: 10,
 	// tick based
 	// TODO: make time based and per upgrade
 	upgradeBulletAttackSpeed: 2000,
 	upgradeBulletAttackRange: 1.5,
-	bulletAmmoPrice: 0.5,
+	upgradePowerGenerationAmount: 0,
+	upgradePowerGenerationDecay: 2000,
+	upgradePowerGenerationMaxAmount: 4,
+	upgradePowerGenerationSpeed: 5000,
 }
 
 export const INITIAL_UPGRADES = () => [
@@ -296,11 +300,19 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'L',
+		description: 'Passively generates power',
 		cost: 8,
 		effect: [
 			{
 				stats: (stats, upgrade) => ({
 					maxPower: stats.maxPower + 10,
+					// maxPower: stats.maxPower + 10,
+				}),
+			},
+			{
+				filter: (upgrade) => upgrade.id === 'L',
+				stats: (stats, upgrade) => ({
+					upgradePowerGenerationAmount: 1,
 				}),
 			},
 		],

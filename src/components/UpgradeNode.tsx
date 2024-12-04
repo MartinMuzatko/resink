@@ -272,6 +272,32 @@ export const UpgradeNode = ({
 									></div>
 								</div>
 							)}
+						{upgrade.active &&
+							upgradeStats.upgradePowerGenerationAmount !== 0 && (
+								<div
+									className="absolute top-0 right-full h-full bg-teal-800 z-20"
+									style={{
+										width: gridScale / 16,
+									}}
+								>
+									<div
+										className="absolute top-0 bg-teal-400 z-20"
+										style={{
+											width: gridScale / 16,
+											height: `${
+												clamp(
+													0,
+													1
+												)(
+													(timePassed -
+														upgrade.lastExperienceOrbGeneratedTime) /
+														upgradeStats.upgradePowerGenerationSpeed
+												) * 100
+											}%`,
+										}}
+									></div>
+								</div>
+							)}
 					</div>
 				</Tooltip>
 			</div>

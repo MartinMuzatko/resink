@@ -5,15 +5,16 @@ import {
 	StatKeys,
 	Stats,
 	StatsEffectResult,
+	StatType,
 } from '../domain/stats'
 import { Upgrade } from '../domain/upgrade'
 
-type StatsInfoProps = {
-	upgrades: Upgrade[]
-	stats: StatsEffectResult
+type StatsDisplayProps = {
+	displayStatType: StatType
+	stats: Partial<Stats>
 }
 
-export const StatsDisplay = ({ stats }: { stats: Partial<Stats> }) => {
+export const StatsDisplay = ({ stats, displayStatType }: StatsDisplayProps) => {
 	const statsWithDefinition = Object.entries(stats).map(([key, value]) => ({
 		...statDefinitions[key as StatKeys],
 		key,
@@ -21,15 +22,22 @@ export const StatsDisplay = ({ stats }: { stats: Partial<Stats> }) => {
 	}))
 	return (
 		<>
-			{statsWithDefinition.map((stat) => (
-				<div key={stat.key}>
-					<span className={stat.className}>{stat.name}</span>
-					{stat.value > 0 && '+'}
-					{stat.value}
-				</div>
-			))}
+			{statsWithDefinition
+				.filter((stat) => stat.type === displayStatType)
+				.map((stat) => (
+					<div key={stat.key}>
+						<span className={stat.className}>{stat.name}</span>
+						{stat.value > 0 && '+'}
+						{stat.value}
+					</div>
+				))}
 		</>
 	)
+}
+
+type StatsInfoProps = {
+	upgrades: Upgrade[]
+	stats: StatsEffectResult
 }
 
 // TODO: decide whether to show relative or absolute stats
@@ -43,7 +51,10 @@ export const StatsInfoPlain = ({ stats, upgrades }: StatsInfoProps) => {
 					<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
 						Global Stats
 					</div>
-					<StatsDisplay stats={globalStats} />
+					<StatsDisplay
+						stats={globalStats}
+						displayStatType={StatType.global}
+					/>
 				</>
 			)}
 			<div className="text-xs pt-1 uppercase font-bold leading-relaxed">
@@ -59,7 +70,10 @@ export const StatsInfoPlain = ({ stats, upgrades }: StatsInfoProps) => {
 					>
 						{upgrades.find((u) => u.id === upgradeId)?.icon}
 					</div>
-					<StatsDisplay stats={removeEmtpyStatKeys(stats)} />
+					<StatsDisplay
+						stats={removeEmtpyStatKeys(stats)}
+						displayStatType={StatType.scoped}
+					/>
 				</div>
 			))}
 			{/* TODO: current stats display and changes in two diff. components.

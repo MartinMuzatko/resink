@@ -48,6 +48,12 @@ export const isPositionInsideArea = (position: Position, area: Area): boolean =>
 	position.y >= area.y &&
 	position.y <= area.y + area.height
 
+export const doRectanglesIntersect = (a: Area, b: Area): boolean =>
+	a.x < b.x + b.width &&
+	a.x + a.width > b.x &&
+	a.y < b.y + b.height &&
+	a.y + a.height > b.y
+
 export const generateRandomPositionOnEdge = (area: Area): Position => {
 	const areaLeft = area.x
 	const areaRight = area.x + area.width

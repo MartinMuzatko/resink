@@ -1,4 +1,5 @@
 import {
+	Area,
 	equalPosition,
 	getDistance,
 	Identifier,
@@ -28,6 +29,13 @@ export const findTarget = (upgrades: Upgrade[]) => {
 		return upgrades.find((upgrade) => upgrade.type == UpgradeType.motor)!
 	return randomArrayItem(activeUpgrades)
 }
+
+export const getAreaFromEnemy = (enemy: Enemy): Area => ({
+	x: enemy.x,
+	y: enemy.y,
+	width: enemy.size,
+	height: enemy.size,
+})
 
 export const getSpawnArea = (upgrades: Upgrade[]) => {
 	const furthestPosition = findFurthestUpgradePosition(upgrades)

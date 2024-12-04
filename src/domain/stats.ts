@@ -137,6 +137,30 @@ export const statDefinitions = {
 		display: StatDisplay.value,
 		type: StatType.scoped,
 	},
+	upgradePowerGenerationSpeed: {
+		name: 'Power Generation Speed',
+		className: 'text-cyan-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradePowerGenerationAmount: {
+		name: 'Power Generation Amount',
+		className: 'text-cyan-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradePowerGenerationMaxAmount: {
+		name: 'Power Generation Max Amount',
+		className: 'text-cyan-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
+	upgradePowerGenerationDecay: {
+		name: 'Experience Decay',
+		className: 'text-cyan-400',
+		display: StatDisplay.value,
+		type: StatType.scoped,
+	},
 } as const satisfies Record<string, StatDefinition>
 
 export type StatKeys = keyof typeof statDefinitions

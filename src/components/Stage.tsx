@@ -13,6 +13,7 @@ import { UpgradeNode } from './UpgradeNode'
 import { useGameContext } from '../contexts/GameContext'
 import {
 	Area,
+	doRectanglesIntersect,
 	generateRandomPositionOnEdge,
 	getDistance,
 	getSpeedVector,
@@ -24,6 +25,7 @@ import {
 	createEnemy,
 	Enemy,
 	findTarget,
+	getAreaFromEnemy,
 	getSpawnArea,
 	moveEnemy,
 } from '../domain/enemy'
@@ -36,7 +38,9 @@ import {
 import { StatsInfoPlain } from './StatsInfoPlain'
 import {
 	attractOrb,
+	createExperienceOrb,
 	ExperienceOrb,
+	ExperienceOrbSource,
 	spawnBasedOnEnemiesKilled,
 } from '../domain/experienceOrb'
 import { BulletMeter } from './meters/BulletMeter'
@@ -120,8 +124,10 @@ export const Stage = memo(() => {
 		// heal upgrades
 		setUpgrades((upgrades) =>
 			upgrades.map((upgrade) =>
-				// TODO: real bounding box checking
-				isPositionInsideArea(upgrade, mouseArea)
+				doRectanglesIntersect(
+					{ ...upgrade, width: 1, height: 1 },
+					mouseArea
+				)
 					? {
 							...upgrade,
 							health:
@@ -134,8 +140,7 @@ export const Stage = memo(() => {
 		// attack enemies
 		setEnemies((prevEnemies) => {
 			const newEnemies = prevEnemies.map((enemy) =>
-				// TODO: real bounding box checking
-				isPositionInsideArea(enemy, mouseArea)
+				doRectanglesIntersect(getAreaFromEnemy(enemy), mouseArea)
 					? {
 							...enemy,
 							health:
@@ -183,8 +188,8 @@ export const Stage = memo(() => {
 			setUpgrades(INITIAL_UPGRADES())
 			setEnemies([])
 			setTotalEnemiesDefeated(0)
-			setExperienceOrbs([])
 			setPowerThroughEnemiesDefeated(0)
+			setExperienceOrbs([])
 			setWave(0)
 			setWaveStartedTime(0)
 		}
@@ -318,12 +323,13 @@ export const Stage = memo(() => {
 					...experienceOrbs,
 					...newEnemies
 						.filter((enemy) => enemy.health <= 0)
-						.map((enemy) => ({
-							id: crypto.randomUUID(),
-							amount: 1,
-							x: enemy.x + 0.25,
-							y: enemy.y + 0.25,
-						})),
+						.map((enemy) =>
+							createExperienceOrb({
+								source: ExperienceOrbSource.enemy,
+								x: enemy.x + 0.25,
+								y: enemy.y + 0.25,
+							})
+						),
 				])
 				setTotalEnemiesDefeated(
 					(totalEnemiesDefeated) =>
@@ -372,6 +378,8 @@ export const Stage = memo(() => {
 				  )
 				: newUpgrades
 		})
+
+		// TODO: Add from generator
 
 		setExperienceOrbs((experienceOrbs) => {
 			// Move orb

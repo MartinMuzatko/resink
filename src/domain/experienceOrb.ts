@@ -11,15 +11,22 @@ import {
 } from './main'
 import { Stats, StatsEffectResult } from './stats'
 
+export enum ExperienceOrbSource {
+	enemy,
+	upgrade,
+}
+
 export type ExperienceOrb = Identifier &
 	Position & {
 		amount: number
+		source: ExperienceOrbSource
 	}
 
 export const createExperienceOrb = (
 	experienceOrb: Partial<ExperienceOrb>
 ): ExperienceOrb => ({
 	amount: 1,
+	source: ExperienceOrbSource.enemy,
 	id: crypto.randomUUID(),
 	x: 0,
 	y: 0,
