@@ -170,10 +170,10 @@ export const spawnEnemies = (
 					target: findTarget(upgrades).id,
 					attackSpeed: 2000,
 					attackDamage: wave,
-					...(Math.random() > 0.0
+					...(Math.random() > 0.7
 						? {
 								type: EnemyType.wobbler,
-								movementSpeed: 0.0045,
+								movementSpeed: 0.0051,
 						  }
 						: {
 								type: EnemyType.straight,
