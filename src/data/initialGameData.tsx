@@ -25,7 +25,7 @@ import { TbRosetteDiscount } from 'react-icons/tb'
 import { IoMagnetSharp } from 'react-icons/io5'
 import { FaArrowUpRightDots } from 'react-icons/fa6'
 
-export const DEBUG = true
+export const DEBUG = false
 
 export const INITIAL_STATS: Stats = {
 	maxPower: DEBUG ? 1000 : 10,

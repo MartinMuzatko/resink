@@ -341,6 +341,7 @@ export const getUpgradeDisplayStats = (
 					[
 						upgradeId,
 						diffStats(
+							// @ts-ignore
 							stats.upgradeStats.get(upgradeId)!,
 							statsWithUpgradeActive.upgradeStats.get(upgradeId)!
 						),
