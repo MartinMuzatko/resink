@@ -16,9 +16,13 @@ export const StatsDisplay = ({ stats, displayStatType }: StatsDisplayProps) => {
 	return (
 		<>
 			{statsWithDefinition
-				.filter((stat) => stat.type === displayStatType)
+				.filter((stat) =>
+					displayStatType === StatType.global
+						? true
+						: stat.type === displayStatType
+				)
 				.map((stat) => (
-					<div key={stat.key}>
+					<div key={stat.key} className="flex items-center">
 						<span className={`${stat.className} pr-1`}>
 							{stat.name}
 						</span>

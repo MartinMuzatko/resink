@@ -8,6 +8,7 @@ import {
 	GiPowerGenerator,
 	GiSentryGun,
 	GiStripedSword,
+	GiSupersonicBullet,
 	GiSwordAltar,
 	GiTurret,
 } from 'react-icons/gi'
@@ -46,6 +47,7 @@ export const INITIAL_STATS: Stats = {
 	upgradeBulletAttackDamage: 0,
 	upgradeBulletAttackSpeed: 2000,
 	upgradeBulletAttackRange: 1.5,
+	upgradeBulletProjectileSpeed: 0.1,
 	upgradePowerGenerationAmount: 0,
 	upgradePowerGenerationDecay: 2000,
 	upgradePowerGenerationMaxAmount: 0,
@@ -59,19 +61,19 @@ export const INITIAL_UPGRADES = () => [
 		type: UpgradeType.motor,
 		title: 'Main Engine',
 		description: 'Defend at all cost',
-		tooltip: (stats) => (
-			<div>
-				{/* <StatsInfoPlain
-					{...{
-						stats: {
-							...INITIAL_STATS,
-							mouseSpeed: 0,
-							mouseSize: 0,
-						},
-					}}
-				/> */}
-			</div>
-		),
+		// tooltip: (stats) => (
+		// 	<div>
+		// 		{/* <StatsInfoPlain
+		// 			{...{
+		// 				stats: {
+		// 					...INITIAL_STATS,
+		// 					mouseSpeed: 0,
+		// 					mouseSize: 0,
+		// 				},
+		// 			}}
+		// 		/> */}
+		// 	</div>
+		// ),
 		effect: [],
 		icon: <GiBarracks className="w-full h-full" />,
 		x: 0,
@@ -82,7 +84,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 2,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					mouseAttackDamage: stats.mouseAttackDamage + 1,
 				}),
 			},
@@ -96,7 +98,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					mouseSpeed: stats.mouseSpeed * 0.9,
 				}),
 			},
@@ -110,7 +112,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 20,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					mouseSpeed: stats.mouseSpeed * 0.8,
 				}),
 			},
@@ -124,7 +126,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 20,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					mouseSpeed: stats.mouseSpeed * 0.6,
 				}),
 			},
@@ -138,7 +140,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					mouseSize: stats.mouseSize * 1.5,
 				}),
 			},
@@ -152,7 +154,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					mouseAttackDamage: stats.mouseAttackDamage + 3,
 				}),
 			},
@@ -168,7 +170,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: [
 			{
 				filter: (upgrade) => upgrade.id === 'M' || upgrade.id === 'D',
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					upgradeBulletAttackDamage:
 						stats.upgradeBulletAttackDamage + 1,
 				}),
@@ -183,7 +185,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					upgradeBulletAttackDamage:
 						stats.upgradeBulletAttackDamage + 2,
 				}),
@@ -198,7 +200,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					upgradeBulletAttackSpeed:
 						stats.upgradeBulletAttackSpeed * 0.8,
 				}),
@@ -213,9 +215,9 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					upgradeBulletAttackRange:
-						stats.upgradeBulletAttackRange + 1,
+						stats.upgradeBulletAttackRange + 1.5,
 				}),
 			},
 		],
@@ -224,12 +226,42 @@ export const INITIAL_UPGRADES = () => [
 		y: -4,
 	}),
 	createUpgrade({
+		id: 'AT31',
+		cost: 15,
+		effect: [
+			{
+				stats: (stats) => ({
+					upgradeBulletAttackRange:
+						stats.upgradeBulletAttackRange + 1.5,
+				}),
+			},
+		],
+		icon: <LuExpand className="w-full h-full" />,
+		x: 3,
+		y: -5,
+	}),
+	createUpgrade({
 		id: 'AT4',
 		cost: 15,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
-					bulletMaxAmmo: stats.bulletMaxAmmo + 20,
+				stats: (stats) => ({
+					upgradeBulletProjectileSpeed:
+						stats.upgradeBulletProjectileSpeed + 0.1,
+				}),
+			},
+		],
+		icon: <GiSupersonicBullet className="w-full h-full" />,
+		x: 2,
+		y: -2,
+	}),
+	createUpgrade({
+		id: 'AT21',
+		cost: 15,
+		effect: [
+			{
+				stats: (stats) => ({
+					bulletMaxAmmo: stats.bulletMaxAmmo + 30,
 				}),
 			},
 		],
@@ -242,7 +274,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 15,
 		effect: [
 			{
-				stats: (stats, upgrade, upgrades) => ({
+				stats: (stats) => ({
 					bulletAmmoPrice: stats.bulletAmmoPrice - 0.15,
 				}),
 			},
@@ -256,7 +288,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 6,
 		effect: [
 			{
-				stats: (stats, upgrade) => ({
+				stats: (stats) => ({
 					upgradeHealth: stats.upgradeHealth + 3,
 				}),
 			},
@@ -278,7 +310,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: [
 			{
-				stats: (stats, upgrade) => ({
+				stats: (stats) => ({
 					upgradeArmor: stats.upgradeArmor + 1,
 				}),
 			},
@@ -292,7 +324,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: [
 			{
-				stats: (stats, upgrade) => ({
+				stats: (stats) => ({
 					mouseHealAmount: stats.mouseHealAmount + 1,
 				}),
 			},
@@ -308,7 +340,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 8,
 		effect: [
 			{
-				stats: (stats, upgrade) => ({
+				stats: (stats) => ({
 					maxPower: stats.maxPower + 10,
 					upgradePowerGenerationMaxAmount:
 						stats.upgradePowerGenerationMaxAmount + 3,
@@ -316,8 +348,9 @@ export const INITIAL_UPGRADES = () => [
 			},
 			{
 				filter: (upgrade) => upgrade.id === 'L',
-				stats: (stats, upgrade) => ({
-					upgradePowerGenerationAmount: 1,
+				stats: (stats) => ({
+					upgradePowerGenerationAmount:
+						stats.upgradePowerGenerationAmount + 1,
 				}),
 			},
 		],
@@ -331,7 +364,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: [
 			{
-				stats: (stats, upgrade) => ({
+				stats: (stats) => ({
 					upgradeCostMultiplier: stats.upgradeCostMultiplier * 0.8,
 				}),
 			},
@@ -347,7 +380,7 @@ export const INITIAL_UPGRADES = () => [
 		description: 'Get more out of the experience juice',
 		effect: [
 			{
-				stats: (stats, upgrade) => ({
+				stats: (stats) => ({
 					powerPerEnemy: stats.powerPerEnemy + 1,
 					additionalPowerPerEnemyChance:
 						stats.additionalPowerPerEnemyChance + 0.1,
@@ -363,7 +396,7 @@ export const INITIAL_UPGRADES = () => [
 		cost: 10,
 		effect: [
 			{
-				stats: (stats, upgrade) => ({
+				stats: (stats) => ({
 					experienceOrbAttractionRadius:
 						stats.experienceOrbAttractionRadius + 2,
 				}),
@@ -379,7 +412,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: [
 			{
 				filter: (upgrade) => upgrade.id === 'L',
-				stats: (stats, upgrade) => ({
+				stats: (stats) => ({
 					upgradePowerGenerationSpeed:
 						stats.upgradePowerGenerationSpeed * 0.6,
 				}),
@@ -402,8 +435,10 @@ export const INITIAL_CONNECTIONS = [
 	connection('AT', 'AT1'),
 	connection('AT', 'AT2'),
 	connection('AT', 'AT3'),
+	connection('AT3', 'AT31'),
+	connection('AT2', 'AT21'),
+	connection('AT21', 'AT5'),
 	connection('AT2', 'AT4'),
-	connection('AT4', 'AT5'),
 	connection('M', 'D'),
 	connection('D', 'D1'),
 	connection('D', 'D2'),

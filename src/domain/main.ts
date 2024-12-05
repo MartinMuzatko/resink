@@ -39,6 +39,11 @@ export const subPosition = (a: Position, b: Position) => ({
 	y: b.y - a.y,
 })
 
+export const mulPosition = (a: Position, multiplier: number) => ({
+	x: a.x * multiplier,
+	y: a.y * multiplier,
+})
+
 export const isACloserToTopLeftThanB = (a: Position, b: Position) =>
 	equalPosition(closerToTopLeft(a, b), a)
 
@@ -122,6 +127,18 @@ export const getSpeedVector = (
 		x: (diff.x / distance) * speed,
 		y: (diff.y / distance) * speed,
 	}
+}
+
+export const normalizeVector = (vector: Position) => {
+	const length = Math.sqrt(vector.x ** 2 + vector.y ** 2)
+	return length > 0
+		? { x: vector.x / length, y: vector.y / length }
+		: { x: 0, y: 0 }
+}
+
+export const getVectorAngleDegrees = (vector: Position): number => {
+	const angleRadians = Math.atan2(vector.y, vector.x)
+	return ((angleRadians * 180) / Math.PI + 360) % 360
 }
 
 export const randomRange = (min: number, max: number) =>

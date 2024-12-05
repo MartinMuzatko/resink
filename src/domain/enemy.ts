@@ -1,13 +1,23 @@
 import {
+	addPosition,
 	Area,
 	equalPosition,
 	getDistance,
+	getVectorAngleDegrees,
 	Identifier,
 	lerpPosition,
+	mulPosition,
+	normalizeVector,
 	Position,
 	randomArrayItem,
+	subPosition,
 } from './main'
 import { findFurthestUpgradePosition, Upgrade, UpgradeType } from './upgrade'
+
+export enum EnemyType {
+	wobbler,
+	straight,
+}
 
 export type Enemy = Identifier &
 	Position & {
@@ -19,6 +29,8 @@ export type Enemy = Identifier &
 		lastAttackDealtTime: number
 		health: number
 		maxHealth: number
+		rotation: number
+		type: EnemyType
 	}
 
 export const findTarget = (upgrades: Upgrade[]) => {
@@ -49,11 +61,39 @@ export const getSpawnArea = (upgrades: Upgrade[]) => {
 		height: size * 2,
 	}
 }
+const wobbleFrequency = 0.002
+const wobbleAmplitude = 0.03
+const addWobbleMovePattern = (
+	enemyPosition: Position,
+	target: Position,
+	timePassed: number
+) => {
+	// Calculate wobble offset directly from game time
+	const wobbleOffset = timePassed * wobbleFrequency
+
+	// Calculate direction to target
+	const targetDirection = normalizeVector(subPosition(enemyPosition, target))
+
+	// Calculate perpendicular wobble vector
+	const perpVector = {
+		x: -targetDirection.y, // Rotate 90 degrees
+		y: targetDirection.x,
+	}
+
+	// TODO: Something wrong with rotation on wobbly enemies
+	const wobbleAmount = Math.sin(wobbleOffset) * wobbleAmplitude
+	const newPosition = addPosition(
+		enemyPosition,
+		mulPosition(perpVector, wobbleAmount)
+	)
+	return newPosition
+}
 
 export const moveEnemy = (
 	enemy: Enemy,
 	upgrades: Upgrade[],
-	deltaTime: number
+	deltaTime: number,
+	timePassed: number
 ) => {
 	const currentTarget = upgrades.find((u) => u.id == enemy.target)!
 	const target = currentTarget.active ? currentTarget : findTarget(upgrades)
@@ -66,9 +106,16 @@ export const moveEnemy = (
 		},
 		(enemy.movementSpeed * deltaTime) / distance
 	)
+	const position =
+		enemy.type == EnemyType.straight
+			? newPosition
+			: addWobbleMovePattern(newPosition, target, timePassed)
+	// const newestPosition = addWobbleMovePattern(newPosition, target, timePassed)
+	const vector = subPosition(position, enemy)
 	return {
 		...enemy,
-		...newPosition,
+		...position,
+		rotation: getVectorAngleDegrees(vector),
 		target: target.id,
 	}
 }
@@ -85,6 +132,8 @@ export const createEnemy = (enemy: Partial<Enemy>): Enemy => ({
 	maxHealth: 1,
 	lastAttackDealtTime: 0,
 	target: 'none',
+	rotation: 0,
+	type: EnemyType.straight,
 	...enemy,
 })
 

@@ -1,8 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react'
 import { type Connection } from '../domain/connection'
 import {
-	canUpgradeGeneratePower,
-	canUpgradeShoot,
 	damageUpgrade,
 	generateExperienceOrbs,
 	shootBullets,
@@ -18,8 +16,6 @@ import {
 	Area,
 	doRectanglesIntersect,
 	generateRandomPositionOnEdge,
-	getDistance,
-	getSpeedVector,
 	isPositionInsideArea,
 	lerp,
 	Position,
@@ -27,6 +23,7 @@ import {
 import {
 	createEnemy,
 	Enemy,
+	EnemyType,
 	findTarget,
 	getAreaFromEnemy,
 	getSpawnArea,
@@ -39,7 +36,6 @@ import {
 	INITIAL_STATS,
 	INITIAL_UPGRADES,
 } from '../data/initialGameData'
-import { StatsInfoPlain } from './StatsInfoPlain'
 import {
 	attractOrb,
 	createExperienceOrb,
@@ -48,13 +44,13 @@ import {
 	spawnBasedOnEnemiesKilled,
 } from '../domain/experienceOrb'
 import { BulletMeter } from './meters/BulletMeter'
-import { Bullet, createBullet, moveBullets } from '../domain/bullet'
+import { Bullet, moveBullets } from '../domain/bullet'
 import { PowerMeter } from './meters/PowerMeter'
 import { EnemyRender } from './EnemyRender'
 import { BulletRender } from './BulletRender'
 import { ExperienceOrbRender } from './ExperienceOrbRender'
 import { MouseAreaRender } from './MouseAreaRender'
-import { ConnectionLineRender } from './ConnectionLineRender'
+import { Button } from '@mantine/core'
 
 // const enemyStats = {
 // 	damage: 1,
@@ -86,11 +82,9 @@ export const Stage = memo(() => {
 	const { tick, timePassed, gridScale, deltaTime } = useGameContext()
 	const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0)
 	const [experienceOrbs, setExperienceOrbs] = useState<ExperienceOrb[]>([])
-	const [powerThroughEnemiesDefeated, setPowerThroughEnemiesDefeated] =
-		useState(0)
 	const [enemies, setEnemies] = useState<Enemy[]>([])
 	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES())
-	const [ammo, setAmmo] = useState(10)
+	const [ammo, setAmmo] = useState(0)
 	const [power, setPower] = useState(DEBUG ? 1000 : 0)
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
@@ -192,7 +186,6 @@ export const Stage = memo(() => {
 			setUpgrades(INITIAL_UPGRADES())
 			setEnemies([])
 			setTotalEnemiesDefeated(0)
-			setPowerThroughEnemiesDefeated(0)
 			setExperienceOrbs([])
 			setWave(0)
 			setWaveStartedTime(0)
@@ -313,7 +306,15 @@ export const Stage = memo(() => {
 									target: findTarget(upgrades).id,
 									attackSpeed: 2000,
 									attackDamage: wave,
-									movementSpeed: 0.0025,
+									...(Math.random() > 0.65
+										? {
+												type: EnemyType.wobbler,
+												movementSpeed: 0.0045,
+										  }
+										: {
+												type: EnemyType.straight,
+												movementSpeed: 0.0025,
+										  }),
 									size: 0.25,
 									health: 1 + Math.ceil(wave / 3),
 									maxHealth: 1 + Math.ceil(wave / 3),
@@ -322,7 +323,7 @@ export const Stage = memo(() => {
 						: []),
 				]
 				return addedEnemies.map((enemy) =>
-					moveEnemy(enemy, upgrades, deltaTime)
+					moveEnemy(enemy, upgrades, deltaTime, timePassed)
 				)
 			})
 

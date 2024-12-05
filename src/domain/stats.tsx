@@ -1,5 +1,8 @@
+import { ReactNode } from 'react'
 import { Connection } from './connection'
 import { Upgrade } from './upgrade'
+import { BsLightningChargeFill } from 'react-icons/bs'
+import { GiHeavyBullets } from 'react-icons/gi'
 
 /** will be executed for each upgrade */
 type TargetFilterFunction = (
@@ -17,7 +20,7 @@ type StatDefinition = {
 	name: string
 	className: string
 	type: StatType
-	format?: (value: number) => string
+	format?: (value: number) => ReactNode
 }
 
 export const statDefinitions = {
@@ -79,6 +82,12 @@ export const statDefinitions = {
 		name: 'Bullet Ammo Price',
 		className: 'text-teal-400',
 		type: StatType.global,
+		format: (value) => (
+			<div className="flex items-center">
+				{value.toFixed(2)}
+				<BsLightningChargeFill />/ <GiHeavyBullets className="ml-1" />
+			</div>
+		),
 	},
 	upgradeBulletAttackDamage: {
 		name: 'Bullet Attack Damage',
@@ -93,6 +102,11 @@ export const statDefinitions = {
 	upgradeBulletAttackSpeed: {
 		name: 'Bullet Attack Speed',
 		className: 'text-teal-400',
+		type: StatType.scoped,
+	},
+	upgradeBulletProjectileSpeed: {
+		name: 'Bullet Speed',
+		className: 'text-amber-400',
 		type: StatType.scoped,
 	},
 	// Health

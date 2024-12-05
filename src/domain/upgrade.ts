@@ -393,7 +393,7 @@ export const shootBullets = (
 				velocity: getSpeedVector(
 					{ x: upgrade.x, y: upgrade.y },
 					targetEnemy,
-					0.2
+					upgradeStats.upgradeBulletProjectileSpeed
 				),
 			})
 

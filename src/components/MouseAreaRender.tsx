@@ -17,7 +17,7 @@ export const MouseAreaRender = ({
 	const { gridScale, timePassed } = useGameContext()
 	return (
 		<div
-			className={`absolute ${
+			className={`absolute z-50 pointer-events-none ${
 				mouseLastActivatedTime > timePassed - 500
 					? 'bg-orange-200/80'
 					: 'bg-orange-400/50'
