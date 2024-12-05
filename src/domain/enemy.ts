@@ -2,6 +2,7 @@ import {
 	addPosition,
 	Area,
 	equalPosition,
+	generateRandomPositionOnEdge,
 	getDistance,
 	getVectorAngleDegrees,
 	Identifier,
@@ -49,7 +50,7 @@ export const getAreaFromEnemy = (enemy: Enemy): Area => ({
 	height: enemy.size,
 })
 
-export const getSpawnArea = (upgrades: Upgrade[]) => {
+export const getSpawnArea = (upgrades: Upgrade[]): Area => {
 	const furthestPosition = findFurthestUpgradePosition(upgrades)
 	const x = Math.abs(furthestPosition.x)
 	const y = Math.abs(furthestPosition.y)
@@ -144,3 +145,43 @@ export const canEnemyDealDamage = (
 ) =>
 	equalPosition(upgrade, enemy) &&
 	timePassed >= enemy.lastAttackDealtTime + enemy.attackSpeed
+
+export enum WaveState {
+	ongoing = 'ongoing',
+	idle = 'idle',
+}
+
+export const spawnEnemies = (
+	enemies: Enemy[],
+	upgrades: Upgrade[],
+	amountEnemies: number,
+	waveState: WaveState,
+	wave: number,
+	spawnArea: Area
+) =>
+	waveState == WaveState.ongoing && enemies.length < amountEnemies
+		? [
+				...Array(
+					Math.min(amountEnemies - enemies.length, amountEnemies)
+				),
+		  ].map(() =>
+				createEnemy({
+					...generateRandomPositionOnEdge(spawnArea),
+					target: findTarget(upgrades).id,
+					attackSpeed: 2000,
+					attackDamage: wave,
+					...(Math.random() > 0.0
+						? {
+								type: EnemyType.wobbler,
+								movementSpeed: 0.0045,
+						  }
+						: {
+								type: EnemyType.straight,
+								movementSpeed: 0.0025,
+						  }),
+					size: 0.25,
+					health: 1 + Math.ceil(wave / 3),
+					maxHealth: 1 + Math.ceil(wave / 3),
+				})
+		  )
+		: []

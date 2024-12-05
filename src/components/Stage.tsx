@@ -28,6 +28,8 @@ import {
 	getAreaFromEnemy,
 	getSpawnArea,
 	moveEnemy,
+	spawnEnemies,
+	WaveState,
 } from '../domain/enemy'
 import { useMouse } from '@mantine/hooks'
 import {
@@ -72,11 +74,6 @@ type MouseArea = Area & {
 
 const attackGrace = 15 * 1000
 const attackTime = 25 * 1000
-
-enum WaveState {
-	ongoing = 'ongoing',
-	idle = 'idle',
-}
 
 export const Stage = memo(() => {
 	const { tick, timePassed, gridScale, deltaTime } = useGameContext()
@@ -179,7 +176,7 @@ export const Stage = memo(() => {
 	}, [mouse, mouseLastActivatedTime, gridScale, stats])
 	const spawnArea = useMemo(() => getSpawnArea(upgrades), [upgrades])
 
-	// Reset game when motor life is 0
+	// Reset on game over when motor life is 0
 	useEffect(() => {
 		const motor = upgrades.find((u) => u.type === UpgradeType.motor)!
 		if (motor.health <= 0) {
@@ -228,7 +225,7 @@ export const Stage = memo(() => {
 				experienceOrbs
 			)
 
-			// hit enemies
+			// hit and spawn enemies
 			setEnemies((prevEnemies) => {
 				const newEnemies = prevEnemies.map((enemy) => {
 					const bulletsHit = bullets.filter((bullet) =>
@@ -291,36 +288,14 @@ export const Stage = memo(() => {
 
 				const addedEnemies: Enemy[] = [
 					...enemiesAttackedUpgrades,
-					...(waveState == WaveState.ongoing &&
-					enemies.length < amountEnemies
-						? [
-								...Array(
-									Math.min(
-										amountEnemies - enemies.length,
-										amountEnemies
-									)
-								),
-						  ].map(() =>
-								createEnemy({
-									...generateRandomPositionOnEdge(spawnArea),
-									target: findTarget(upgrades).id,
-									attackSpeed: 2000,
-									attackDamage: wave,
-									...(Math.random() > 0.65
-										? {
-												type: EnemyType.wobbler,
-												movementSpeed: 0.0045,
-										  }
-										: {
-												type: EnemyType.straight,
-												movementSpeed: 0.0025,
-										  }),
-									size: 0.25,
-									health: 1 + Math.ceil(wave / 3),
-									maxHealth: 1 + Math.ceil(wave / 3),
-								})
-						  )
-						: []),
+					...spawnEnemies(
+						enemies,
+						upgrades,
+						amountEnemies,
+						waveState,
+						wave,
+						spawnArea
+					),
 				]
 				return addedEnemies.map((enemy) =>
 					moveEnemy(enemy, upgrades, deltaTime, timePassed)

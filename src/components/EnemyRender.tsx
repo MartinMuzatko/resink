@@ -26,7 +26,11 @@ export const EnemyRender = ({ enemy }: EnemiesProps) => {
 					transform: `rotate(${enemy.rotation}deg)`,
 				}}
 			></div>
-			<HealthBar current={enemy.health} max={enemy.maxHealth} />
+			<HealthBar
+				className="translate-y-2"
+				current={enemy.health}
+				max={enemy.maxHealth}
+			/>
 		</div>
 	)
 }
