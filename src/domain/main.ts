@@ -101,6 +101,15 @@ export const generateRandomPositionOnEdge = (area: Area): Position => {
 export const lerp = (start: number, end: number, t: number) =>
 	start * (1 - t) + end * t
 
+export const multiLerp = (points: number[], t: number): number => {
+	if (points.length < 2) return points[0]
+	const i = Math.min(Math.floor(t * (points.length - 1)), points.length - 2)
+	const localT = (t * (points.length - 1)) % 1
+	return points[i] * (1 - localT) + points[i + 1] * localT
+}
+
+export const parabolicEase = (t: number): number => 4 * t * (1 - t)
+
 export const lerpPosition = (start: Position, end: Position, t: number) =>
 	getDistance(start, end) < 0.05
 		? end

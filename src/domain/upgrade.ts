@@ -186,6 +186,38 @@ export const deactivateSubTree = (
 	}))
 }
 
+export const deactivateSubTrees = (
+	upgrades: Upgrade[],
+	connections: Connection[]
+): Upgrade[] => {
+	// First, find all inactive upgrades
+	const inactiveUpgradeIds = upgrades
+		.filter((u) => !u.active)
+		.map((u) => u.id)
+
+	// Find all children of inactive upgrades
+	const allInactiveChildrenIds = inactiveUpgradeIds.flatMap((inactiveId) => {
+		const inactiveUpgrade = upgrades.find((u) => u.id === inactiveId)
+		return inactiveUpgrade
+			? findAllChildren(inactiveUpgrade, upgrades, connections).map(
+					(u) => u.id
+			  )
+			: []
+	})
+
+	// Combine inactive upgrade IDs with their children's IDs
+	const idsToDeactivate = new Set([
+		...inactiveUpgradeIds,
+		...allInactiveChildrenIds,
+	])
+
+	// Deactivate all upgrades in the set
+	return upgrades.map((u) => ({
+		...u,
+		...(idsToDeactivate.has(u.id) ? { active: false } : {}),
+	}))
+}
+
 export const toggleActivation = (
 	upgrade: Upgrade,
 	upgrades: Upgrade[],
@@ -413,9 +445,10 @@ export const generateExperienceOrbs = (
 ) =>
 	prevUpgrades.reduce(
 		(acc, upgrade) => {
+			const upgradeStats = stats.upgradeStats.get(upgrade.id)!
 			const canGenerate = canUpgradeGeneratePower(
 				upgrade,
-				stats.upgradeStats.get(upgrade.id)!,
+				upgradeStats,
 				timePassed,
 				experienceOrbs
 			)
@@ -434,11 +467,11 @@ export const generateExperienceOrbs = (
 					...(canGenerate
 						? [
 								createExperienceOrb({
+									amount: upgradeStats.upgradePowerGenerationAmount,
 									source: ExperienceOrbSource.upgrade,
 									...addPosition(
 										distributePointOnCircle(
-											stats.upgradeStats.get(upgrade.id)!
-												.upgradePowerGenerationMaxAmount,
+											upgradeStats.upgradePowerGenerationMaxAmount,
 											experienceOrbs.filter(
 												(e) =>
 													e.source ===

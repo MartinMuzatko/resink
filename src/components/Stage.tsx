@@ -2,29 +2,28 @@ import { memo, useEffect, useMemo, useState } from 'react'
 import { type Connection } from '../domain/connection'
 import {
 	damageUpgrade,
+	deactivateSubTree,
+	deactivateSubTrees,
 	generateExperienceOrbs,
 	shootBullets,
 	updateUpgradeDamage,
 	Upgrade,
 	UpgradeType,
 } from '../domain/upgrade'
-import { getActiveStats } from '../domain/stats'
+import { getActiveStats, getCost } from '../domain/stats'
 import { ConnectionLine } from './ConnectionLine'
 import { UpgradeNode } from './UpgradeNode'
 import { useGameContext } from '../contexts/GameContext'
 import {
 	Area,
 	doRectanglesIntersect,
-	generateRandomPositionOnEdge,
 	isPositionInsideArea,
 	lerp,
+	multiLerp,
 	Position,
 } from '../domain/main'
 import {
-	createEnemy,
 	Enemy,
-	EnemyType,
-	findTarget,
 	getAreaFromEnemy,
 	getSpawnArea,
 	moveEnemy,
@@ -43,7 +42,7 @@ import {
 	createExperienceOrb,
 	ExperienceOrb,
 	ExperienceOrbSource,
-	spawnBasedOnEnemiesKilled,
+	createExperienceOrbsOnEnemiesKilled,
 } from '../domain/experienceOrb'
 import { BulletMeter } from './meters/BulletMeter'
 import { Bullet, moveBullets } from '../domain/bullet'
@@ -52,7 +51,14 @@ import { EnemyRender } from './EnemyRender'
 import { BulletRender } from './BulletRender'
 import { ExperienceOrbRender } from './ExperienceOrbRender'
 import { MouseAreaRender } from './MouseAreaRender'
-import { Button } from '@mantine/core'
+import {
+	createDamageIndicator,
+	DamageIndicator,
+	getDamageIndicatorElapsedTimeFactor,
+	MAX_DAMAGE_INDICATOR_DURATION,
+	moveDamageIndicator,
+} from '../domain/damageIndicator'
+import { DamageIndicatorRender } from './DamageIndicatorRender'
 
 // const enemyStats = {
 // 	damage: 1,
@@ -83,6 +89,9 @@ export const Stage = memo(() => {
 	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES())
 	const [ammo, setAmmo] = useState(0)
 	const [power, setPower] = useState(DEBUG ? 1000 : 0)
+	const [damageIndicators, setDamageIndicators] = useState<DamageIndicator[]>(
+		[]
+	)
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
 	const stats = useMemo(
 		() => getActiveStats(upgrades, connections, INITIAL_STATS),
@@ -117,37 +126,134 @@ export const Stage = memo(() => {
 
 	useEffect(() => {
 		// heal upgrades
-		setUpgrades((upgrades) =>
-			upgrades.map((upgrade) =>
-				doRectanglesIntersect(
-					{ ...upgrade, width: 0.5, height: 0.5 },
-					mouseArea
-				)
-					? {
-							...upgrade,
-							health:
-								upgrade.health +
-								stats.globalStats.mouseHealAmount,
-					  }
-					: upgrade
+		setUpgrades((upgrades) => {
+			const {
+				upgrades: newUpgrades,
+				damageIndicators: damageIndicatorsOnMouseHeal,
+			} = upgrades.reduce(
+				(acc, upgrade) => {
+					const toHeal =
+						stats.upgradeStats.get(upgrade.id)!.upgradeHealth -
+						upgrade.health
+					const hit =
+						doRectanglesIntersect(
+							{ ...upgrade, width: 0.5, height: 0.5 },
+							mouseArea
+						) &&
+						stats.globalStats.mouseHealAmount > 0 &&
+						upgrade.active &&
+						toHeal > 0
+					return {
+						upgrades: [
+							...acc.upgrades,
+							hit
+								? {
+										...upgrade,
+										health:
+											upgrade.health +
+											stats.globalStats.mouseHealAmount,
+								  }
+								: upgrade,
+						],
+						damageIndicators: [
+							...acc.damageIndicators,
+							...(hit
+								? [
+										createDamageIndicator({
+											createdTime: timePassed,
+											value: stats.globalStats
+												.mouseHealAmount,
+											origin: {
+												x: upgrade.x,
+												y: upgrade.y,
+											},
+											current: {
+												x: upgrade.x,
+												y: upgrade.y,
+											},
+											className: 'text-green-600',
+										}),
+								  ]
+								: []),
+						],
+					}
+				},
+				{
+					upgrades: [],
+					damageIndicators: [],
+				} as {
+					upgrades: Upgrade[]
+					damageIndicators: DamageIndicator[]
+				}
 			)
-		)
+			setDamageIndicators((damageIndicators) => [
+				...damageIndicators,
+				...damageIndicatorsOnMouseHeal,
+			])
+			return newUpgrades
+		})
 		// attack enemies
 		setEnemies((prevEnemies) => {
-			const newEnemies = prevEnemies.map((enemy) =>
-				doRectanglesIntersect(getAreaFromEnemy(enemy), mouseArea)
-					? {
-							...enemy,
-							health:
-								enemy.health -
-								stats.globalStats.mouseAttackDamage,
-					  }
-					: enemy
+			const {
+				enemies: newEnemies,
+				damageIndicators: damageIndicatorsOnMouseHit,
+			} = prevEnemies.reduce(
+				(acc, enemy) => {
+					const hit = doRectanglesIntersect(
+						getAreaFromEnemy(enemy),
+						mouseArea
+					)
+					return {
+						enemies: [
+							...acc.enemies,
+							hit
+								? {
+										...enemy,
+										health:
+											enemy.health -
+											stats.globalStats.mouseAttackDamage,
+								  }
+								: enemy,
+						],
+						damageIndicators: [
+							...acc.damageIndicators,
+							...(hit
+								? [
+										createDamageIndicator({
+											createdTime: timePassed,
+											value: stats.globalStats
+												.mouseAttackDamage,
+											origin: {
+												x: enemy.x,
+												y: enemy.y,
+											},
+											current: {
+												x: enemy.x,
+												y: enemy.y,
+											},
+											className: 'text-amber-600',
+										}),
+								  ]
+								: []),
+						],
+					}
+				},
+				{
+					enemies: [],
+					damageIndicators: [],
+				} as {
+					enemies: Enemy[]
+					damageIndicators: DamageIndicator[]
+				}
 			)
+			setDamageIndicators((damageIndicators) => [
+				...damageIndicators,
+				...damageIndicatorsOnMouseHit,
+			])
 			const enemiesLeft = newEnemies.filter((enemy) => enemy.health > 0)
 			setExperienceOrbs((experienceOrbs) => [
 				...experienceOrbs,
-				...spawnBasedOnEnemiesKilled(
+				...createExperienceOrbsOnEnemiesKilled(
 					newEnemies.filter((enemy) => enemy.health <= 0),
 					stats
 				),
@@ -189,11 +295,25 @@ export const Stage = memo(() => {
 		}
 	}, [upgrades])
 
+	// tick based effects
 	useEffect(() => {
 		if (timePassedSinceWaveStart >= attackTime + attackGrace) {
 			setWaveStartedTime(timePassed)
 			setWave((wave) => wave + 1)
 		}
+
+		// clean up indicators
+		setDamageIndicators((damageIndicators) =>
+			damageIndicators
+				.filter(
+					(d) =>
+						timePassed <
+						d.createdTime + MAX_DAMAGE_INDICATOR_DURATION
+				)
+				.map((damageIndicator) =>
+					moveDamageIndicator(damageIndicator, timePassed)
+				)
+		)
 		// update upgrade health on enemy attack
 		setUpgrades((prevUpgrades) => {
 			const upgradesToTakeDamage = prevUpgrades
@@ -302,7 +422,7 @@ export const Stage = memo(() => {
 				)
 			})
 
-			return upgradesToTakeDamage.length
+			const damagedUpgrades = upgradesToTakeDamage.length
 				? updateUpgradeDamage(
 						upgradesToTakeDamage,
 						upgradesToGeneratePower,
@@ -311,6 +431,39 @@ export const Stage = memo(() => {
 						stats
 				  )
 				: upgradesToGeneratePower
+
+			const deactivatedUpgrades = deactivateSubTrees(
+				damagedUpgrades,
+				connections
+			)
+
+			const onlyDeactivatedUpgrades = deactivatedUpgrades.filter(
+				(du) =>
+					!du.active &&
+					damagedUpgrades.find((u) => u.id == du.id)?.active
+			)
+
+			const remainderExperienceOrbs = onlyDeactivatedUpgrades.flatMap(
+				(upgrade) => {
+					const cost = getCost(stats, upgrade)
+					// TODO: turn into stat
+					const penaltyRemainder = Math.floor(cost / 3)
+					return [...Array(penaltyRemainder)].map(() =>
+						createExperienceOrb({
+							x: upgrade.x + Math.random() / 2,
+							y: upgrade.y + Math.random() / 2,
+							amount: 1,
+						})
+					)
+				}
+			)
+
+			setExperienceOrbs((experienceOrbs) => [
+				...experienceOrbs,
+				...remainderExperienceOrbs,
+			])
+
+			return deactivatedUpgrades
 		})
 
 		setExperienceOrbs((experienceOrbs) => {
@@ -338,12 +491,34 @@ export const Stage = memo(() => {
 						height: 0.3,
 					})
 			)
+			const experienceAmount = experienceOrbsConsumed.reduce(
+				(acc, cur) => acc + cur.amount,
+				0
+			)
 			setPower((prevPower) =>
 				Math.min(
 					stats.globalStats.maxPower,
-					prevPower + experienceOrbsConsumed.length
+					prevPower + experienceAmount
 				)
 			)
+			setDamageIndicators((damageIndicators) => [
+				...damageIndicators,
+				...[...Array(experienceAmount)].map(() =>
+					createDamageIndicator({
+						createdTime: timePassed,
+						className: 'text-blue-400',
+						value: experienceAmount,
+						origin: {
+							x: experienceOrbsConsumed[0].x,
+							y: experienceOrbsConsumed[0].y,
+						},
+						current: {
+							x: experienceOrbsConsumed[0].x,
+							y: experienceOrbsConsumed[0].y,
+						},
+					})
+				),
+			])
 			const ids = experienceOrbsConsumed.map(
 				(experienceOrb) => experienceOrb.id
 			)
@@ -392,7 +567,6 @@ export const Stage = memo(() => {
 						{...{ connection, upgrades, stats, power }}
 					/>
 				))}
-
 				{upgrades.map((upgrade) => (
 					<UpgradeNode
 						key={upgrade.id}
@@ -428,6 +602,12 @@ export const Stage = memo(() => {
 					<ExperienceOrbRender
 						key={experienceOrb.id}
 						{...{ experienceOrb }}
+					/>
+				))}
+				{damageIndicators.map((damageIndicator) => (
+					<DamageIndicatorRender
+						key={damageIndicator.id}
+						{...{ damageIndicator }}
 					/>
 				))}
 			</div>

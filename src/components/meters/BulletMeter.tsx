@@ -71,7 +71,7 @@ export const BulletMeter = ({
 				</div>
 
 				<div
-					className="absolute w-full bottom-0 bg-amber-600"
+					className="absolute w-full bottom-0 bg-amber-600 transition-all"
 					style={{
 						height: `${
 							(ammo / stats.globalStats.bulletMaxAmmo) * 100

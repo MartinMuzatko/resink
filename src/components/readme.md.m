@@ -55,7 +55,7 @@ Upgrade Nodes
 		Damage
 		Poison
 	Attack Modifiers
-		Poision enemies that take damage
+		Poison enemies that take damage
 	MaxHealth
 	Health Recovery
 		Amount
@@ -101,6 +101,7 @@ Decoys
 	Speed
 	Attractivity (How much the enemy prefers the decoy)
 
+Distribute Excess power
 
 Attackers
 	Increase attacks (reward)

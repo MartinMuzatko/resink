@@ -5,7 +5,6 @@ import {
 	GiBarracks,
 	GiBroadsword,
 	GiHeavyBullets,
-	GiPowerGenerator,
 	GiSentryGun,
 	GiStripedSword,
 	GiSupersonicBullet,
@@ -14,7 +13,6 @@ import {
 } from 'react-icons/gi'
 import { FaHeart, FaHeartbeat } from 'react-icons/fa'
 import { GiResize } from 'react-icons/gi'
-import { StatsInfoPlain } from '../components/StatsInfoPlain'
 import { BiHeartSquare } from 'react-icons/bi'
 import { LuExpand } from 'react-icons/lu'
 import { AiOutlineReload } from 'react-icons/ai'
@@ -284,7 +282,7 @@ export const INITIAL_UPGRADES = () => [
 		y: -2,
 	}),
 	createUpgrade({
-		id: 'D',
+		id: 'D1',
 		cost: 6,
 		effect: [
 			{
@@ -295,10 +293,10 @@ export const INITIAL_UPGRADES = () => [
 		],
 		icon: <FaHeart className="w-full h-full" />,
 		x: 1,
-		y: 1,
+		y: 2,
 	}),
 	createUpgrade({
-		id: 'D1',
+		id: 'D2',
 		cost: 10,
 		effect: [],
 		icon: <FaHeartbeat className="w-full h-full" />,
@@ -306,8 +304,8 @@ export const INITIAL_UPGRADES = () => [
 		y: 2,
 	}),
 	createUpgrade({
-		id: 'D2',
-		cost: 10,
+		id: 'D',
+		cost: 4,
 		effect: [
 			{
 				stats: (stats) => ({
@@ -317,7 +315,7 @@ export const INITIAL_UPGRADES = () => [
 		],
 		icon: <MdOutlineShield className="w-full h-full" />,
 		x: 1,
-		y: 2,
+		y: 1,
 	}),
 	createUpgrade({
 		id: 'D3',
@@ -414,7 +412,9 @@ export const INITIAL_UPGRADES = () => [
 				filter: (upgrade) => upgrade.id === 'L',
 				stats: (stats) => ({
 					upgradePowerGenerationSpeed:
-						stats.upgradePowerGenerationSpeed * 0.6,
+						stats.upgradePowerGenerationSpeed * 0.3,
+					upgradePowerGenerationMaxAmount:
+						stats.upgradePowerGenerationMaxAmount + 3,
 				}),
 			},
 		],

@@ -169,8 +169,8 @@ export const spawnEnemies = (
 					...generateRandomPositionOnEdge(spawnArea),
 					target: findTarget(upgrades).id,
 					attackSpeed: 2000,
-					attackDamage: wave,
-					...(Math.random() > 0.7
+					attackDamage: 1 + Math.floor(wave / 3),
+					...(Math.random() > 0.9
 						? {
 								type: EnemyType.wobbler,
 								movementSpeed: 0.0051,

@@ -70,7 +70,7 @@ export const attractOrb = (
 	return newPosition
 }
 
-export const spawnBasedOnEnemiesKilled = (
+export const createExperienceOrbsOnEnemiesKilled = (
 	enemiesKilled: Enemy[],
 	stats: StatsEffectResult
 ) => {

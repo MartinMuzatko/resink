@@ -24,7 +24,7 @@ export const PowerMeter = ({ stats, power }: PowerMeterProps) => {
 			</div>
 
 			<div
-				className="absolute w-full bottom-0 bg-amber-300"
+				className="absolute w-full bottom-0 bg-amber-300 transition-all"
 				style={{
 					height: `${(power / stats.globalStats.maxPower) * 100}%`,
 				}}
