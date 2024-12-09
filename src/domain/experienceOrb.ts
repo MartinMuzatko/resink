@@ -61,6 +61,7 @@ export const attractOrb = (
 	const t =
 		clamp(0, stats.experienceOrbAttractionRadius)(distance) /
 		stats.experienceOrbAttractionRadius
+	// TODO: allow speed to be adjusted via stats
 	const step = lerp(0.04, 0, t * t)
 	const newPosition = lerpPosition(
 		point,

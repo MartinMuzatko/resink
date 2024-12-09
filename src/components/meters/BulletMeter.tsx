@@ -29,7 +29,7 @@ export const BulletMeter = ({
 		)(power * stats.globalStats.bulletAmmoPrice)
 	)
 	const ammoBought = Math.min(
-		Math.ceil(toSpend / stats.globalStats.bulletAmmoPrice),
+		toSpend * (1 / stats.globalStats.bulletAmmoPrice),
 		stats.globalStats.bulletMaxAmmo - ammo
 	)
 

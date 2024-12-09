@@ -22,6 +22,7 @@ import { MdOutlineSell, MdOutlineShield } from 'react-icons/md'
 import { TbRosetteDiscount } from 'react-icons/tb'
 import { IoMagnetSharp } from 'react-icons/io5'
 import { FaArrowUpRightDots } from 'react-icons/fa6'
+import { UpgradeGroup } from '../domain/upgradeGroup'
 
 export const DEBUG = false
 
@@ -51,6 +52,14 @@ export const INITIAL_STATS: Stats = {
 	upgradePowerGenerationMaxAmount: 0,
 	upgradePowerGenerationSpeed: 5000,
 }
+
+export const INITIAL_UPGRADE_GROUPS = [
+	{
+		id: 'T',
+		icon: 'T',
+		title: 'Turrets',
+	},
+] as const satisfies UpgradeGroup[]
 
 export const INITIAL_UPGRADES = () => [
 	createUpgrade({
@@ -163,11 +172,13 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'AT',
+		groupId: 'T',
 		title: 'Turn upgrades into turrets',
 		cost: 15,
 		effect: [
 			{
-				filter: (upgrade) => upgrade.id === 'M' || upgrade.id === 'D',
+				filter: (upgrade) =>
+					['AT', 'M', 'D2', 'L31'].includes(upgrade.id),
 				stats: (stats) => ({
 					upgradeBulletAttackDamage:
 						stats.upgradeBulletAttackDamage + 1,
@@ -180,9 +191,13 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'AT1',
+		groupId: 'T',
 		cost: 15,
 		effect: [
 			{
+				filter: (upgrade) =>
+					['AT', 'M', 'D2', 'L31'].includes(upgrade.id),
+
 				stats: (stats) => ({
 					upgradeBulletAttackDamage:
 						stats.upgradeBulletAttackDamage + 2,
@@ -195,6 +210,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'AT2',
+		groupId: 'T',
 		cost: 15,
 		effect: [
 			{
@@ -210,6 +226,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'AT3',
+		groupId: 'T',
 		cost: 15,
 		effect: [
 			{
@@ -225,6 +242,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'AT31',
+		groupId: 'T',
 		cost: 15,
 		effect: [
 			{
@@ -240,6 +258,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'AT4',
+		groupId: 'T',
 		cost: 15,
 		effect: [
 			{
@@ -255,6 +274,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'AT21',
+		groupId: 'T',
 		cost: 15,
 		effect: [
 			{
@@ -269,6 +289,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'AT5',
+		groupId: 'T',
 		cost: 15,
 		effect: [
 			{

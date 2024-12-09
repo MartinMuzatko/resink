@@ -35,6 +35,7 @@ export type Upgrade = Identifier &
 		icon: ReactNode
 		description?: ReactNode
 		title?: ReactNode
+		groupId: string
 		tooltip?: (
 			stats: StatsEffectResult,
 			upgrade: Upgrade,
@@ -73,6 +74,7 @@ export const createUpgrade = (
 	upgrade: Partial<Upgrade> & Pick<Upgrade, 'effect'>
 ): Upgrade => ({
 	id: crypto.randomUUID(),
+	groupId: 'default',
 	type: UpgradeType.upgrade,
 	x: 0,
 	y: 0,

@@ -118,3 +118,41 @@ Power Generation
 	get x power per Upgrade
 	Convert power to ammo (1 power -> 100 ammo)
 	convert power to tier2 (100 power -> 1 t2 power)
+
+Themes:
+
+Attack
+    Bullet Turrets
+        Tesla Turrets
+        Explosives
+    Mouse Mirror
+    Mouse Elementals
+        Poison
+        Freeze
+    Attack Drones
+Defense
+    Repair Drones
+    Thorns
+    Shield Generation
+    Decoys
+Power/Utility
+    Generation
+    Experience Magnet
+    Discount
+
+
+Drones
+Manufacturing speed
+Manufacturing amount
+Max amount
+Decay
+Damage
+MovementSpeed
+AttackSpeed
+Health
+AttackDronesAmount
+RepairDronesAmount
+ExperienceCollectAmount
+
+
+TODO:

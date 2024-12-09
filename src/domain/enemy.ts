@@ -116,7 +116,7 @@ export const moveEnemy = (
 	return {
 		...enemy,
 		...position,
-		rotation: getVectorAngleDegrees(vector),
+		rotation: getVectorAngleDegrees(normalizeVector(vector)),
 		target: target.id,
 	}
 }
