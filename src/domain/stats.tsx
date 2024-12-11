@@ -157,6 +157,66 @@ export const statDefinitions = {
 		className: 'text-cyan-400',
 		type: StatType.scoped,
 	},
+	upgradeDroneMaxAmount: {
+		name: 'Drone Max Amount',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneBuildSpeed: {
+		name: 'Drone Build Speed',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneCost: {
+		name: 'Drone Cost',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneDamage: {
+		name: 'Drone Damage',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneMaxHealth: {
+		name: 'Drone MaxHealth',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneMovementSpeed: {
+		name: 'Drone Movement Speed',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneAttackSpeed: {
+		name: 'Drone Attack Speed',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneHealSpeed: {
+		name: 'Drone Heal Speed',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneCollectSpeed: {
+		name: 'Drone Collect Speed',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneMaxCharge: {
+		name: 'Drone Max Charge',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneRechargeSpeed: {
+		name: 'Drone Recharge Speed',
+		className: '',
+		type: StatType.scoped,
+	},
+	upgradeDroneChargeUsageSpeed: {
+		name: 'Drone Charge Usage Speed',
+		className: '',
+		type: StatType.scoped,
+	},
 } as const satisfies Record<string, StatDefinition>
 
 export type StatKeys = keyof typeof statDefinitions

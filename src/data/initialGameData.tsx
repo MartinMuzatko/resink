@@ -4,6 +4,7 @@ import { createUpgrade, UpgradeType } from '../domain/upgrade'
 import {
 	GiBarracks,
 	GiBroadsword,
+	GiDeliveryDrone,
 	GiHeavyBullets,
 	GiSentryGun,
 	GiStripedSword,
@@ -51,6 +52,18 @@ export const INITIAL_STATS: Stats = {
 	upgradePowerGenerationDecay: 2000,
 	upgradePowerGenerationMaxAmount: 0,
 	upgradePowerGenerationSpeed: 5000,
+	upgradeDroneMaxAmount: 0,
+	upgradeDroneBuildSpeed: 10000,
+	upgradeDroneCost: 5,
+	upgradeDroneDamage: 0,
+	upgradeDroneMaxHealth: 1,
+	upgradeDroneMovementSpeed: 0.075,
+	upgradeDroneAttackSpeed: 1000,
+	upgradeDroneHealSpeed: 1000,
+	upgradeDroneCollectSpeed: 1000,
+	upgradeDroneMaxCharge: 7500,
+	upgradeDroneRechargeSpeed: 1000,
+	upgradeDroneChargeUsageSpeed: 1000,
 }
 
 export const INITIAL_UPGRADE_GROUPS = [
@@ -154,6 +167,22 @@ export const INITIAL_UPGRADES = () => [
 		],
 		icon: <GiResize className="w-full h-full" />,
 		x: -1,
+		y: -2,
+	}),
+	createUpgrade({
+		id: 'A21',
+		cost: 15,
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'A21',
+				stats: (stats) => ({
+					upgradeDroneMaxAmount: stats.upgradeDroneMaxAmount + 5,
+					upgradeDroneDamage: stats.upgradeBulletAttackDamage + 2,
+				}),
+			},
+		],
+		icon: <GiDeliveryDrone className="w-full h-full" />,
+		x: -2,
 		y: -2,
 	}),
 	createUpgrade({
@@ -449,6 +478,7 @@ export const INITIAL_CONNECTIONS = [
 	connection('M', 'A'),
 	connection('A', 'A1'),
 	connection('A', 'A2'),
+	connection('A2', 'A21'),
 	connection('A', 'A3'),
 	connection('A1', 'AS2'),
 	connection('AS2', 'AS3'),

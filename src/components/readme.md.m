@@ -1,3 +1,9 @@
+// TODO: Feedback aus Talk & Play
+Mehr Abwechslung mit den Gegnern,
+Upgrades die Wirkung zeigen (irgendwann hat er wild gekauft)
+X Penalties wenn ein Upgrade zerstört wird (experience orb remnants)
+
+
 Experience:
 	To add more experience relevant skills:
 		Make mouse hold experience by default and have it unload in the power area.
@@ -153,6 +159,3 @@ Health
 AttackDronesAmount
 RepairDronesAmount
 ExperienceCollectAmount
-
-
-TODO:

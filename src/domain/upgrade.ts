@@ -242,6 +242,7 @@ export const toggleActivation = (
 						active: !upgrade.active,
 						health: stats.upgradeStats.get(upgrade.id)!
 							.upgradeHealth,
+						// TODO: Start from 0 again when rebuying
 						// lastBulletShotTime: timePassed / 1000,
 						// lastDamageTakenTime: timePassed / 1000,
 						// lastExperienceOrbGeneratedTime: timePassed / 1000,
@@ -249,9 +250,6 @@ export const toggleActivation = (
 				: {}),
 		})
 	return deactivateSubTree(upgrade, upgrades, connections)
-	// TODO: If we can no longer afford nodes, deactivate other nodes until we have money.
-	// This could kill the fun in the game since unexpectedly things get destroyed.
-	// Instead the player has to make room for resources or shift strategy - more fun maybe
 }
 
 export const getHealth = (upgrade: Upgrade, stats: StatsEffectResult) =>

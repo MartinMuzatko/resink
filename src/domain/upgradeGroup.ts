@@ -19,6 +19,11 @@ const getBorderForUpgrade = (positions: Position[]) => {
 
 const getBordersForBitmask = (bitmasks: BitmaskPosition[]) => {}
 
+/**
+ * 1. start at an outer corner
+ * 2. follow along clockwise
+ */
+
 const getNeighbouringPositions = (
 	position: Position,
 	positions: Position[]

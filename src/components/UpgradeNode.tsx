@@ -96,7 +96,6 @@ export const UpgradeNode = ({
 
 	return (
 		<>
-			{/* TODO: display connection lines to all relevant upgrades for stats */}
 			{hovered && (
 				<>
 					{[...upgradeDisplayStats.upgradeStats.entries()].map(
@@ -137,25 +136,6 @@ export const UpgradeNode = ({
 					height: `${gridScale}px`,
 				}}
 			>
-				{/* Bullet reload bar */}
-				{upgrade.active &&
-					upgradeStats.upgradeBulletAttackDamage !== 0 && (
-						<div
-							className="rounded-full absolute z-10 bg-red-900/10"
-							style={{
-								width: `${
-									upgradeStats.upgradeBulletAttackRange *
-									2 *
-									gridScale
-								}px`,
-								height: `${
-									upgradeStats.upgradeBulletAttackRange *
-									2 *
-									gridScale
-								}px`,
-							}}
-						/>
-					)}
 				<Tooltip
 					arrowRadius={0}
 					className="p-0 bg-black/70"
@@ -247,6 +227,26 @@ export const UpgradeNode = ({
 								max={getMaxHealth(upgrade, stats)}
 							/>
 						)}
+						{/* Bullet Range Radius */}
+						{upgrade.active &&
+							upgradeStats.upgradeBulletAttackDamage !== 0 && (
+								<div
+									className="rounded-full absolute z-10 bg-red-900/10"
+									style={{
+										width: `${
+											upgradeStats.upgradeBulletAttackRange *
+											2 *
+											gridScale
+										}px`,
+										height: `${
+											upgradeStats.upgradeBulletAttackRange *
+											2 *
+											gridScale
+										}px`,
+									}}
+								/>
+							)}
+						{/* Bullet reload bar */}
 						{upgrade.active &&
 							upgradeStats.upgradeBulletAttackDamage !== 0 && (
 								<div
