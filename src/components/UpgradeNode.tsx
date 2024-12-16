@@ -231,7 +231,7 @@ export const UpgradeNode = ({
 						{upgrade.active &&
 							upgradeStats.upgradeBulletAttackDamage !== 0 && (
 								<div
-									className="rounded-full absolute z-10 bg-red-900/10"
+									className="rounded-full absolute z-10 bg-red-900/10 pointer-events-none "
 									style={{
 										width: `${
 											upgradeStats.upgradeBulletAttackRange *

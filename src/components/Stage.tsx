@@ -83,23 +83,28 @@ const attackTime = 25 * 1000
 
 export const Stage = memo(() => {
 	const { tick, timePassed, gridScale, deltaTime } = useGameContext()
+	// world state
 	const [totalEnemiesDefeated, setTotalEnemiesDefeated] = useState(0)
+	// world objects
 	const [experienceOrbs, setExperienceOrbs] = useState<ExperienceOrb[]>([])
 	const [enemies, setEnemies] = useState<Enemy[]>([])
 	const [upgrades, setUpgrades] = useState<Upgrade[]>(INITIAL_UPGRADES())
-	const [ammo, setAmmo] = useState(0)
-	const [power, setPower] = useState(DEBUG ? 1000 : 0)
+	const [bullets, setBullets] = useState<Bullet[]>([])
 	const [damageIndicators, setDamageIndicators] = useState<DamageIndicator[]>(
 		[]
 	)
 	const connections: Connection[] = useMemo(() => INITIAL_CONNECTIONS, [])
+	// meters
+	const [ammo, setAmmo] = useState(0)
+	const [power, setPower] = useState(DEBUG ? 1000 : 0)
+	// computed
 	const stats = useMemo(
 		() => getActiveStats(upgrades, connections, INITIAL_STATS),
 		[upgrades]
 	)
 	const mouse = useMouse()
-	const [bullets, setBullets] = useState<Bullet[]>([])
 
+	// enemy state
 	const [wave, setWave] = useState(1)
 	const [waveStartedTime, setWaveStartedTime] = useState(0)
 
@@ -269,6 +274,7 @@ export const Stage = memo(() => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [mouseLastActivatedTime])
 
+	// TODO: Performance, display mouse but only update state based on tick
 	const mouseArea = useMemo((): MouseArea => {
 		const center = getGridPositionFromWindow(mouse, window, gridScale)
 		const size = stats.globalStats.mouseSize
@@ -358,6 +364,24 @@ export const Stage = memo(() => {
 						})
 					)
 					const bulletsHitIds = bulletsHit.map((bullet) => bullet.id)
+					setDamageIndicators((damageIndicators) => [
+						...damageIndicators,
+						...bulletsHit.map((bullet) =>
+							createDamageIndicator({
+								createdTime: timePassed,
+								value: bullet.attackDamage,
+								origin: {
+									x: bullet.x,
+									y: bullet.y,
+								},
+								current: {
+									x: bullet.x,
+									y: bullet.y,
+								},
+								className: 'text-amber-600',
+							})
+						),
+					])
 					setBullets((prevBullets) =>
 						prevBullets.filter(
 							(bullet) => !bulletsHitIds.includes(bullet.id)
