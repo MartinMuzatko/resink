@@ -18,6 +18,15 @@ export const closerToTopLeft = (a: Position, b: Position) => {
 	return distanceA <= distanceB ? a : b
 }
 
+export const closestToTopLeft = (positions: Position[]): Position =>
+	positions.reduce(
+		(closest, current) =>
+			closest === null || current.x + current.y < closest.x + closest.y
+				? current
+				: closest,
+		null as Position | null
+	) ?? positions[0]
+
 export const createArea = (a: Position, b: Position): Area => ({
 	x: Math.min(a.x, b.x),
 	y: Math.min(a.y, b.y),
