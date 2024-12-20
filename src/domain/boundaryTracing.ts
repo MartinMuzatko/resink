@@ -14,22 +14,53 @@ const directions: Position[] = [
 
 const OPPOSITE_DIRECTION = Math.round(directions.length / 2) // 4
 
-type NeighborResult = { position: Position; direction: number }
+type PartialNeighborResult = {
+	position: Position | null
+	direction: number | null
+	freeDirections: number[]
+}
+
+type NeighborResult = {
+	position: Position
+	direction: number
+	freeDirections: number[]
+}
 
 export const getNextNeighbor = (
 	grid: Position[],
 	current: Position,
 	lastDirection: number
-): NeighborResult =>
-	directions.reduce<NeighborResult | null>((result, _, i) => {
-		if (result) return result
-		const direction =
-			(lastDirection + OPPOSITE_DIRECTION + 1 + i) % directions.length
-		const newPosition = addPosition(current, directions[direction])
-		return grid.some((p) => equalPosition(p, newPosition))
-			? { position: newPosition, direction }
-			: null
-	}, null) ?? { position: current, direction: lastDirection }
+): NeighborResult => {
+	const neighbors = directions.reduce<PartialNeighborResult>(
+		(result, _, i) => {
+			const direction =
+				(lastDirection + OPPOSITE_DIRECTION + 1 + i) % directions.length
+			const newPosition = addPosition(current, directions[direction])
+			const positionOccupied = grid.some((p) =>
+				equalPosition(p, newPosition)
+			)
+			const freeDirections = [
+				...result.freeDirections,
+				...(positionOccupied ? [] : [direction]),
+			]
+			return positionOccupied
+				? { position: newPosition, direction, freeDirections }
+				: { position: null, direction: null, freeDirections }
+		},
+		{
+			position: null,
+			direction: null,
+			freeDirections: [],
+		}
+	)
+	return neighbors.position === null
+		? {
+				position: current,
+				direction: lastDirection,
+				freeDirections: [0, 1, 2, 3, 4, 5, 6, 7],
+		  }
+		: neighbors
+}
 
 export const traceBoundary = (
 	grid: Position[],
