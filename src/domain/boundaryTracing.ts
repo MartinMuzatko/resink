@@ -14,16 +14,21 @@ const directions: Position[] = [
 
 const OPPOSITE_DIRECTION = Math.round(directions.length / 2) // 4
 
+type FreeDirection = {
+	position: Position
+	direction: number
+}
+
 type PartialNeighborResult = {
 	position: Position | null
 	direction: number | null
-	freeDirections: number[]
+	freeDirections: FreeDirection[]
 }
 
 type NeighborResult = {
 	position: Position
 	direction: number
-	freeDirections: number[]
+	freeDirections: FreeDirection[]
 }
 
 export const getNextNeighbor = (
@@ -33,6 +38,7 @@ export const getNextNeighbor = (
 ): NeighborResult => {
 	const neighbors = directions.reduce<PartialNeighborResult>(
 		(result, _, i) => {
+			if (result.position) return result
 			const direction =
 				(lastDirection + OPPOSITE_DIRECTION + 1 + i) % directions.length
 			const newPosition = addPosition(current, directions[direction])
@@ -41,7 +47,14 @@ export const getNextNeighbor = (
 			)
 			const freeDirections = [
 				...result.freeDirections,
-				...(positionOccupied ? [] : [direction]),
+				...(positionOccupied
+					? []
+					: [
+							{
+								direction,
+								position: newPosition,
+							},
+					  ]),
 			]
 			return positionOccupied
 				? { position: newPosition, direction, freeDirections }
@@ -57,9 +70,12 @@ export const getNextNeighbor = (
 		? {
 				position: current,
 				direction: lastDirection,
-				freeDirections: [0, 1, 2, 3, 4, 5, 6, 7],
+				freeDirections: directions.map((v, direction) => ({
+					direction,
+					position: addPosition(current, v),
+				})),
 		  }
-		: neighbors
+		: (neighbors as NeighborResult)
 }
 
 export const traceBoundary = (
@@ -69,19 +85,48 @@ export const traceBoundary = (
 	currentDirection: number = 0,
 	boundary: NeighborResult[] = []
 ): NeighborResult[] => {
-	const { direction, position } = getNextNeighbor(
+	const { position, direction, freeDirections } = getNextNeighbor(
 		grid,
 		currentPoint,
 		currentDirection
 	)
 
-	const newBoundary = [...boundary, { position: currentPoint, direction }]
+	const newBoundary = [
+		...boundary,
+		{
+			position: currentPoint,
+			direction,
+			freeDirections: freeDirections.filter(
+				(direction) =>
+					!boundary.find((b) =>
+						b.freeDirections.find((f) =>
+							equalPosition(direction.position, f.position)
+						)
+					)
+			),
+		},
+	]
 
 	if (
 		equalPosition(position, startPoint) ||
 		boundary.some((p) => equalPosition(p.position, position))
-	)
-		return newBoundary
+	) {
+		const nextNeighbor = getNextNeighbor(grid, position, direction)
+		return [
+			...newBoundary.slice(1),
+			{
+				...nextNeighbor,
+				freeDirections: nextNeighbor.freeDirections.filter(
+					(direction) =>
+						!boundary.find((b) =>
+							b.freeDirections.find((f) =>
+								equalPosition(direction.position, f.position)
+							)
+						)
+				),
+			},
+		]
+	}
 
 	return traceBoundary(grid, startPoint, position, direction, newBoundary)
 }
@@ -90,10 +135,14 @@ export const getBoundaryPath = (grid: Position[]) => {
 	const startPoint = closestToTopLeft(grid)
 	const boundary = traceBoundary(grid, startPoint)
 	return boundary.flatMap((neighbor, index, neighbors) => {
-		const nextNeighbor = neighbors[index + 1] ?? neighbors[0]
-		const steps = Math.abs(neighbor.direction - nextNeighbor.direction - 1)
-		console.log(neighbor, steps)
-		const x = [...Array(steps)].map((_, step) => step)
-		return x
+		return neighbor.freeDirections.map((a) => ({
+			line: a.position,
+			pos: neighbor.position,
+			dir: a.direction,
+		}))
+		// const nextNeighbor = neighbors[index + 1] ?? neighbors[0]
+		// console.log(neighbor, steps)
+		// const x = [...Array(steps)].map((_, step) => step)
+		// return x
 	})
 }

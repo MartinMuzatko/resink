@@ -159,3 +159,12 @@ Health
 AttackDronesAmount
 RepairDronesAmount
 ExperienceCollectAmount
+
+
+
+Projektil wird größer wenn es länger fliegt
+Mehr schaden wenn es länger fliegt
+Revive - Upgrades können wieder regeneriert werden nachdem sie gekillt worden sind.
+Wenn Mouse Attack aktiv: Schild der Angriff kurz abwehrt.
+Mouse Attack macht mehr damage wenn mehr Projektile fliegen
+Solang bullets

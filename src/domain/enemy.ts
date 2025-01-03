@@ -173,11 +173,11 @@ export const spawnEnemies = (
 					...(Math.random() > 0.9
 						? {
 								type: EnemyType.wobbler,
-								movementSpeed: 0.0051,
+								movementSpeed: 0.0011,
 						  }
 						: {
 								type: EnemyType.straight,
-								movementSpeed: 0.0025,
+								movementSpeed: 0.0015,
 						  }),
 					size: 0.25,
 					health: 1 + Math.ceil(wave / 3),
