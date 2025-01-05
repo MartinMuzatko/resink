@@ -438,11 +438,12 @@ export const Stage = memo(() => {
 						amountEnemies,
 						waveState,
 						wave,
-						spawnArea
+						spawnArea,
+						timePassed
 					),
 				]
 				return addedEnemies.map((enemy) =>
-					moveEnemy(enemy, upgrades, deltaTime, timePassed)
+					moveEnemy(enemy, upgrades, timePassed)
 				)
 			})
 

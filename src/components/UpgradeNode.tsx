@@ -1,5 +1,5 @@
 import { BsLightningChargeFill } from 'react-icons/bs'
-import { Divider, HoverCard, Tooltip } from '@mantine/core'
+import { Divider, Tooltip } from '@mantine/core'
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { useGameContext } from '../contexts/GameContext'
 import { Connection } from '../domain/connection'
@@ -11,10 +11,8 @@ import {
 	Upgrade,
 } from '../domain/upgrade'
 import {
-	getActiveStats,
 	getCost,
 	getUpgradeDisplayStats,
-	Stats,
 	StatsEffectResult,
 } from '../domain/stats'
 import { HealthBar } from './HealthBar'
@@ -231,7 +229,7 @@ export const UpgradeNode = ({
 						{upgrade.active &&
 							upgradeStats.upgradeBulletAttackDamage !== 0 && (
 								<div
-									className="rounded-full absolute z-10 bg-red-900/10 pointer-events-none "
+									className="rounded-full absolute z-10 bg-red-900/10 pointer-events-none"
 									style={{
 										width: `${
 											upgradeStats.upgradeBulletAttackRange *
@@ -246,59 +244,64 @@ export const UpgradeNode = ({
 									}}
 								/>
 							)}
-						{/* Bullet reload bar */}
-						{upgrade.active &&
-							upgradeStats.upgradeBulletAttackDamage !== 0 && (
-								<div
-									className="absolute top-0 left-full h-full bg-amber-800 z-20"
-									style={{
-										width: gridScale / 16,
-									}}
-								>
+						<div className="absolute top-0 left-full flex h-full">
+							{/* Bullet reload bar */}
+							{upgrade.active &&
+								upgradeStats.upgradeBulletAttackDamage !==
+									0 && (
 									<div
-										className="absolute top-0 bg-amber-400 z-20"
+										className="h-full bg-amber-800 z-20"
 										style={{
 											width: gridScale / 16,
-											height: `${
-												clamp(
-													0,
-													1
-												)(
-													(timePassed -
-														upgrade.lastBulletShotTime) /
-														upgradeStats.upgradeBulletAttackSpeed
-												) * 100
-											}%`,
 										}}
-									></div>
-								</div>
-							)}
-						{upgrade.active &&
-							upgradeStats.upgradePowerGenerationAmount !== 0 && (
-								<div
-									className="absolute top-0 right-full h-full bg-teal-800 z-20"
-									style={{
-										width: gridScale / 16,
-									}}
-								>
+									>
+										<div
+											className="absolute top-0 bg-amber-400 z-20"
+											style={{
+												width: gridScale / 16,
+												height: `${
+													clamp(
+														0,
+														1
+													)(
+														(timePassed -
+															upgrade.lastBulletShotTime) /
+															upgradeStats.upgradeBulletAttackSpeed
+													) * 100
+												}%`,
+											}}
+										></div>
+									</div>
+								)}
+							{/* Power Generation */}
+							{upgrade.active &&
+								upgradeStats.upgradePowerGenerationAmount !==
+									0 && (
 									<div
-										className="absolute top-0 bg-teal-400 z-20"
+										className="h-full bg-teal-800 z-20"
 										style={{
 											width: gridScale / 16,
-											height: `${
-												clamp(
-													0,
-													1
-												)(
-													(timePassed -
-														upgrade.lastExperienceOrbGeneratedTime) /
-														upgradeStats.upgradePowerGenerationSpeed
-												) * 100
-											}%`,
 										}}
-									></div>
-								</div>
-							)}
+									>
+										<div
+											className="absolute top-0 bg-teal-400 z-20"
+											style={{
+												width: gridScale / 16,
+												height: `${
+													clamp(
+														0,
+														1
+													)(
+														(timePassed -
+															upgrade.lastExperienceOrbGeneratedTime) /
+															upgradeStats.upgradePowerGenerationSpeed
+													) * 100
+												}%`,
+											}}
+										></div>
+									</div>
+								)}
+						</div>
 					</div>
 				</Tooltip>
 			</div>

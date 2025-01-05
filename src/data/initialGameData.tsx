@@ -25,7 +25,7 @@ import { IoMagnetSharp } from 'react-icons/io5'
 import { FaArrowUpRightDots } from 'react-icons/fa6'
 import { UpgradeGroup } from '../domain/upgradeGroup'
 
-export const DEBUG = false
+export const DEBUG = !false
 
 export const INITIAL_STATS: Stats = {
 	maxPower: DEBUG ? 1000 : 10,
@@ -34,14 +34,14 @@ export const INITIAL_STATS: Stats = {
 	powerPerEnemy: 1,
 	additionalPowerPerEnemyChance: 0.1,
 	upgradeCostMultiplier: 1,
-	upgradeHealth: 1,
+	upgradeHealth: 5,
 	upgradeArmor: 0,
 	mouseAttackDamage: 1,
 	mouseHealAmount: 0,
 	mouseSize: 1,
 	mouseSpeed: 3000,
-	bulletMaxAmmo: 10,
-	bulletAmmoPrice: 0.5,
+	bulletMaxAmmo: 30,
+	bulletAmmoPrice: 0.25,
 	upgradeHealthRegenerationAmount: 0,
 	upgradeHealthRegenerationSpeed: 4000,
 	upgradeBulletAttackDamage: 0,
@@ -157,7 +157,7 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'A2',
-		cost: 15,
+		cost: 9,
 		effect: [
 			{
 				stats: (stats) => ({
@@ -187,11 +187,11 @@ export const INITIAL_UPGRADES = () => [
 	}),
 	createUpgrade({
 		id: 'A3',
-		cost: 15,
+		cost: 7,
 		effect: [
 			{
 				stats: (stats) => ({
-					mouseAttackDamage: stats.mouseAttackDamage + 3,
+					mouseAttackDamage: stats.mouseAttackDamage + 2,
 				}),
 			},
 		],
@@ -323,7 +323,7 @@ export const INITIAL_UPGRADES = () => [
 		effect: [
 			{
 				stats: (stats) => ({
-					bulletAmmoPrice: stats.bulletAmmoPrice - 0.15,
+					bulletAmmoPrice: stats.bulletAmmoPrice - 0.1,
 				}),
 			},
 		],

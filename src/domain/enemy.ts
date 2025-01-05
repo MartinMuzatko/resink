@@ -28,6 +28,7 @@ export type Enemy = Identifier &
 		attackDamage: number
 		attackSpeed: number
 		lastAttackDealtTime: number
+		lastMovementTime: number
 		health: number
 		maxHealth: number
 		rotation: number
@@ -93,12 +94,12 @@ const addWobbleMovePattern = (
 export const moveEnemy = (
 	enemy: Enemy,
 	upgrades: Upgrade[],
-	deltaTime: number,
 	timePassed: number
 ) => {
 	const currentTarget = upgrades.find((u) => u.id == enemy.target)!
 	const target = currentTarget.active ? currentTarget : findTarget(upgrades)
 	const distance = getDistance(enemy, target)
+	const deltaTime = timePassed - enemy.lastMovementTime
 	const newPosition = lerpPosition(
 		enemy,
 		{
@@ -116,6 +117,7 @@ export const moveEnemy = (
 	return {
 		...enemy,
 		...position,
+		lastMovementTime: timePassed,
 		rotation: getVectorAngleDegrees(normalizeVector(vector)),
 		target: target.id,
 	}
@@ -132,6 +134,7 @@ export const createEnemy = (enemy: Partial<Enemy>): Enemy => ({
 	health: 1,
 	maxHealth: 1,
 	lastAttackDealtTime: 0,
+	lastMovementTime: 0,
 	target: 'none',
 	rotation: 0,
 	type: EnemyType.straight,
@@ -157,7 +160,8 @@ export const spawnEnemies = (
 	amountEnemies: number,
 	waveState: WaveState,
 	wave: number,
-	spawnArea: Area
+	spawnArea: Area,
+	timePassed: number
 ) =>
 	waveState == WaveState.ongoing && enemies.length < amountEnemies
 		? [
@@ -170,14 +174,15 @@ export const spawnEnemies = (
 					target: findTarget(upgrades).id,
 					attackSpeed: 2000,
 					attackDamage: 1 + Math.floor(wave / 3),
+					lastMovementTime: timePassed,
 					...(Math.random() > 0.9
 						? {
 								type: EnemyType.wobbler,
-								movementSpeed: 0.0011,
+								movementSpeed: 0.001,
 						  }
 						: {
 								type: EnemyType.straight,
-								movementSpeed: 0.0015,
+								movementSpeed: 0.0005,
 						  }),
 					size: 0.25,
 					health: 1 + Math.ceil(wave / 3),
