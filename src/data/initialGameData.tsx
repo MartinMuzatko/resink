@@ -94,7 +94,14 @@ export const INITIAL_UPGRADES = () => [
 		// 		/> */}
 		// 	</div>
 		// ),
-		effect: [],
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'M',
+				stats: (stats) => ({
+					upgradeHealth: stats.upgradeHealth + 10,
+				}),
+			},
+		],
 		icon: <GiBarracks className="w-full h-full" />,
 		x: 0,
 		y: 0,

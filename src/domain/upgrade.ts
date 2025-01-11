@@ -253,6 +253,7 @@ export const toggleActivation = (
 }
 
 export const getHealth = (upgrade: Upgrade, stats: StatsEffectResult) =>
+	// TODO: Fix so that motor comes from its own effect
 	upgrade.type == UpgradeType.motor
 		? Math.min(
 				upgrade.health,
@@ -264,9 +265,7 @@ export const getHealth = (upgrade: Upgrade, stats: StatsEffectResult) =>
 		  )
 
 export const getMaxHealth = (upgrade: Upgrade, stats: StatsEffectResult) =>
-	upgrade.type == UpgradeType.motor
-		? stats.upgradeStats.get(upgrade.id)!.upgradeHealth + 9
-		: stats.upgradeStats.get(upgrade.id)!.upgradeHealth
+	stats.upgradeStats.get(upgrade.id)!.upgradeHealth
 
 export const updateUpgradeDamage = (
 	upgradesToTakeDamage: UpgradeDamageUpdate[],

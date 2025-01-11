@@ -21,6 +21,9 @@ export const BulletMeter = ({
 	power,
 	setPower,
 }: BulletMeterProps) => {
+	const canAfford = Math.round(power * stats.globalStats.bulletAmmoPrice)
+	// const toSpend =
+	const maxAfford = stats.globalStats.bulletMaxAmmo
 	const toSpend = Math.ceil(
 		clamp(
 			0,

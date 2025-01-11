@@ -308,7 +308,7 @@ export const Stage = memo(() => {
 			setWave((wave) => wave + 1)
 		}
 
-		// clean up indicators
+		// move and clean up indicators
 		setDamageIndicators((damageIndicators) =>
 			damageIndicators
 				.filter(
@@ -322,10 +322,24 @@ export const Stage = memo(() => {
 		)
 		// update upgrade health on enemy attack
 		setUpgrades((prevUpgrades) => {
+			// TODO: reduce damage indicators and better integrate with damage dealt and updates
 			const upgradesToTakeDamage = prevUpgrades
 				.map((upgrade) => damageUpgrade(upgrade, enemies, timePassed))
 				.filter((u) => u.damage !== 0)
-
+			setDamageIndicators((damageIndicators) => [
+				...damageIndicators,
+				...upgradesToTakeDamage.map((damage) =>
+					createDamageIndicator({
+						createdTime: timePassed,
+						className: 'text-red-600',
+						value: damage.damage,
+						origin: {
+							x: damage.upgrade.x,
+							y: damage.upgrade.y,
+						},
+					})
+				),
+			])
 			const enemyIdsThatDealDamage = [
 				...new Set(
 					upgradesToTakeDamage.flatMap((u) =>

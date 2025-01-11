@@ -296,6 +296,71 @@ test('display stats', () => {
 	})
 })
 
+test.only('display stats for purchased upgrades', () => {
+	const upgradeA = createUpgrade({
+		active: true,
+		id: 'A',
+		effect: [
+			{
+				stats: (stats) => ({
+					upgradeArmor: stats.upgradeArmor + 1,
+				}),
+			},
+			{
+				stats: (stats) => ({
+					upgradeArmor: stats.upgradeArmor + 1,
+				}),
+			},
+		],
+	})
+	const upgradeB = createUpgrade({
+		active: true,
+		id: 'B',
+		effect: [
+			{
+				filter: (upgrade) => upgrade.id === 'A',
+				stats: (stats) => ({
+					upgradeArmor: stats.upgradeArmor + 3,
+				}),
+			},
+			{
+				stats: (stats) => ({
+					upgradeArmor: stats.upgradeArmor + 1,
+				}),
+			},
+		],
+	})
+	const stats = getActiveStats([upgradeA, upgradeB], [], {
+		...INITIAL_STATS,
+	})
+	const x = getUpgradeDisplayStats(
+		upgradeB,
+		[upgradeA, upgradeB],
+		[],
+		{
+			...INITIAL_STATS,
+		},
+		stats
+	)
+	const blankStats = diffStats(INITIAL_STATS, INITIAL_STATS)
+
+	expect(x).toStrictEqual({
+		globalStats: {
+			...blankStats,
+			upgradeArmor: 1,
+		},
+		upgradeStats: new Map([
+			[
+				'A',
+				{
+					...blankStats,
+					upgradeArmor: 4,
+				},
+			],
+		]),
+	})
+})
+
 test('merge stats', () => {
 	const result = mergeStats(
 		{ ...INITIAL_STATS, mouseSize: 1 },
